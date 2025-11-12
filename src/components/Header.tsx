@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Code2, BookOpen, Archive } from "lucide-react";
+import { Code2, BookOpen, Archive, Guitar, User } from "lucide-react";
 
 export const Header = () => {
   const location = useLocation();
@@ -42,7 +42,17 @@ export const Header = () => {
             rel="noopener noreferrer"
             className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
           >
+            <User className="w-4 h-4" />
             arda.tr
+          </a>
+          <a
+            href="https://pagan.tr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+          >
+            <Guitar className="w-4 h-4" />
+            pagan.tr
           </a>
         </div>
       </nav>
