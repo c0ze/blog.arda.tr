@@ -64,7 +64,7 @@ if (!fs.existsSync(contentDir)) {
 }
 
 // Write the file
-const filename = `${slug}.md`;
+const filename = `${date}-${slug}.md`;
 const filepath = path.join(contentDir, filename);
 
 if (fs.existsSync(filepath)) {
