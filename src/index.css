@@ -1,7 +1,7 @@
+@import "prism-themes/themes/prism-one-dark.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "prism-themes/themes/prism-one-dark.css";
 
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
 All colors MUST be HSL.
