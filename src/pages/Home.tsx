@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { PostCard } from "@/components/PostCard";
 import { Button } from "@/components/ui/button";
 import { blogPosts } from "@/data/blogPosts";
@@ -11,7 +12,7 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 text-center animate-fade-in">
         <div className="flex items-center justify-center gap-2 mb-4">
@@ -22,7 +23,7 @@ const Home = () => {
           Coze
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-          Exploring programming languages, frameworks, design patterns, and more. 
+          Exploring programming languages, frameworks, design patterns, and more.
           A place where I share my journey through Go, AWS, DevOps, and modern web technologies.
         </p>
         <div className="flex gap-4 justify-center">
@@ -63,13 +64,15 @@ const Home = () => {
         <div className="max-w-3xl mx-auto text-center">
           <h2 className="text-3xl font-bold mb-4">About This Blog</h2>
           <p className="text-muted-foreground leading-relaxed">
-            This blog is a collection of technical articles, tutorials, and insights 
-            from my experience as a software developer. I focus on practical solutions 
-            to real-world problems, covering topics like Go programming, cloud infrastructure, 
+            This blog is a collection of technical articles, tutorials, and insights
+            from my experience as a software developer. I focus on practical solutions
+            to real-world problems, covering topics like Go programming, cloud infrastructure,
             DevOps practices, and modern web development.
           </p>
         </div>
       </section>
+
+      <Footer />
     </div>
   );
 };

@@ -1,42 +1,43 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { PostCard } from "@/components/PostCard";
 import { TagFilter } from "@/components/TagFilter";
 import { blogPosts, getPostsByTag } from "@/data/blogPosts";
 
 const Blog = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  
-  const filteredPosts = selectedTag 
+
+  const filteredPosts = selectedTag
     ? getPostsByTag(selectedTag)
     : blogPosts;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-16">
         <div className="mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Blog Posts</h1>
           <p className="text-xl text-muted-foreground">
-            {selectedTag 
-              ? `Posts tagged with #${selectedTag}` 
+            {selectedTag
+              ? `Posts tagged with #${selectedTag}`
               : `All posts (${blogPosts.length})`
             }
           </p>
         </div>
 
         <div className="animate-slide-up">
-          <TagFilter 
-            selectedTag={selectedTag} 
-            onTagSelect={setSelectedTag} 
+          <TagFilter
+            selectedTag={selectedTag}
+            onTagSelect={setSelectedTag}
           />
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPosts.map((post, index) => (
-            <div 
-              key={post.id} 
+            <div
+              key={post.id}
               className="animate-fade-in"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
@@ -53,6 +54,8 @@ const Blog = () => {
           </div>
         )}
       </main>
+
+      <Footer />
     </div>
   );
 };
