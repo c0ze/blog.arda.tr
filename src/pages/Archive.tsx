@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { blogPosts } from "@/data/blogPosts";
 import { Calendar } from "lucide-react";
 
@@ -19,7 +20,7 @@ const Archive = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <main className="container mx-auto px-4 py-16 max-w-4xl">
         <div className="mb-12 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">Archive</h1>
@@ -62,6 +63,7 @@ const Archive = () => {
           ))}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };

@@ -5,6 +5,7 @@ import rehypeRaw from "rehype-raw";
 import rehypePrism from "rehype-prism-plus";
 import Gist from "react-embed";
 import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPostBySlug } from "@/data/blogPosts";
@@ -63,7 +64,7 @@ const BlogPost = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
+
       <article className="container mx-auto px-4 py-16 max-w-4xl">
         <Link to="/blog">
           <Button variant="ghost" className="gap-2 mb-8 group">
@@ -144,6 +145,7 @@ const BlogPost = () => {
           </Link>
         </div>
       </article>
+      <Footer />
     </div>
   );
 };
