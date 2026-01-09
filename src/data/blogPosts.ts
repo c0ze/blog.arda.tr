@@ -14,11 +14,13 @@ export interface BlogPost {
   content: string;
   tags: string[];
   slug: string;
+  keywords?: string;
+  description?: string;
 }
 
 // Import all markdown files from content/blog
-const modules = import.meta.glob('/content/blog/*.md', { 
-  eager: true, 
+const modules = import.meta.glob('/content/blog/*.md', {
+  eager: true,
   query: '?raw',
   import: 'default'
 });
@@ -27,10 +29,10 @@ const modules = import.meta.glob('/content/blog/*.md', {
 export const blogPosts: BlogPost[] = Object.entries(modules).map(([filepath, content]) => {
   const filename = filepath.split('/').pop() || '';
   const slug = filename.replace('.md', '');
-  
+
   // Parse frontmatter and content
   const { data, content: markdownContent } = matter(content as string);
-  
+
   // Format date
   const date = new Date(data.date);
   const formattedDate = date.toLocaleDateString('en-US', {
@@ -38,7 +40,7 @@ export const blogPosts: BlogPost[] = Object.entries(modules).map(([filepath, con
     month: 'long',
     day: 'numeric'
   });
-  
+
   return {
     id: slug,
     slug,
@@ -46,7 +48,9 @@ export const blogPosts: BlogPost[] = Object.entries(modules).map(([filepath, con
     date: formattedDate,
     excerpt: data.excerpt || '',
     tags: data.tags || [],
-    content: markdownContent
+    content: markdownContent,
+    keywords: data.keywords,
+    description: data.description
   };
 }).sort((a, b) => {
   // Sort by date, newest first
