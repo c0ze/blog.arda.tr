@@ -49,7 +49,7 @@ Well, after all that trouble, it wouldn't make sense to hold this back. So I mad
 
 # The Design
 
-I am not a designer, so this was totally unexplored territory for me. I created basic AI images before but just for fun. So it was intimidating, but I went about it with Gemini's assistance. We created the characters (`talciron.d` is based on me, well, me of 15 years ago let's say, `Ophelia` is purely AI generated), cover design, Bandcamp page and header, and some extra stuff to use as extra art.
+I am not a designer, so this was totally unexplored territory for me. I created basic AI images before but just for fun. So it was intimidating, but I went about it with Gemini's assistance. We created the characters (`talciron.d` is based on me, well, me of 15 years ago let's say, `Ophelia.wrl` is purely AI generated), cover design, Bandcamp page and header, and some extra stuff to use as extra art.
 
 # Disclaimer
 

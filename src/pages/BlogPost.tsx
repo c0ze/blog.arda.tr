@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
@@ -14,6 +15,34 @@ import { Calendar, ArrowLeft } from "lucide-react";
 const BlogPost = () => {
   const { slug } = useParams();
   const post = slug ? getPostBySlug(slug) : undefined;
+
+  // Inject SEO meta tags into <head>
+  useEffect(() => {
+    if (!post) return;
+
+    const metaTags: HTMLMetaElement[] = [];
+
+    if (post.keywords) {
+      const keywordsMeta = document.createElement('meta');
+      keywordsMeta.name = 'keywords';
+      keywordsMeta.content = post.keywords;
+      document.head.appendChild(keywordsMeta);
+      metaTags.push(keywordsMeta);
+    }
+
+    if (post.description) {
+      const descriptionMeta = document.createElement('meta');
+      descriptionMeta.name = 'description';
+      descriptionMeta.content = post.description;
+      document.head.appendChild(descriptionMeta);
+      metaTags.push(descriptionMeta);
+    }
+
+    // Cleanup on unmount or post change
+    return () => {
+      metaTags.forEach(tag => tag.remove());
+    };
+  }, [post]);
 
   if (!post) {
     return (
