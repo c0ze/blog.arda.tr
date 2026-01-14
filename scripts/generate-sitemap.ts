@@ -20,13 +20,11 @@ const staticRoutes = [
 /**
  * Extract slug from blog post filename.
  * Filename format: YYYY-MM-DD-slug-name.md
- * Returns: slug-name (without date prefix)
+ * Returns: YYYY-MM-DD-slug-name (keeping date prefix to match blog routing)
  */
 function extractSlugFromFilename(filename: string): string {
-    // Remove .md extension and date prefix (YYYY-MM-DD-)
-    const withoutExt = filename.replace(/\.md$/, '');
-    const withoutDate = withoutExt.replace(/^\d{4}-\d{2}-\d{2}-/, '');
-    return withoutDate;
+    // Remove .md extension only, keep date prefix to match blogPosts.ts slug generation
+    return filename.replace(/\.md$/, '');
 }
 
 /**
