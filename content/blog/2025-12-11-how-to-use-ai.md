@@ -3,6 +3,8 @@ title: "How to use AI"
 date: "2025-12-11"
 excerpt: "A couple of examples of how AI can assist you in setting up your environment"
 tags: ["geek"]
+keywords: "Gemini AI assistant, ChatGPT comparison, AI for decisions, audio setup AI, PC upgrade advice, domain valuation AI"
+description: "Real examples of using Gemini AI for purchasing decisions: audiophile setups, PC upgrades, and domain valuation strategies."
 ---
 
 In this post I will share some examples of how I used AI (specifically Gemini) to assist in my purchasing decisions. And generally how I came up with a better setup for my environment. I will also compare with ChatGPT in a couple of cases.

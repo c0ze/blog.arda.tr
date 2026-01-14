@@ -5,6 +5,8 @@ date: "2016-03-15"
 comments: true
 tags: [geek]
 draft: false
+keywords: "OxygenOS, OnePlus One, Android battery life, OxygenOS vs Cyanogen, OPO ROM, Android custom ROM"
+description: "Amazing battery life on OxygenOS 2.1.4 for OnePlus One - why I switched from CyanogenMod and never looked back."
 ---
 
 I have been getting stability issues with Cyanogen on my OPO lately, so I decided to give OnePlus's native [OxygenOS](https://oneplus.net/2/oxygenos) a whirl.

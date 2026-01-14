@@ -5,6 +5,8 @@ date: "2015-10-03"
 comments: true
 tags: [dev]
 draft: false
+keywords: "GitLab CI, S3 apt repository, deb-s3, Go cross-compile, Raspberry Pi deployment, Docker CI, goxc, DevOps"
+description: "Complete GitLab CI setup for Go: cross-compiling for ARM, building Debian packages, and deploying to S3 as an apt repository."
 ---
 
 We're fervent supporters of Gitlab in our company, and [when they rolled out a new CI module](https://about.gitlab.com/2015/09/22/gitlab-8-0-released/), we immediately jumped in to see how

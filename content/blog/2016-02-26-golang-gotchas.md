@@ -5,6 +5,8 @@ date: "2016-02-26"
 comments: true
 tags: [dev]
 draft: false
+keywords: "Golang, Go programming, Go gotchas, Go concurrency, Go generics, Go interface, Go dependency management, Go tips"
+description: "8 Golang gotchas every developer should know: dependency management, cyclic imports, generics, polymorphism, and awesome concurrency patterns."
 ---
 
 I've been playing around with golang lately, and got to know its intricacies better.

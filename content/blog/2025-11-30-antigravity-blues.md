@@ -3,6 +3,8 @@ title: "Antigravity blues ..."
 date: "2025-11-30"
 excerpt: "Opinions about the new Antigravity IDE"
 tags: ["dev"]
+keywords: "Antigravity IDE, Gemini 3, Claude Sonnet 4.5, AI coding assistant, VS Code fork, Google AI IDE, code editing issues"
+description: "First impressions of Antigravity IDE and Gemini 3: great AI model marred by file editing bugs that corrupt codebases."
 ---
 
 So Google has released Gemini3 and Antigravity IDE last week with big fan fair. And I have been using both for the past week. I have ... mixed opinions.
