@@ -21,6 +21,7 @@ const BlogPost = () => {
     if (!post) return;
 
     const metaTags: HTMLMetaElement[] = [];
+    const scripts: HTMLScriptElement[] = [];
 
     if (post.keywords) {
       const keywordsMeta = document.createElement('meta');
@@ -38,9 +39,41 @@ const BlogPost = () => {
       metaTags.push(descriptionMeta);
     }
 
+    // Add BlogPosting JSON-LD schema
+    const jsonLd = document.createElement('script');
+    jsonLd.type = 'application/ld+json';
+    jsonLd.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": post.title,
+      "description": post.description || post.excerpt,
+      "datePublished": post.date,
+      "author": {
+        "@type": "Person",
+        "name": "Coze",
+        "url": "https://blog.arda.tr"
+      },
+      "publisher": {
+        "@type": "Person",
+        "name": "Coze"
+      },
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `https://blog.arda.tr/blog/${post.slug}`
+      },
+      "keywords": post.keywords
+    });
+    document.head.appendChild(jsonLd);
+    scripts.push(jsonLd);
+
+    // Update document title
+    document.title = `${post.title} - Coze`;
+
     // Cleanup on unmount or post change
     return () => {
       metaTags.forEach(tag => tag.remove());
+      scripts.forEach(script => script.remove());
+      document.title = 'Coze - Software Development Journey';
     };
   }, [post]);
 
