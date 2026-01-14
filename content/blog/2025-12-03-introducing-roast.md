@@ -3,6 +3,8 @@ title: "Introducing Roast"
 date: "2025-12-03"
 excerpt: "Introducing a simple command line tool to roast your diffs by a cynical senior dev"
 tags: ["dev"]
+keywords: "git roast, AI code review, Gemini API CLI, LM Studio, code roast tool, Go CLI, developer tools, code review bot"
+description: "Introducing Roast: a Go CLI tool that uses AI to roast your git diffs like a cynical senior developer using Gemini or local LLMs."
 ---
 
 I've been working on a new project called [Roast](https://github.com/c0ze/git-roast) 

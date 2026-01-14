@@ -3,6 +3,8 @@ title: "Introducing The Seventh Shadow"
 date: "2025-12-10"
 excerpt: "AI slop against AI slop in the age of generative degeneration"
 tags: ["music"]
+keywords: "The Seventh Shadow, AI music project, Suno AI, gothic industrial metal, Alienation by Design, Gemini mixing, LANDR mastering"
+description: "Introducing The Seventh Shadow: a gothic-industrial metal project created with Suno AI and Gemini, complete with mixing and LANDR mastering."
 ---
 
 # The First Spark

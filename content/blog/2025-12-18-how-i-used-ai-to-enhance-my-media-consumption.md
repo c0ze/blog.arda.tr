@@ -3,6 +3,8 @@ title: "How I used AI to enhance my media consumption"
 date: "2025-12-18"
 excerpt: "Exquisite men have exquisite tastes"
 tags: ["geek"]
+keywords: "Audeze Maxwell, Yamaha HS7, MOTU Ultralite, Dolby Atmos, mpc-hc madVR, Audiobookshelf, home audio setup"
+description: "Upgrading my audio/video setup with AI guidance: Yamaha monitors, Audeze headphones, Dolby Atmos, and Audiobookshelf for audiobooks."
 ---
 
 Over the course of last week, I did some upgrades to my media consumption setup. I will document it here.

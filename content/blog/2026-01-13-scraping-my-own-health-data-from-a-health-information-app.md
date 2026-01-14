@@ -3,6 +3,8 @@ title: "Scraping (my own) health data from a health information app"
 date: "2026-01-13"
 excerpt: "How I bypassed SSL pinning and split APK restrictions to liberate my medical records from a closed mobile ecosystem."
 tags: ["dev"]
+keywords: "APK patching, SSL pinning bypass, health data export, Go web scraper, ADB split APK, MITM proxy, goquery, personal data liberation"
+description: "Bypassing SSL pinning and split APKs to scrape personal health data: APK patching, MITM interception, and Go scraping."
 ---
 
 In an era where companies treat your personal health data as their private property, sometimes you have to reach for the digital scalpel. I recently encountered a "health" app that offered no export function, effectively holding my own medical history hostage behind a mobile WebView. This is the chronicle of how I liberated that data.

@@ -3,6 +3,8 @@ title: "How I used AI to enhance my home network"
 date: "2025-12-18"
 excerpt: ""
 tags: ["geek"]
+keywords: "AdGuard Home, Tailscale VPN, self-hosted DNS, network ad blocking, home network setup, NAS DNS server, Magic DNS"
+description: "Setting up AdGuard Home and Tailscale with AI assistance: self-hosted DNS, network-wide ad blocking, and secure remote access."
 ---
 
 In this post I will document how I transformed my home network with the help of Gemini.

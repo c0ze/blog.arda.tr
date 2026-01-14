@@ -3,6 +3,8 @@ title: "Using LLM to transcribe image to text"
 date: "2025-12-05"
 excerpt: "How I used a local Qwen model to transcribe image to text"
 tags: ["dev"]
+keywords: "LLM OCR, Qwen2-VL, vLLM, PGS subtitles, Japanese OCR, image to text, local LLM, subtitle transcription"
+description: "Using Qwen2-VL with vLLM to transcribe PGS image subtitles to text: outperforming Tesseract OCR for multilingual content."
 ---
 
 ## The Problem

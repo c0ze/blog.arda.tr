@@ -3,6 +3,8 @@ title: "AI resume bot"
 date: "2025-11-23"
 excerpt: "created an AI resume bot which uses gemini api"
 tags: ["dev"]
+keywords: "AI resume chatbot, Gemini API, GCP Cloud Run, interactive resume, Chainlit, Python chatbot, GitHub Pages"
+description: "Building an AI-powered interactive resume chatbot using Gemini API with GCP Cloud Run backend and GitHub Pages frontend."
 ---
 
 Today I saw [this post](https://medium.com/data-science-collective/turning-your-resume-into-an-interactive-ai-chatbot-using-chainlit-semantic-kernel-f83d762aa303) about a resume bot which seemed interesting, and was something I was thinking to try.
