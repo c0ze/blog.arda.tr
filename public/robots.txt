@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://blog.arda.tr/sitemap.xml
+
 User-agent: GPTBot
 Allow: /
 
