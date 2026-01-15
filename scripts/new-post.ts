@@ -34,6 +34,8 @@ title: "${title}"
 date: "${date}"
 excerpt: "Add a brief description of your post here"
 tags: ["tag1", "tag2"]
+keywords: "keyword1, keyword2, keyword3"
+description: "A brief SEO description of your post"
 ---
 
 Write your post content here. You can use markdown formatting.
