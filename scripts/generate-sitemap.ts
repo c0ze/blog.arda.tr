@@ -13,8 +13,6 @@ const OUTPUT_FILE = path.join(__dirname, '..', 'dist', 'sitemap.xml');
 // Static routes (non-blog pages)
 const staticRoutes = [
     { path: '/', priority: '1.0', changefreq: 'weekly' },
-    { path: '/about', priority: '0.8', changefreq: 'monthly' },
-    { path: '/music', priority: '0.8', changefreq: 'weekly' },
 ];
 
 /**
