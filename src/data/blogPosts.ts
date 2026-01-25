@@ -16,6 +16,7 @@ export interface BlogPost {
   slug: string;
   keywords?: string;
   description?: string;
+  author?: string;
 }
 
 // Import all markdown files from content/blog
@@ -50,7 +51,8 @@ export const blogPosts: BlogPost[] = Object.entries(modules).map(([filepath, con
     tags: data.tags || [],
     content: markdownContent,
     keywords: data.keywords,
-    description: data.description
+    description: data.description,
+    author: data.author || '',
   };
 }).sort((a, b) => {
   // Sort by date, newest first
