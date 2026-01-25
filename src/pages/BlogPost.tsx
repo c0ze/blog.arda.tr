@@ -10,7 +10,7 @@ import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPostBySlug } from "@/data/blogPosts";
-import { Calendar, ArrowLeft } from "lucide-react";
+import { Calendar, ArrowLeft, User } from "lucide-react";
 
 const BlogPost = () => {
   const { slug } = useParams();
@@ -136,9 +136,17 @@ const BlogPost = () => {
         </Link>
 
         <div className="animate-fade-in">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Calendar className="w-4 h-4" />
-            <time>{post.date}</time>
+          <div className="flex items-center gap-6 text-sm text-muted-foreground mb-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" />
+              <time>{post.date}</time>
+            </div>
+            {post.author && (
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4" />
+                <span>{post.author}</span>
+              </div>
+            )}
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
