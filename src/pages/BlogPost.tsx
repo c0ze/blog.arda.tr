@@ -166,7 +166,7 @@ const BlogPost = () => {
           </div>
         </div>
 
-        <div className="prose prose-invert prose-lg max-w-none animate-slide-up">
+        <div className="prose dark:prose-invert prose-lg max-w-none animate-slide-up">
           {post.excerpt && (
             <div className="bg-card border border-border rounded-lg p-8 mb-8">
               <p className="text-lg leading-relaxed text-muted-foreground mb-6">
@@ -175,7 +175,7 @@ const BlogPost = () => {
             </div>
           )}
 
-          <div className="prose prose-invert prose-lg max-w-none space-y-6 text-foreground leading-relaxed">
+          <div className="prose dark:prose-invert prose-lg max-w-none space-y-6 text-foreground leading-relaxed">
             <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw, rehypePrism]}
