@@ -11,9 +11,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getPostBySlug, getAdjacentPosts } from "@/data/blogPosts";
 import { Calendar, ArrowLeft, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTheme } from "next-themes";
 
 const BlogPost = () => {
   const { slug } = useParams();
+  const { theme } = useTheme();
   const post = slug ? getPostBySlug(slug) : undefined;
   const { previous, next } = slug ? getAdjacentPosts(slug) : { previous: undefined, next: undefined };
 
@@ -167,7 +169,7 @@ const BlogPost = () => {
           </div>
         </div>
 
-        <div className="prose dark:prose-invert prose-lg max-w-none animate-slide-up">
+        <div className={`prose dark:prose-invert ${theme === 'dracula' ? 'prose-invert' : ''} prose-lg max-w-none animate-slide-up`}>
           {post.excerpt && (
             <div className="bg-card border border-border rounded-lg p-8 mb-8">
               <p className="text-lg leading-relaxed text-muted-foreground mb-6">
@@ -176,7 +178,7 @@ const BlogPost = () => {
             </div>
           )}
 
-          <div className="prose dark:prose-invert prose-lg max-w-none space-y-6 text-foreground leading-relaxed">
+          <div className={`prose dark:prose-invert ${theme === 'dracula' ? 'prose-invert' : ''} prose-lg max-w-none space-y-6 text-foreground leading-relaxed`}>
             <Markdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw, rehypePrism]}
@@ -210,39 +212,39 @@ const BlogPost = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-16 pt-8 border-t border-border">
           {next ? (
             <Link to={`/blog/${next.slug}`} className="w-full md:w-auto">
-              <Button variant="outline" className="w-full gap-2 group h-auto py-4 px-6 text-left flex justify-start items-center">
+              <Button variant="outline" className="w-full gap-2 group h-auto py-3 px-4 md:py-4 md:px-6 text-left flex justify-start items-center">
                 <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
                 <div className="flex flex-col gap-1 overflow-hidden">
                   <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Next</span>
-                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium">{next.title}</span>
+                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium text-sm md:text-base">{next.title}</span>
                 </div>
               </Button>
             </Link>
           ) : (
-            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-4 px-6 justify-start">
+            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-3 px-4 md:py-4 md:px-6 justify-start">
               <ChevronLeft className="w-4 h-4 shrink-0" />
               <div className="flex flex-col gap-1 text-left">
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Next</span>
-                <span className="font-medium text-muted-foreground">Newest Post</span>
+                <span className="font-medium text-muted-foreground text-sm md:text-base">Newest Post</span>
               </div>
             </Button>
           )}
 
           {previous ? (
             <Link to={`/blog/${previous.slug}`} className="w-full md:w-auto">
-              <Button variant="outline" className="w-full gap-2 group h-auto py-4 px-6 text-right flex justify-end items-center">
+              <Button variant="outline" className="w-full gap-2 group h-auto py-3 px-4 md:py-4 md:px-6 text-right flex justify-end items-center">
                 <div className="flex flex-col gap-1 items-end overflow-hidden">
                   <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Previous</span>
-                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium">{previous.title}</span>
+                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium text-sm md:text-base">{previous.title}</span>
                 </div>
                 <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
               </Button>
             </Link>
           ) : (
-            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-4 px-6 justify-end">
+            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-3 px-4 md:py-4 md:px-6 justify-end">
               <div className="flex flex-col gap-1 text-right items-end">
                 <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Previous</span>
-                <span className="font-medium text-muted-foreground">Oldest Post</span>
+                <span className="font-medium text-muted-foreground text-sm md:text-base">Oldest Post</span>
               </div>
               <ChevronRight className="w-4 h-4 shrink-0" />
             </Button>
