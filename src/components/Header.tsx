@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Code2, BookOpen, Archive, Guitar, User } from "lucide-react";
+import { ThemeToggle } from "./ThemeToggle";
 
 export const Header = () => {
   const location = useLocation();
@@ -54,6 +55,7 @@ export const Header = () => {
             <Guitar className="w-4 h-4" />
             pagan.tr
           </a>
+          <ThemeToggle />
         </div>
       </nav>
     </header>
