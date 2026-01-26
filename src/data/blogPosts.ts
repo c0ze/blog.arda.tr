@@ -74,3 +74,19 @@ export const getPostsByTag = (tag: string): BlogPost[] => {
 export const getPostBySlug = (slug: string): BlogPost | undefined => {
   return blogPosts.find(post => post.slug === slug);
 };
+
+export const getAdjacentPosts = (slug: string): { previous?: BlogPost; next?: BlogPost } => {
+  const index = blogPosts.findIndex(post => post.slug === slug);
+
+  if (index === -1) {
+    return { previous: undefined, next: undefined };
+  }
+
+  // blogPosts is sorted by newest first
+  // index - 1 is newer (Next)
+  // index + 1 is older (Previous)
+  const next = index > 0 ? blogPosts[index - 1] : undefined;
+  const previous = index < blogPosts.length - 1 ? blogPosts[index + 1] : undefined;
+
+  return { previous, next };
+};

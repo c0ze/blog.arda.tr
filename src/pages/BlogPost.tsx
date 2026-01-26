@@ -9,12 +9,13 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getPostBySlug } from "@/data/blogPosts";
-import { Calendar, ArrowLeft, User } from "lucide-react";
+import { getPostBySlug, getAdjacentPosts } from "@/data/blogPosts";
+import { Calendar, ArrowLeft, User, ChevronLeft, ChevronRight } from "lucide-react";
 
 const BlogPost = () => {
   const { slug } = useParams();
   const post = slug ? getPostBySlug(slug) : undefined;
+  const { previous, next } = slug ? getAdjacentPosts(slug) : { previous: undefined, next: undefined };
 
   // Inject SEO meta tags into <head>
   useEffect(() => {
@@ -206,7 +207,49 @@ const BlogPost = () => {
           </div>
         </div>
 
-        <div className="mt-16 pt-8 border-t border-border">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 mt-16 pt-8 border-t border-border">
+          {next ? (
+            <Link to={`/blog/${next.slug}`} className="w-full md:w-auto">
+              <Button variant="outline" className="w-full gap-2 group h-auto py-4 px-6 text-left flex justify-start items-center">
+                <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform shrink-0" />
+                <div className="flex flex-col gap-1 overflow-hidden">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Next</span>
+                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium">{next.title}</span>
+                </div>
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-4 px-6 justify-start">
+              <ChevronLeft className="w-4 h-4 shrink-0" />
+              <div className="flex flex-col gap-1 text-left">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Next</span>
+                <span className="font-medium text-muted-foreground">Newest Post</span>
+              </div>
+            </Button>
+          )}
+
+          {previous ? (
+            <Link to={`/blog/${previous.slug}`} className="w-full md:w-auto">
+              <Button variant="outline" className="w-full gap-2 group h-auto py-4 px-6 text-right flex justify-end items-center">
+                <div className="flex flex-col gap-1 items-end overflow-hidden">
+                  <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Previous</span>
+                  <span className="truncate max-w-[200px] md:max-w-[300px] font-medium">{previous.title}</span>
+                </div>
+                <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform shrink-0" />
+              </Button>
+            </Link>
+          ) : (
+            <Button variant="outline" disabled className="w-full md:w-auto gap-2 opacity-50 cursor-not-allowed h-auto py-4 px-6 justify-end">
+              <div className="flex flex-col gap-1 text-right items-end">
+                <span className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Previous</span>
+                <span className="font-medium text-muted-foreground">Oldest Post</span>
+              </div>
+              <ChevronRight className="w-4 h-4 shrink-0" />
+            </Button>
+          )}
+        </div>
+
+        <div className="mt-8 flex justify-center">
           <Link to="/blog">
             <Button variant="outline" className="gap-2 group">
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
