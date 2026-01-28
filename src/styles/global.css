@@ -1,0 +1,143 @@
+@import "prismjs/themes/prism-tomorrow.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
+All colors MUST be HSL.
+*/
+
+@layer base {
+  /* Dark mode (default) - Dracula Pro Blade theme */
+  :root,
+  .dark {
+    --background: 168 15% 15%;
+    --foreground: 60 30% 96%;
+
+    --card: 168 15% 18%;
+    --card-foreground: 60 30% 96%;
+
+    --popover: 168 15% 18%;
+    --popover-foreground: 60 30% 96%;
+
+    --primary: 170 100% 75%;
+    --primary-foreground: 168 15% 15%;
+
+    --secondary: 168 15% 22%;
+    --secondary-foreground: 60 30% 96%;
+
+    --muted: 168 15% 22%;
+    --muted-foreground: 168 15% 55%;
+
+    --accent: 170 100% 75%;
+    --accent-foreground: 168 15% 15%;
+
+    --destructive: 10 100% 75%;
+    --destructive-foreground: 168 15% 15%;
+
+    --border: 168 15% 28%;
+    --input: 168 15% 28%;
+    --ring: 170 100% 75%;
+
+    --radius: 0.75rem;
+
+    /* Custom design tokens - Blade */
+    --gradient-primary: linear-gradient(135deg, hsl(170 100% 75%) 0%, hsl(115 100% 75%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(168 15% 18%) 0%, hsl(168 15% 21%) 100%);
+    --shadow-glow: 0 0 40px hsl(170 100% 75% / 0.15);
+    --shadow-card: 0 10px 30px -10px hsl(168 15% 15% / 0.4);
+  }
+
+  /* Light mode - Dracula Pro Alucard theme */
+  .light {
+    --background: 0 0% 96%;
+    --foreground: 0 0% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 12%;
+
+    --primary: 253 53% 54%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 240 18% 90%;
+    --secondary-foreground: 0 0% 12%;
+
+    --muted: 240 18% 90%;
+    --muted-foreground: 0 0% 40%;
+
+    --accent: 253 53% 54%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 6 67% 48%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 240 18% 84%;
+    --input: 240 18% 84%;
+    --ring: 253 53% 54%;
+
+    /* Custom design tokens - light mode (Alucard) */
+    --gradient-primary: linear-gradient(135deg, hsl(253 53% 54%) 0%, hsl(253 53% 64%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 18% 98%) 100%);
+    --shadow-glow: 0 0 40px hsl(253 53% 54% / 0.1);
+    --shadow-card: 0 10px 30px -10px hsl(0 0% 12% / 0.1);
+  }
+
+  /* Dracula Pro mode */
+  .dracula {
+    --background: 250 22% 10%;
+    --foreground: 60 30% 96%;
+
+    --card: 250 18% 14%;
+    --card-foreground: 60 30% 96%;
+
+    --popover: 250 18% 14%;
+    --popover-foreground: 60 30% 96%;
+
+    --primary: 265 89% 78%;
+    --primary-foreground: 250 22% 10%;
+
+    --secondary: 250 18% 18%;
+    --secondary-foreground: 60 30% 96%;
+
+    --muted: 250 18% 18%;
+    --muted-foreground: 225 27% 51%;
+
+    --accent: 265 89% 78%;
+    --accent-foreground: 250 22% 10%;
+
+    --destructive: 10 80% 76%;
+    --destructive-foreground: 250 22% 10%;
+
+    --border: 250 18% 24%;
+    --input: 250 18% 24%;
+    --ring: 265 89% 78%;
+
+    /* Custom design tokens - dracula */
+    --gradient-primary: linear-gradient(135deg, hsl(265 89% 78%) 0%, hsl(326 100% 74%) 100%);
+    --gradient-card: linear-gradient(135deg, hsl(250 18% 14%) 0%, hsl(250 18% 17%) 100%);
+    --shadow-glow: 0 0 40px hsl(265 89% 78% / 0.15);
+    --shadow-card: 0 10px 30px -10px hsl(250 22% 10% / 0.4);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  code, pre {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+}

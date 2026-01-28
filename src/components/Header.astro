@@ -1,0 +1,120 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const pathname = Astro.url.pathname;
+const isActive = (path: string) => pathname === path || pathname === path + '/';
+---
+
+<header class="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+  <nav class="container mx-auto px-4 py-4 flex items-center justify-between">
+    <a
+      href="/"
+      class="flex items-center gap-2 text-2xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
+    >
+      <svg class="w-8 h-8 text-primary" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="m18 16 4-4-4-4"/>
+        <path d="m6 8-4 4 4 4"/>
+        <path d="m14.5 4-5 16"/>
+      </svg>
+      Coze
+    </a>
+
+    <!-- Desktop Navigation -->
+    <div class="hidden md:flex items-center gap-6">
+      <a
+        href="/blog"
+        class={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${isActive('/blog') ? 'text-primary' : 'text-muted-foreground'}`}
+      >
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 7v14"/>
+          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
+        </svg>
+        Blog
+      </a>
+      <a
+        href="/archive"
+        class={`flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary ${isActive('/archive') ? 'text-primary' : 'text-muted-foreground'}`}
+      >
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect width="20" height="5" x="2" y="3" rx="1"/>
+          <path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/>
+          <path d="M10 12h4"/>
+        </svg>
+        Archive
+      </a>
+      <a
+        href="https://arda.tr"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+      >
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="8" r="5"/>
+          <path d="M20 21a8 8 0 0 0-16 0"/>
+        </svg>
+        arda.tr
+      </a>
+      <a
+        href="https://pagan.tr"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+      >
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11.7 16.7c.2-.6.4-1.2.5-1.8"/>
+          <path d="M3 6.8c.5-.3 1.1-.6 1.8-.8"/>
+          <path d="m14.3 6-5.6 5.7"/>
+          <path d="m12 19 .7-.7"/>
+          <path d="M18 4c-2 0-3.5 1-3.5 2.5 0 1.5 1 2 2 4 1 2 0 3.5-2.5 3.5"/>
+          <path d="M6 12c2 0 3.5 1 3.5 2.5s-1 2-2 4c-1 2 0 3.5 2.5 3.5"/>
+          <path d="M6 5.3C7.5 4 9 3.5 10.8 3.5c1.5 0 2.7.3 4.2 1"/>
+        </svg>
+        pagan.tr
+      </a>
+      <ThemeToggle />
+    </div>
+
+    <!-- Mobile Navigation -->
+    <div class="flex items-center gap-2 md:hidden">
+      <ThemeToggle />
+      <button
+        id="mobile-menu-button"
+        class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-accent transition-colors"
+        aria-label="Toggle menu"
+      >
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" x2="20" y1="12" y2="12"/>
+          <line x1="4" x2="20" y1="6" y2="6"/>
+          <line x1="4" x2="20" y1="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-card">
+    <div class="container mx-auto px-4 py-4 flex flex-col gap-4">
+      <a href="/blog" class="flex items-center gap-2 text-sm font-medium py-2 hover:text-primary">
+        Blog
+      </a>
+      <a href="/archive" class="flex items-center gap-2 text-sm font-medium py-2 hover:text-primary">
+        Archive
+      </a>
+      <a href="https://arda.tr" target="_blank" class="flex items-center gap-2 text-sm font-medium py-2 hover:text-primary">
+        arda.tr
+      </a>
+      <a href="https://pagan.tr" target="_blank" class="flex items-center gap-2 text-sm font-medium py-2 hover:text-primary">
+        pagan.tr
+      </a>
+    </div>
+  </div>
+</header>
+
+<script>
+  const button = document.getElementById('mobile-menu-button');
+  const menu = document.getElementById('mobile-menu');
+
+  button?.addEventListener('click', () => {
+    menu?.classList.toggle('hidden');
+  });
+</script>
