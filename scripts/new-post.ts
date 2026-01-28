@@ -2,6 +2,15 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
+import { execSync } from 'child_process';
+
+// Get git user name for author field
+let gitAuthor = '';
+try {
+  gitAuthor = execSync('git config user.name', { encoding: 'utf-8' }).trim();
+} catch {
+  gitAuthor = '';
+}
 
 const args = process.argv.slice(2);
 const title = args.join(' ');
@@ -36,6 +45,7 @@ excerpt: "Add a brief description of your post here"
 tags: ["tag1", "tag2"]
 keywords: "keyword1, keyword2, keyword3"
 description: "A brief SEO description of your post"
+author: "${gitAuthor}"
 ---
 
 Write your post content here. You can use markdown formatting.
