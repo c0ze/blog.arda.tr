@@ -5,6 +5,7 @@ excerpt: "Official Claude tools feel magical compared to third-party integration
 tags: ["ai", "dev"]
 keywords: "claude, anthropic, cursor, copilot, gemini, ai coding, llm, tokens, context window"
 description: "Why official Claude tools outperform third-party integrations, and the hidden token cost behind that magic."
+author: "Arda Karaduman"
 ---
 
 I've been using AI coding assistants extensively—Claude, Gemini, GPT—through various providers like Cursor, Copilot, and Google's tools. They're good, but nothing special.
