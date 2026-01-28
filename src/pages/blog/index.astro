@@ -1,0 +1,92 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Get all unique tags
+const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags))].sort();
+---
+
+<BaseLayout title="Blog - Coze" description="All blog posts from Coze - Software Development Journey">
+  <section class="container mx-auto px-4 py-16">
+    <div class="mb-12 animate-fade-in">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+        Blog Posts
+      </h1>
+      <p class="text-lg text-muted-foreground max-w-2xl">
+        Thoughts, tutorials, and insights about software development, Go, AWS, DevOps, and more.
+      </p>
+    </div>
+
+    <!-- Tag Filter -->
+    <div class="mb-8">
+      <div class="flex flex-wrap gap-2" id="tag-filters">
+        <button
+          class="tag-filter active inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors"
+          data-tag="all"
+        >
+          All
+        </button>
+        {allTags.map((tag) => (
+          <button
+            class="tag-filter inline-flex items-center rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+            data-tag={tag}
+          >
+            #{tag}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="posts-grid">
+      {sortedPosts.map((post, index) => (
+        <div
+          class="post-item"
+          data-tags={post.data.tags.join(',')}
+          style={`animation-delay: ${index * 0.05}s`}
+        >
+          <PostCard
+            slug={post.id}
+            title={post.data.title}
+            date={post.data.date}
+            excerpt={post.data.excerpt}
+            tags={post.data.tags}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const tagButtons = document.querySelectorAll('.tag-filter');
+  const postItems = document.querySelectorAll('.post-item');
+
+  tagButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      const tag = button.getAttribute('data-tag');
+
+      // Update active state
+      tagButtons.forEach(btn => {
+        btn.classList.remove('active', 'bg-primary', 'text-primary-foreground');
+        btn.classList.add('bg-secondary', 'text-secondary-foreground');
+      });
+      button.classList.add('active', 'bg-primary', 'text-primary-foreground');
+      button.classList.remove('bg-secondary', 'text-secondary-foreground');
+
+      // Filter posts
+      postItems.forEach(item => {
+        const itemTags = item.getAttribute('data-tags')?.split(',') || [];
+        if (tag === 'all' || itemTags.includes(tag)) {
+          (item as HTMLElement).style.display = 'block';
+        } else {
+          (item as HTMLElement).style.display = 'none';
+        }
+      });
+    });
+  });
+</script>

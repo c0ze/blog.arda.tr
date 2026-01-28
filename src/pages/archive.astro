@@ -1,0 +1,78 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+// Group posts by year
+const postsByYear = sortedPosts.reduce((acc, post) => {
+  const year = post.data.date.getFullYear();
+  if (!acc[year]) acc[year] = [];
+  acc[year].push(post);
+  return acc;
+}, {} as Record<number, typeof sortedPosts>);
+
+const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
+---
+
+<BaseLayout title="Archive - Coze" description="All blog posts organized by year">
+  <section class="container mx-auto px-4 py-16 max-w-4xl">
+    <div class="mb-12 animate-fade-in">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+        Archive
+      </h1>
+      <p class="text-lg text-muted-foreground">
+        All posts organized by year. {sortedPosts.length} posts total.
+      </p>
+    </div>
+
+    <div class="space-y-12">
+      {years.map((year) => (
+        <div class="animate-slide-up">
+          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
+            <span class="text-primary">{year}</span>
+            <span class="text-sm font-normal text-muted-foreground">
+              ({postsByYear[year].length} posts)
+            </span>
+          </h2>
+          <ul class="space-y-4 border-l-2 border-border pl-6">
+            {postsByYear[year].map((post) => {
+              const formattedDate = post.data.date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+              });
+              return (
+                <li class="relative">
+                  <div class="absolute -left-[1.625rem] top-2 w-3 h-3 rounded-full bg-primary" />
+                  <a
+                    href={`/blog/${post.id}`}
+                    class="group block p-4 -ml-2 rounded-lg hover:bg-card transition-colors"
+                  >
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                      <time class="text-sm text-muted-foreground font-mono min-w-[4rem]">
+                        {formattedDate}
+                      </time>
+                      <span class="font-medium group-hover:text-primary transition-colors">
+                        {post.data.title}
+                      </span>
+                    </div>
+                    {post.data.tags.length > 0 && (
+                      <div class="flex flex-wrap gap-1 mt-2 sm:ml-[4.5rem]">
+                        {post.data.tags.map((tag) => (
+                          <span class="text-xs text-muted-foreground font-mono">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

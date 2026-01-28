@@ -1,0 +1,86 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import PostCard from '@/components/PostCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+const sortedPosts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const featuredPosts = sortedPosts.slice(0, 3);
+---
+
+<BaseLayout title="Coze - Software Development Journey">
+  <!-- Hero Section -->
+  <section class="container mx-auto px-4 py-20 text-center animate-fade-in">
+    <div class="flex items-center justify-center gap-2 mb-4">
+      <svg class="w-5 h-5 text-primary animate-glow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+      </svg>
+      <span class="text-sm font-mono text-primary">Software Development Journey</span>
+    </div>
+    <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-cyan-400 bg-clip-text text-transparent">
+      Coze
+    </h1>
+    <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+      Exploring programming languages, frameworks, design patterns, and more.
+      A place where I share my journey through Go, AWS, DevOps, and modern web technologies.
+    </p>
+    <div class="flex gap-4 justify-center">
+      <a
+        href="/blog"
+        class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors group"
+      >
+        View All Posts
+        <svg class="w-4 h-4 group-hover:translate-x-1 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </a>
+      <a
+        href="/archive"
+        class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+      >
+        Browse Archive
+      </a>
+    </div>
+  </section>
+
+  <!-- Featured Posts -->
+  <section class="container mx-auto px-4 py-16">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-bold">Latest Posts</h2>
+      <a href="/blog" class="text-primary hover:underline flex items-center gap-2">
+        View all
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 12h14"/>
+          <path d="m12 5 7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {featuredPosts.map((post, index) => (
+        <div style={`animation-delay: ${index * 0.1}s`}>
+          <PostCard
+            slug={post.id}
+            title={post.data.title}
+            date={post.data.date}
+            excerpt={post.data.excerpt}
+            tags={post.data.tags}
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="container mx-auto px-4 py-16 animate-slide-up">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-4">About This Blog</h2>
+      <p class="text-muted-foreground leading-relaxed">
+        This blog is a collection of technical articles, tutorials, and insights
+        from my experience as a software developer. I focus on practical solutions
+        to real-world problems, covering topics like Go programming, cloud infrastructure,
+        DevOps practices, and modern web development.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,28 @@
+{
+  "name": "blog-astro",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev --port 8080",
+    "build": "astro build && npx tsx scripts/merge-sitemap.ts",
+    "preview": "astro preview",
+    "astro": "astro",
+    "post": "npx tsx scripts/new-post.ts",
+    "new-post": "npx tsx scripts/new-post.ts"
+  },
+  "dependencies": {
+    "@astrojs/react": "^4.2.0",
+    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/tailwind": "^6.0.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "astro": "^5.2.0",
+    "lucide-react": "^0.474.0",
+    "prismjs": "^1.30.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^3.4.17"
+  },
+  "devDependencies": {
+    "tsx": "^4.21.0"
+  }
+}
