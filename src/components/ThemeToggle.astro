@@ -2,16 +2,16 @@
 ---
 
 <button
-  id="theme-toggle"
-  class="flex items-center justify-center w-9 h-9 rounded-full bg-secondary border border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+  class="theme-toggle flex items-center justify-center w-9 h-9 rounded-full bg-secondary border border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
   aria-label="Toggle theme"
+  type="button"
 >
-  <span id="theme-icon-dark" class="hidden">
+  <span class="theme-icon-dark hidden">
     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
     </svg>
   </span>
-  <span id="theme-icon-light" class="hidden">
+  <span class="theme-icon-light hidden">
     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="4"/>
       <path d="M12 2v2"/>
@@ -24,7 +24,7 @@
       <path d="m19.07 4.93-1.41 1.41"/>
     </svg>
   </span>
-  <span id="theme-icon-dracula" class="hidden">
+  <span class="theme-icon-dracula hidden">
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
       <path d="M8 14l2-4 2 4" />
@@ -34,6 +34,7 @@
 </button>
 
 <script is:inline>
+(function() {
   const themes = ['dark', 'light', 'dracula'];
 
   function getTheme() {
@@ -41,31 +42,58 @@
   }
 
   function setTheme(theme) {
-    // Remove all theme classes
     document.documentElement.classList.remove('dark', 'light', 'dracula');
-    // Add new theme class
     document.documentElement.classList.add(theme);
     localStorage.setItem('theme', theme);
-    updateIcon(theme);
+    updateIcons(theme);
   }
 
-  function updateIcon(theme) {
-    document.getElementById('theme-icon-dark')?.classList.add('hidden');
-    document.getElementById('theme-icon-light')?.classList.add('hidden');
-    document.getElementById('theme-icon-dracula')?.classList.add('hidden');
-    document.getElementById(`theme-icon-${theme}`)?.classList.remove('hidden');
+  function updateIcons(theme) {
+    document.querySelectorAll('.theme-toggle').forEach(function(button) {
+      button.querySelector('.theme-icon-dark')?.classList.add('hidden');
+      button.querySelector('.theme-icon-light')?.classList.add('hidden');
+      button.querySelector('.theme-icon-dracula')?.classList.add('hidden');
+      button.querySelector('.theme-icon-' + theme)?.classList.remove('hidden');
+    });
   }
 
-  function cycleTheme() {
-    const current = getTheme();
-    const currentIndex = themes.indexOf(current);
-    const nextIndex = (currentIndex + 1) % themes.length;
+  function cycleTheme(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    var current = getTheme();
+    var currentIndex = themes.indexOf(current);
+    var nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
   }
 
-  // Initialize
-  updateIcon(getTheme());
+  function initThemeToggle() {
+    // Update icons for current theme
+    updateIcons(getTheme());
 
-  // Add click handler
-  document.getElementById('theme-toggle')?.addEventListener('click', cycleTheme);
+    // Attach click handlers using event delegation on document
+    // This ensures it works even if buttons are added dynamically
+    document.querySelectorAll('.theme-toggle').forEach(function(button) {
+      // Remove any existing listeners by cloning
+      if (!button.hasAttribute('data-theme-init')) {
+        button.setAttribute('data-theme-init', 'true');
+        button.addEventListener('click', cycleTheme);
+        // Also handle touch events for mobile
+        button.addEventListener('touchend', function(e) {
+          e.preventDefault();
+          cycleTheme(e);
+        });
+      }
+    });
+  }
+
+  // Run on DOMContentLoaded and also immediately if DOM is already ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+
+  // Also run on astro:page-load for View Transitions support
+  document.addEventListener('astro:page-load', initThemeToggle);
+})();
 </script>
