@@ -1,12 +1,15 @@
 ---
-title: "first post baby"
-date: "2013-04-06"
-tags: ["dev"]
-keywords: "blog launch, first post, software development blog, Coze developer, tech blog"
-description: "The inaugural post marking the beginning of Coze's software development journey and technical blog."
-excerpt: "Testing the waters with the very first post on this blog."
-author: "Arda Karaduman"
-image: "/images/og/first-post-baby.png"
+title: first post baby
+date: '2013-04-06'
+tags:
+  - dev
+keywords: 'blog launch, first post, software development blog, Coze developer, tech blog'
+description: >-
+  The inaugural post marking the beginning of Coze's software development
+  journey and technical blog.
+excerpt: Testing the waters with the very first post on this blog.
+author: Arda Karaduman
+image: /images/og/2013-04-06-first-post-baby.png
 ---
 
 Testing the waters ...
