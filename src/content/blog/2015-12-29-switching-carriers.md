@@ -6,6 +6,7 @@ keywords: "Japan mobile carrier, IIJmio, YMobile, Docomo MVNO, OnePlus X, mobile
 description: "Benchmarking mobile carriers in Japan: switching from YMobile to IIJmio Docomo and testing OnePlus phone network speeds."
 excerpt: "Benchmarking mobile carriers in Japan: switching from YMobile to IIJmio Docomo and testing OnePlus phone network speeds."
 author: "Arda Karaduman"
+image: "/images/galleries/keitai-benchmarks/OPO_docomo_3g.png"
 ---
 
 Lately wifey's cellphone was acting up, so I got her a brand new [One Plus X](https://oneplus.net/x) as a christmas present.

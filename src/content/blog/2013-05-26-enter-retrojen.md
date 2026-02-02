@@ -6,6 +6,7 @@ keywords: "Retrojen, retro computing magazine, Turkish retro, Commodore, Amstrad
 description: "Celebrating the arrival of Retrojen, a Turkish print magazine for retro computing enthusiasts featuring Commodore and Amstrad CPC coverage."
 excerpt: "A Turkish print magazine for retro computing enthusiasts featuring Commodore and Amstrad CPC coverage. Blast from the past!"
 author: "Arda Karaduman"
+image: "/images/retrojen.jpg"
 ---
 
 Nihayet Retrojen'ime kavuşmuş bulunmaktayım :) Emeği geçen tüm arkadaşlara çok teşekkürler, gerçekten bomba gibi bir sayı olmuş ! Murat Adanç zamanı 64'ler ve Laneth'den sonra ilk defa basılı bir dergiyi okurken bu kadar heyecanlandım diyebilirim. Çıkıp bi Naci den Tiamat'ın yeni albümünü çektiriyim filan modundayım :)
