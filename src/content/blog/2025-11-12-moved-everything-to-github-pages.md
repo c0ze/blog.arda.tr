@@ -6,6 +6,7 @@ tags: ["dev"]
 keywords: "GitHub Pages, blog migration, Lovable, Cloudflare, static site hosting, markdown blog, GitHub Actions deploy"
 description: "Migrating from Hugo/S3 to GitHub Pages with custom JS tooling, Cloudflare DNS, and automated GitHub Actions deployment."
 author: "Arda Karaduman"
+image: "/images/og/moved-everything-to-github-pages.png"
 ---
 
 Well its that time of the year again. After constant issues with previous hugo/S3 based stuff, decided to move everything to github pages. I was stalling for a while, but recently got hold of a fancy new domain so thought it was time to make the move.

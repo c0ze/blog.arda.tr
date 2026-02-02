@@ -6,6 +6,7 @@ tags: ["geek"]
 keywords: "Kavita Docker Synology, Panels App iOS OPDS, CDisplayEx, Split Horizon DNS, Self-hosted comics"
 description: "A complete walkthrough of deploying Kavita on Synology via Docker, configuring reverse proxies with SSL, and setting up the best reading clients on iOS and Android."
 author: "Arda Karaduman"
+image: "/images/og/comics-reading-setup-kavita-panels-cdisplayex.png"
 ---
 
 I like owning my data. I do not like subscription services telling me how to read the files I already possess.

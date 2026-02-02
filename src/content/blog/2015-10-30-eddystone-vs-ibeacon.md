@@ -6,6 +6,7 @@ keywords: "Eddystone, iBeacon, Bluetooth beacons, BLE, Estimote, beacon fleet ma
 description: "Why we switched from iBeacon to Eddystone: comparing beacon protocols, fleet management, and introducing Goodystone Go library."
 excerpt: "Why we switched from iBeacon to Eddystone: comparing beacon protocols and fleet management with Estimote beacons."
 author: "Arda Karaduman"
+image: "/images/og/eddystone-vs-ibeacon.png"
 ---
 
 If you are interested in IoT, you've probably heard of Estimote. They are probably the leading beacon
