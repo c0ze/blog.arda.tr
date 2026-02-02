@@ -6,6 +6,7 @@ tags: ["dev", "geek", "music"]
 keywords: "lyrics, whisper ai, flac, plexamp, lrc files, metal archives, music metadata, faster-whisper"
 description: "How I built a Python toolkit to scrape lyrics, embed them into audio files, and generate time-synced LRC files using Whisper AI for display in Plexamp."
 author: "Arda Karaduman"
+image: "/images/og/scraping-lyrics-and-syncing-them-via-whisper.png"
 ---
 
 I've been on a quest to get synchronized lyrics working in Plexamp for my local music library. The problem? Most of my music is niche black metal that doesn't exist in any lyrics database. The solution? Scrape, embed, and sync them myself.

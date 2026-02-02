@@ -6,6 +6,7 @@ keywords: "AWS S3, static site hosting, Octopress, S3 blog deployment, static bl
 description: "Deploying a blog to Amazon S3 using Octopress for fast, reliable static site hosting without server management."
 excerpt: "Deploying my blog to Amazon S3 using Octopress. No more servers, long live static blogging!"
 author: "Arda Karaduman"
+image: "/images/og/just-deployed-to-s3-yay.png"
 ---
 
 # Hello from s3 !

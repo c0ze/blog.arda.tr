@@ -6,6 +6,7 @@ tags: ["music"]
 keywords: "Suno AI, Suno v5, AI music generation, AI covers, Pagan band, Theatre of Tragedy, generative music, AI vocals"
 description: "Exploring Suno AI v5 for music generation: creating AI covers of old demo tapes and experimenting with double vocals and growling."
 author: "Arda Karaduman"
+image: "/images/og/suno-stuff.png"
 ---
 
 I've been playing suno lately, their new v5 engine is ... phenomenal. I've been getting some pretty good results, thought I would share some here.

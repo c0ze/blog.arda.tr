@@ -6,6 +6,7 @@ tags: ["geek"]
 keywords: "Gemini Gems, NotebookLM, AI health advisor, personal health AI, wearable data analysis, medical checkup AI, health optimization"
 description: "Building a custom Gemini Gem health advisor: combining 10 years of medical data with wearable metrics using NotebookLM."
 author: "Arda Karaduman"
+image: "/images/og/i-created-a-health-advisor-gem-for-gemini.png"
 ---
 
 Fragmented health data is a common frustration. Between medical checkup PDFs from healthcare providers, sleep data from wearables, and weight trends from smart scales, it is nearly impossible to see the "big picture" of your long-term health. 
