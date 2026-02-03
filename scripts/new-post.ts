@@ -27,8 +27,10 @@ const slug = title
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/(^-|-$)/g, '');
 
-// Get current date
-const date = new Date().toISOString().split('T')[0];
+// Get current date and year
+const now = new Date();
+const date = now.toISOString().split('T')[0];
+const year = now.getFullYear().toString();
 
 // Format date for display
 const displayDate = new Date().toLocaleDateString('en-US', {
@@ -70,8 +72,8 @@ More content...
 3. Great!
 `;
 
-// Ensure content directory exists
-const contentDir = path.join(process.cwd(), 'src', 'content', 'blog');
+// Ensure content directory exists (including year subdirectory)
+const contentDir = path.join(process.cwd(), 'src', 'content', 'blog', year);
 if (!fs.existsSync(contentDir)) {
   fs.mkdirSync(contentDir, { recursive: true });
 }
@@ -88,7 +90,7 @@ if (fs.existsSync(filepath)) {
 fs.writeFileSync(filepath, content);
 
 console.log('✅ New post created successfully!');
-console.log(`📄 File: src/content/blog/${filename}`);
+console.log(`📄 File: src/content/blog/${year}/${filename}`);
 console.log(`📅 Date: ${displayDate}`);
 console.log(`🔗 Slug: ${slug}`);
 console.log(`👤 Author: ${gitAuthor || '(not set)'}`);

@@ -50,7 +50,7 @@ const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags))].sort()
           style={`animation-delay: ${index * 0.05}s`}
         >
           <PostCard
-            slug={post.id}
+            slug={post.id.split('/').pop() || post.id}
             title={post.data.title}
             date={post.data.date}
             excerpt={post.data.excerpt}

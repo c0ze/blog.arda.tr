@@ -6,14 +6,19 @@ export async function getStaticPaths() {
   const posts = await getCollection('blog');
   const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
-  return sortedPosts.map((post, index) => ({
-    params: { slug: post.id },
-    props: {
-      post,
-      prevPost: sortedPosts[index + 1] || null,
-      nextPost: sortedPosts[index - 1] || null,
-    },
-  }));
+  return sortedPosts.map((post, index) => {
+    // Extract the filename without extensions and without the year parent directory for the slug
+    const slug = post.id.split('/').pop() || post.id;
+    
+    return {
+      params: { slug },
+      props: {
+        post,
+        prevPost: sortedPosts[index + 1] || null,
+        nextPost: sortedPosts[index - 1] || null,
+      },
+    };
+  });
 }
 
 const { post, prevPost, nextPost } = Astro.props;
@@ -102,7 +107,7 @@ const ogImage = post.data.image || '/images/og-image.png';
       <div class="grid md:grid-cols-2 gap-4">
         {prevPost && (
           <a
-            href={`/blog/${prevPost.id}`}
+            href={`/blog/${prevPost.id.split('/').pop()}`}
             class="group flex flex-col p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-card transition-all"
           >
             <span class="text-sm text-muted-foreground mb-1 flex items-center gap-1">
@@ -119,7 +124,7 @@ const ogImage = post.data.image || '/images/og-image.png';
         {!prevPost && <div />}
         {nextPost && (
           <a
-            href={`/blog/${nextPost.id}`}
+            href={`/blog/${nextPost.id.split('/').pop()}`}
             class="group flex flex-col p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-card transition-all text-right md:col-start-2"
           >
             <span class="text-sm text-muted-foreground mb-1 flex items-center justify-end gap-1">
@@ -155,7 +160,7 @@ const ogImage = post.data.image || '/images/og-image.png';
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://blog.arda.tr/blog/${post.id}`
+      "@id": `https://blog.arda.tr/blog/${post.id.split('/').pop()}`
     },
     "keywords": post.data.keywords
   })} />
