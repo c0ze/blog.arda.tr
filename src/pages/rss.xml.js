@@ -24,7 +24,7 @@ export async function GET(context) {
                     title: post.data.title,
                     pubDate: post.data.date,
                     description: content,
-                    link: `/blog/${post.id}/`,
+                    link: `/blog/${post.id.split('/').pop()}/`,
                     // Add enclosure for better compatibility with some readers
                     ...(imageURL && {
                         enclosure: {
