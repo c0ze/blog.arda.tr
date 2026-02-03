@@ -60,7 +60,7 @@ const featuredPosts = sortedPosts.slice(0, 3);
       {featuredPosts.map((post, index) => (
         <div style={`animation-delay: ${index * 0.1}s`}>
           <PostCard
-            slug={post.id}
+            slug={post.id.split('/').pop() || post.id}
             title={post.data.title}
             date={post.data.date}
             excerpt={post.data.excerpt}
