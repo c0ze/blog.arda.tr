@@ -3,7 +3,9 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog');
+  const posts = await getCollection('blog', ({ data }) => {
+    return import.meta.env.PROD ? data.draft !== true : true;
+  });
   const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
   return sortedPosts.map((post, index) => {

@@ -49,6 +49,7 @@ keywords: "keyword1, keyword2, keyword3"
 description: "A brief SEO description of your post"
 author: "${gitAuthor}"
 image: ""
+draft: false
 ---
 
 Write your post content here. You can use markdown formatting.
