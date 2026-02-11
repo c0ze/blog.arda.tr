@@ -49,9 +49,17 @@ async function run() {
       Content Snippet: ${content.substring(0, 1000)}
     `;
 
+        let styleInstruction = "The image should be modern, tech-focused, and representative of the topic.";
+        if (
+            (frontmatter.title && frontmatter.title.toLowerCase().includes("fablecast")) ||
+            (frontmatter.keywords && frontmatter.keywords.toLowerCase().includes("fablecast"))
+        ) {
+            styleInstruction = "The image must be in a whimsical children's book illustration style. Use warm pastel colors, soft lighting, and a magical atmosphere. Think: 'Fablecast' aesthetic - deep purple cosmos, warm moonbeam cream, golden starlight highlights. Do NOT make it look cyberpunk or high-tech.";
+        }
+
         const promptResponse = await textModel.generateContent(`
       Based on the following blog post metadata and content, create a short, descriptive, and visually appealing image generation prompt for an Open Graph (OG) image. 
-      The image should be modern, tech-focused, and representative of the topic. 
+      ${styleInstruction}
       DO NOT include "nano banana style" or similar descriptors. Just the visual description.
       
       Post Data:
