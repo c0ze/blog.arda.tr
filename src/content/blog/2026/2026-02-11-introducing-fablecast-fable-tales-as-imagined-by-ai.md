@@ -93,18 +93,18 @@ The twist is the pricing model. Instead of upselling you into higher tiers, the 
 
 | Phase | Price | When |
 | --- | --- | --- |
-| 1 | $4.99/mo | Months 1–12 |
-| 2 | $3.99/mo | Months 13–24 |
-| 3 | $2.99/mo | Months 25–36 |
-| 4 | $1.99/mo | Months 37–48 |
-| 5 | $0.99/mo | Months 49–60 |
+| 1 | $4.99/mo | Months 1–6 |
+| 2 | $3.99/mo | Months 7–12 |
+| 3 | $2.99/mo | Months 13–24 |
+| 4 | $1.99/mo | Months 25–36 |
+| 5 | $0.99/mo | Months 37–60 |
 | 6 | Free | After 5 years |
 
 The logic is simple: your kid grows up with the service, the price goes down with them. After five years, it is free forever. This removes the "should I cancel?" friction entirely—you are always heading toward a better deal by staying.
 
 There is also a **Lifetime Membership** for $99—one payment, full access to everything forever, current and future content included.
 
-The landing page has an interactive language demo (switch between EN/TR/JA live), a story carousel with touch swipe, and an onboarding flow that collects the child's preferred language and series selection.
+The landing page has an interactive language demo (switch between 7 languages live), a story carousel with touch swipe, and an onboarding flow that collects the child's preferred language and series selection.
 
 ## The Philosophy
 
