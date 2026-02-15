@@ -1,0 +1,83 @@
+{
+  "request_id": "req_20260214T122522Z_89584a79",
+  "title": "Black Ice of the Ludus",
+  "series": "Shadows of the Ludus",
+  "language": "en",
+  "audience": "adult",
+  "reader_theme": "grimdark",
+  "narration_style": "Read with restrained intensity and steel-edged gravitas, like a hardened survivor recounting events. Keep pacing deliberate, tense, and unsentimental.",
+  "generated_at": "20260214_212522",
+  "cover": "images/cover.png",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Ice glazed the barracks walls. Kaelen's sica lay beneath straw, edge sharp as winter's bite.",
+      "image": "images/page_1.webp",
+      "audio": "audio/page_1.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 2,
+      "text": "Blood pooled beneath the guard's corpse, already freezing. Brennus stood over him, knuckles split, eyes hollow. \"He tried to take more than flesh,\" the Briton said. The alarm bell tolled death's price.",
+      "image": "images/page_2.webp",
+      "audio": "audio/page_2.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 3,
+      "text": "Septimus's pig eyes gleamed with malice. \"Naked steel for naked defiance,\" he spat. \"Half of you die today.\" His guards herded them toward the arena, torches guttering against frozen breath and darker promises.",
+      "image": "images/page_3.webp",
+      "audio": "audio/page_3.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 4,
+      "text": "Valerius traced sewer routes in spilled oil. \"Tonight, during the feast,\" the Dacian whispered. \"The guards drink deep after executions.\" His scarred fingers marked three paths. Only one led to freedom's bitter taste.",
+      "image": "images/page_4.webp",
+      "audio": "audio/page_4.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 5,
+      "text": "Black ice beneath crimson sand. Men fell like wheat before winter's scythe.",
+      "image": "images/page_5.webp",
+      "audio": "audio/page_5.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 6,
+      "text": "Kaelen's sica found gaps where ice made men stumble. Brennus fought like grief given form, each strike a prayer for the dead. Together they carved survival from frozen sand and desperate brotherhood.",
+      "image": "images/page_6.webp",
+      "audio": "audio/page_6.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 7,
+      "text": "The spear took Valerius below the ribs. He pulled himself along its shaft, close enough to open his killer's throat. \"The sewers,\" he gasped to Kaelen. \"Third grate...\" Death claimed another teacher.",
+      "image": "images/page_7.webp",
+      "audio": "audio/page_7.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 8,
+      "text": "Waste-deep in frozen filth, they crawled beneath their captors' revelry. Kaelen counted grates by touch. Above, Septimus toasted dead gladiators. Below, the living chose disgrace over chains. Freedom stank of shit and salvation.",
+      "image": "images/page_8.webp",
+      "audio": "audio/page_8.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 9,
+      "text": "Torchlight revealed Septimus's sneer. \"Dogs return to vomit,\" he said. Crossbows gleamed like winter stars. But Kaelen had learned ice's lesson - when footing fails, even masters fall. His sica sang its final song.",
+      "image": "images/page_9.webp",
+      "audio": "audio/page_9.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 10,
+      "text": "Two shadows dissolved into pines heavy with snow. Behind them, the ludus burned. Ahead lay wolves, cold, and freedom's price. They were no longer gladiators. Just survivors.",
+      "image": "images/page_10.webp",
+      "audio": "audio/page_10.webm",
+      "audio_mime": "audio/webm"
+    }
+  ]
+}

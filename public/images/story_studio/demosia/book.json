@@ -1,0 +1,83 @@
+{
+  "request_id": "req_20260214T132448Z_c469b2ae",
+  "title": "The Frozen Caravan",
+  "series": "Demosia",
+  "language": "en",
+  "audience": "general",
+  "reader_theme": "classic",
+  "narration_style": "Read with measured curiosity and investigative momentum, emphasizing discovery, hidden motives, and mounting clues.",
+  "generated_at": "20260214_222448",
+  "cover": "images/cover.png",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Prince Sytek's breath misted in the frozen air as he surveyed the borderland pass, ritual horn crests gleaming with frost.",
+      "image": "images/page_1.webp",
+      "audio": "audio/page_1.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 2,
+      "text": "Below the ridge, chittering distress calls echoed off ice-glazed rocks. An insectoid caravan huddled against an avalanche wall, their amber cargo pods cracked and leaking. The lead merchant's antennae drooped with exhaustion.",
+      "image": "images/page_2.webp",
+      "audio": "audio/page_2.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 3,
+      "text": "Sytek picked his way down the treacherous slope, claws finding purchase on hidden ledges. His trained senses catalogued the scene: three days trapped, dwindling heat-stones, no clear escape route through the packed snow.",
+      "image": "images/page_3.webp",
+      "audio": "audio/page_3.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 4,
+      "text": "\"The fever spreads in the valley tribes,\" clicked the lead merchant urgently. \"Our healing resins must reach them before the new moon.\" Sytek's strategic mind calculated distances, weather patterns, and the delicate balance of inter-species diplomacy.",
+      "image": "images/page_4.webp",
+      "audio": "audio/page_4.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 5,
+      "text": "There—a gap where warm spring water had carved through ancient ice, just wide enough.",
+      "image": "images/page_5.webp",
+      "audio": "audio/page_5.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 6,
+      "text": "One by one, they threaded through the ice tunnel. Sytek's tail balanced the heaviest medicine pods while the merchants formed living chains, their compound eyes glinting with determination in the blue-filtered light.",
+      "image": "images/page_6.webp",
+      "audio": "audio/page_6.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 7,
+      "text": "Ice groaned overhead. The final merchant's pod caught on jagged crystal, its precious contents threatening to spill. \"Leave it!\" others clicked frantically, but Sytek saw the merchant's desperation—this was their clan's contribution.",
+      "image": "images/page_7.webp",
+      "audio": "audio/page_7.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 8,
+      "text": "Drawing on his scholar's understanding of stress patterns, Sytek wedged his spear precisely where ice bore the most weight. With careful claw work, he loosened the pod while the tunnel held—barely.",
+      "image": "images/page_8.webp",
+      "audio": "audio/page_8.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 9,
+      "text": "They burst into winter sunlight just as the passage sealed behind them. Sytek traced scent-marks on wind-scoured stone, revealing the old ranger paths. \"This way—two days to the valley, with shelter at the shrine.\"",
+      "image": "images/page_9.webp",
+      "audio": "audio/page_9.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 10,
+      "text": "\"You honor all clades,\" the lead merchant clicked, pressing a crystalline vial into Sytek's claws. The prince recognized it—peace resin, used in the oldest treaties. Sometimes, the greatest strategies were simply acts of kindness.",
+      "image": "images/page_10.webp",
+      "audio": "audio/page_10.webm",
+      "audio_mime": "audio/webm"
+    }
+  ]
+}

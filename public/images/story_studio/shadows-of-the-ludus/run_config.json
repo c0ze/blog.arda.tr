@@ -1,0 +1,101 @@
+{
+  "story_config": {
+    "slug": "shadows-of-the-ludus",
+    "title": "Shadows of the Ludus",
+    "character_anchor": "Kaelen, a captured Scythian rider turned gladiator, lean and weathered with old steppe scars, ice-hard focus, and a curved sica in his right hand; he fights with relentless footwork, predatory timing, and survival-driven ferocity.",
+    "art_style": "Gritty historical dark-cinematic illustration set in ancient Rome: harsh noon glare on blood-red arena sand, smoky torchlight in stone cells, worn bronze and leather armor, textured realism, dramatic chiaroscuro, and grounded brutal action.",
+    "tone": "Adult historical grimdark survival drama with hard moral choices, violence with consequence, prison-barracks tension, rebellion under oppression, and hard-won freedom that never feels safe.",
+    "audience": "adult",
+    "reader_theme": "grimdark",
+    "narration_style": "Read with restrained intensity and steel-edged gravitas, like a hardened survivor recounting events. Keep pacing deliberate, tense, and unsentimental.",
+    "world_rules": "Setting is grounded in the Roman Republic/Empire frontier and city world: ludi, barracks, training yards, arena politics, slaves, guards, lanista control, and urban escape routes. No fantasy magic, no supernatural powers, no anachronistic technology, no modern slang. Combat should be physically plausible for the era's weapons and armor, and injury must carry ongoing consequences. Violence can be severe but should serve character, strategy, and moral pressure rather than spectacle alone. Core conflicts: survival under captivity, loyalty among fighters, coercion, rebellion, revenge, and escape from imperial control.",
+    "glossary_map": {
+      "Kaelen": "Kaelen",
+      "Brennus": "Brennus",
+      "Valerius": "Valerius",
+      "Septimus": "Septimus",
+      "Ludus": "Ludus",
+      "Colosseum": "Colosseum",
+      "Danube frontier": "Danube frontier",
+      "Scythian": "Scythian",
+      "sica": "sica",
+      "parma": "parma",
+      "murmillo": "murmillo",
+      "retiarius": "retiarius",
+      "dimachaerus": "dimachaerus",
+      "Vulcan": "Vulcan"
+    },
+    "supporting_cast": [
+      {
+        "name": "Brennus",
+        "description": "A tall, wiry Briton with storm-colored eyes and bruised defiance, once a farmer, now a gladiator who masks grief with cold resolve and plans impossible escapes.",
+        "relationship": "Kaelen's unlikely ally and co-conspirator; he becomes a brother-in-arms through shared defiance and the sewer escape."
+      },
+      {
+        "name": "Valerius",
+        "description": "An older Dacian veteran mapped in scars, pragmatic and unreadable, with a low gravel voice and a strategist's instinct for surviving rigged arenas.",
+        "relationship": "Kaelen's mentor figure in the ludus; he teaches the rules beneath the rules and ignites the revolt at great personal cost."
+      },
+      {
+        "name": "Septimus",
+        "description": "Pig-eyed lanista of the ludus, vain and vindictive, armored in authority and cruelty, who treats men as assets to be broken, sold, or fed to the sand.",
+        "relationship": "Kaelen's principal antagonist and jailer; his escalating punishments drive the rebellion and end in personal reckoning."
+      }
+    ]
+  },
+  "visual_config": {
+    "slug": "shadows-of-the-ludus",
+    "title": "Shadows of the Ludus",
+    "character_anchor": "Kaelen, a captured Scythian rider turned gladiator, lean and weathered with old steppe scars, ice-hard focus, and a curved sica in his right hand; he fights with relentless footwork, predatory timing, and survival-driven ferocity.",
+    "art_style": "Gritty historical dark-cinematic illustration set in ancient Rome: harsh noon glare on blood-red arena sand, smoky torchlight in stone cells, worn bronze and leather armor, textured realism, dramatic chiaroscuro, and grounded brutal action.",
+    "tone": "Adult historical grimdark survival drama with hard moral choices, violence with consequence, prison-barracks tension, rebellion under oppression, and hard-won freedom that never feels safe.",
+    "audience": "adult",
+    "reader_theme": "grimdark",
+    "narration_style": "Read with restrained intensity and steel-edged gravitas, like a hardened survivor recounting events. Keep pacing deliberate, tense, and unsentimental.",
+    "world_rules": "Setting is grounded in the Roman Republic/Empire frontier and city world: ludi, barracks, training yards, arena politics, slaves, guards, lanista control, and urban escape routes. No fantasy magic, no supernatural powers, no anachronistic technology, no modern slang. Combat should be physically plausible for the era's weapons and armor, and injury must carry ongoing consequences. Violence can be severe but should serve character, strategy, and moral pressure rather than spectacle alone. Core conflicts: survival under captivity, loyalty among fighters, coercion, rebellion, revenge, and escape from imperial control.",
+    "glossary_map": {
+      "Kaelen": "Kaelen",
+      "Brennus": "Brennus",
+      "Valerius": "Valerius",
+      "Septimus": "Septimus",
+      "Ludus": "Ludus",
+      "Colosseum": "Colosseum",
+      "Danube frontier": "Danube frontier",
+      "Scythian": "Scythian",
+      "sica": "sica",
+      "parma": "parma",
+      "murmillo": "murmillo",
+      "retiarius": "retiarius",
+      "dimachaerus": "dimachaerus",
+      "Vulcan": "Vulcan"
+    },
+    "supporting_cast": [
+      {
+        "name": "Brennus",
+        "description": "A tall, wiry Briton with storm-colored eyes and bruised defiance, once a farmer, now a gladiator who masks grief with cold resolve and plans impossible escapes.",
+        "relationship": "Kaelen's unlikely ally and co-conspirator; he becomes a brother-in-arms through shared defiance and the sewer escape."
+      },
+      {
+        "name": "Valerius",
+        "description": "An older Dacian veteran mapped in scars, pragmatic and unreadable, with a low gravel voice and a strategist's instinct for surviving rigged arenas.",
+        "relationship": "Kaelen's mentor figure in the ludus; he teaches the rules beneath the rules and ignites the revolt at great personal cost."
+      },
+      {
+        "name": "Septimus",
+        "description": "Pig-eyed lanista of the ludus, vain and vindictive, armored in authority and cruelty, who treats men as assets to be broken, sold, or fed to the sand.",
+        "relationship": "Kaelen's principal antagonist and jailer; his escalating punishments drive the rebellion and end in personal reckoning."
+      }
+    ]
+  },
+  "language": "en",
+  "theme": "A winter story for Shadows of the Ludus: black ice, torchlight, and hard survival",
+  "num_pages": 10,
+  "story_structure": {
+    "name": "grim-odyssey",
+    "guide": "The protagonist enters a hostile world where each stop extracts a cost. Escalate danger, pressure, and moral compromise toward a hard-won resolution.",
+    "emotional_arc": "foreboding -> strain -> setback -> ruthless adaptation -> costly victory"
+  },
+  "allow_missing_assets": true,
+  "request_id": "req_20260214T122522Z_89584a79",
+  "source_request_id": null
+}

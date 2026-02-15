@@ -1,0 +1,93 @@
+{
+  "story_config": {
+    "slug": "demosia",
+    "title": "Demosia",
+    "character_anchor": "Prince Sytek, a male lizardfolk royal strategist of Shara, observant and composed, marked by ritual horn crests and trained as a ranger-scholar who solves political and historical mysteries through field clues, scent-tracking, and court intelligence.",
+    "art_style": "Atmospheric epic-fantasy worldbuilding art with ancient ziggurats, jungle ruins, volcanic coasts, ceremonial armor, bioluminescent marshes, and intricate reptilian-insectoid architecture; cinematic scale, readable geography, and lore-rich details.",
+    "tone": "General-audience mystery adventure focused on lore discovery, political intrigue, prophecy interpretation, and investigation-driven quests across a morally gray world.",
+    "audience": "general",
+    "reader_theme": "classic",
+    "narration_style": "Read with measured curiosity and investigative momentum, emphasizing discovery, hidden motives, and mounting clues.",
+    "world_rules": "Demosia is an ancient world shaped by three major peoples: lizardfolk clades, insectoid polities, and early-stage hominid tribes. Lizardfolk society is matriarchal and organized into brood-clades led by queens and mother-lines, with strict social castes (fighters, workers, scholars, princes). Politics revolve around succession rites, inter-clade alliances, prophecy, and control of strategic breeding lines. The lizardfolk trace their origin to the sunken continent of Mu, and rumors persist of surviving aquatic kin. Magic has four branches: elemental, true-name/esoteric, psychic, and divine spiritual gifts tied to serpent deities and an oracular knowledge god. There are no true dragons; winged lizard prototypes are forbidden bio-arcane experiments. Keep conflicts grounded in diplomacy, espionage, expeditions, and puzzle-solving; violence may occur but should support mystery and world lore rather than grim brutality.",
+    "glossary_map": {
+      "Demosia": "Demosia",
+      "Mu": "Mu",
+      "Lemuria": "Lemuria",
+      "Shara": "Shara",
+      "Sytek": "Sytek",
+      "Shlotek": "Shlotek",
+      "brood-clade": "brood-clade",
+      "insectoids": "insectoids",
+      "hominids": "hominids",
+      "serpent god": "serpent god"
+    },
+    "supporting_cast": [
+      {
+        "name": "Priest Shlotek",
+        "description": "A ceremonial priest-scholar in flowing temple robes, keeper of omen archives and sacrificial law, skilled in coded liturgies and hidden historical records.",
+        "relationship": "Sytek's uneasy advisor and gatekeeper to forbidden prophecies; he helps decode clues but withholds dangerous truths."
+      },
+      {
+        "name": "Outpost Ranger Khezz",
+        "description": "A frontier scout from the hominid border outposts, pragmatic and sharp-sensed, expert in tracks, smells, and battlefield residue.",
+        "relationship": "Sytek's field partner for on-the-ground investigations into raids, false-flag attacks, and territorial conspiracies."
+      },
+      {
+        "name": "Archivist-Mother Vesha",
+        "description": "An elder mother-line historian who controls inter-clade lineage ledgers, succession records, and sealed treaties from before Mu's fall.",
+        "relationship": "A key political witness whose records can confirm or shatter claims to legitimacy and prophecy fulfillment."
+      }
+    ]
+  },
+  "visual_config": {
+    "slug": "demosia",
+    "title": "Demosia",
+    "character_anchor": "Prince Sytek, a male lizardfolk royal strategist of Shara, observant and composed, marked by ritual horn crests and trained as a ranger-scholar who solves political and historical mysteries through field clues, scent-tracking, and court intelligence.",
+    "art_style": "Atmospheric epic-fantasy worldbuilding art with ancient ziggurats, jungle ruins, volcanic coasts, ceremonial armor, bioluminescent marshes, and intricate reptilian-insectoid architecture; cinematic scale, readable geography, and lore-rich details.",
+    "tone": "General-audience mystery adventure focused on lore discovery, political intrigue, prophecy interpretation, and investigation-driven quests across a morally gray world.",
+    "audience": "general",
+    "reader_theme": "classic",
+    "narration_style": "Read with measured curiosity and investigative momentum, emphasizing discovery, hidden motives, and mounting clues.",
+    "world_rules": "Demosia is an ancient world shaped by three major peoples: lizardfolk clades, insectoid polities, and early-stage hominid tribes. Lizardfolk society is matriarchal and organized into brood-clades led by queens and mother-lines, with strict social castes (fighters, workers, scholars, princes). Politics revolve around succession rites, inter-clade alliances, prophecy, and control of strategic breeding lines. The lizardfolk trace their origin to the sunken continent of Mu, and rumors persist of surviving aquatic kin. Magic has four branches: elemental, true-name/esoteric, psychic, and divine spiritual gifts tied to serpent deities and an oracular knowledge god. There are no true dragons; winged lizard prototypes are forbidden bio-arcane experiments. Keep conflicts grounded in diplomacy, espionage, expeditions, and puzzle-solving; violence may occur but should support mystery and world lore rather than grim brutality.",
+    "glossary_map": {
+      "Demosia": "Demosia",
+      "Mu": "Mu",
+      "Lemuria": "Lemuria",
+      "Shara": "Shara",
+      "Sytek": "Sytek",
+      "Shlotek": "Shlotek",
+      "brood-clade": "brood-clade",
+      "insectoids": "insectoids",
+      "hominids": "hominids",
+      "serpent god": "serpent god"
+    },
+    "supporting_cast": [
+      {
+        "name": "Priest Shlotek",
+        "description": "A ceremonial priest-scholar in flowing temple robes, keeper of omen archives and sacrificial law, skilled in coded liturgies and hidden historical records.",
+        "relationship": "Sytek's uneasy advisor and gatekeeper to forbidden prophecies; he helps decode clues but withholds dangerous truths."
+      },
+      {
+        "name": "Outpost Ranger Khezz",
+        "description": "A frontier scout from the hominid border outposts, pragmatic and sharp-sensed, expert in tracks, smells, and battlefield residue.",
+        "relationship": "Sytek's field partner for on-the-ground investigations into raids, false-flag attacks, and territorial conspiracies."
+      },
+      {
+        "name": "Archivist-Mother Vesha",
+        "description": "An elder mother-line historian who controls inter-clade lineage ledgers, succession records, and sealed treaties from before Mu's fall.",
+        "relationship": "A key political witness whose records can confirm or shatter claims to legitimacy and prophecy fulfillment."
+      }
+    ]
+  },
+  "language": "en",
+  "theme": "A winter story for Demosia: long nights, low firelight, and tense travel",
+  "num_pages": 10,
+  "story_structure": {
+    "name": "helping-others",
+    "guide": "The character notices someone who needs help. They decide to assist, face a small challenge in doing so, and ultimately make things better. The story ends with gratitude and mutual happiness.",
+    "emotional_arc": "observation -> empathy -> effort -> challenge -> gratitude and happiness"
+  },
+  "allow_missing_assets": true,
+  "request_id": "req_20260214T132448Z_c469b2ae",
+  "source_request_id": null
+}

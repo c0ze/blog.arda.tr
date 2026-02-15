@@ -1,0 +1,80 @@
+{
+  "request_id": "req_20260214T101116Z_ad8642c1",
+  "title": "Varak's Snowy Day",
+  "series": "Varak of the Northern Wastes",
+  "language": "en",
+  "generated_at": "20260214_191116",
+  "cover": "images/cover.png",
+  "pages": [
+    {
+      "page": 1,
+      "text": "Varak trudged through deep snow, his sword heavy on his back. The northern warrior frowned at the white drifts.",
+      "image": "images/page_1.webp",
+      "audio": "audio/page_1.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 2,
+      "text": "In a mountain village below, children laughed and threw snowballs. They built tall snow forts and slid down icy hills. Varak watched, puzzled. Why waste energy on such foolish games?",
+      "image": "images/page_2.webp",
+      "audio": "audio/page_2.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 3,
+      "text": "THWACK! A stray snowball struck Varak's shoulder. The mighty warrior growled and reached for his sword. But the children just giggled and waved, inviting him to join their snowy battle.",
+      "image": "images/page_3.webp",
+      "audio": "audio/page_3.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 4,
+      "text": "\"Warriors do not play,\" Varak grumbled, sitting on a frozen log. He watched the children roll giant snowballs and stack them high. Their joyful shouts echoed through the mountain valley.",
+      "image": "images/page_4.webp",
+      "audio": "audio/page_4.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 5,
+      "text": "Together, they built a magnificent snow fortress, taller than Varak himself!",
+      "image": "images/page_5.webp",
+      "audio": "audio/page_5.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 6,
+      "text": "A small girl with rosy cheeks approached. \"Want to learn?\" she asked, holding out mittened hands full of snow. She showed Varak how to pack and shape it, patient and kind.",
+      "image": "images/page_6.webp",
+      "audio": "audio/page_6.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 7,
+      "text": "Varak's large hands fumbled with the snow. His first attempt crumbled into powder. \"This is harder than battle!\" he complained. The children encouraged him to try again, sharing their own failed attempts.",
+      "image": "images/page_7.webp",
+      "audio": "audio/page_7.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 8,
+      "text": "With gentle guidance, Varak learned to pack the snow just right. Soon, he'd made a small snow wolf! The children cheered and helped him add details. Working together felt surprisingly good.",
+      "image": "images/page_8.webp",
+      "audio": "audio/page_8.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 9,
+      "text": "\"Now the battle!\" the children cried. Varak grinned and joined their snowy war. His warrior skills made him the best snowball thrower! Everyone laughed together, taking turns being on each team.",
+      "image": "images/page_9.webp",
+      "audio": "audio/page_9.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 10,
+      "text": "As sunset painted the snow pink, Varak smiled. He'd learned that sharing joy with others was a different kind of strength. Sometimes, the mightiest warriors need to play too.",
+      "image": "images/page_10.webp",
+      "audio": "audio/page_10.webm",
+      "audio_mime": "audio/webm"
+    }
+  ]
+}
