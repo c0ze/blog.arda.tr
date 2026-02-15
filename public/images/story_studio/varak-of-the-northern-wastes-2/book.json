@@ -1,0 +1,83 @@
+{
+  "request_id": "req_20260214T110400Z_ae8836b0",
+  "title": "The Hearth of Dead Kings",
+  "series": "Varak of the Northern Wastes",
+  "language": "en",
+  "audience": "adult",
+  "reader_theme": "grimdark",
+  "narration_style": "",
+  "generated_at": "20260214_200400",
+  "cover": "images/cover.png",
+  "pages": [
+    {
+      "page": 1,
+      "text": "The blizzard howled like wolves. Varak's bronze skin burned with cold as he glimpsed the watchtower through driving snow.",
+      "image": "images/page_1.webp",
+      "audio": "audio/page_1.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 2,
+      "text": "The door yielded to his shoulder. Inside, impossibly, a fire crackled. Two clay cups steamed on the hearth-stone, releasing the forgotten sweetness of southern spices. His frost-numbed fingers reached, then hesitated. Nothing in this cursed world came without price.",
+      "image": "images/page_2.webp",
+      "audio": "audio/page_2.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 3,
+      "text": "\"Took you long enough, ice-blood.\" Zasha stepped from shadow, twin daggers loose in her hands. \"The Crimson Brotherhood tracked us both here. I poisoned their wine below—but they'll wake angry.\" She nodded at the cups. \"Drink. We'll need warmth for what comes.\"",
+      "image": "images/page_3.webp",
+      "audio": "audio/page_3.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 4,
+      "text": "The cocoa burned sweet against his throat, chasing away frost's bite. \"This tower,\" Zasha murmured, \"was where your blade found Khor's heart. His death-curse still lingers in the stones.\" She drained her cup. \"The Brotherhood seeks his corpse-crown. It's hidden above.\"",
+      "image": "images/page_4.webp",
+      "audio": "audio/page_4.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 5,
+      "text": "Khor's corpse grinned from his ice-throne, crown of black iron frozen to his skull.",
+      "image": "images/page_5.webp",
+      "audio": "audio/page_5.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 6,
+      "text": "Crimson-robed killers flooded the chamber. Varak's notched blade sang its iron song while Zasha danced between them, daggers painting red arcs. The hearth-warmth in his belly turned to battle-fire. Bodies fell, but more kept coming, chanting Khor's name like a curse.",
+      "image": "images/page_6.webp",
+      "audio": "audio/page_6.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 7,
+      "text": "Blood seeped through Zasha's leather. \"The crown,\" she gasped, pressing her side. \"It commands the tower's old magics. But whoever wears it...\" Her eyes found his, full of bitter knowledge. \"One of us becomes the next Khor. Or we both die here.\"",
+      "image": "images/page_7.webp",
+      "audio": "audio/page_7.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 8,
+      "text": "\"No.\" Varak's blade shattered the throne's frozen chains. With a roar, he heaved the entire throne—corpse, crown, and all—through the tower window. The cultists screamed as their god-king plummeted into the storm-shrouded gorge. \"Let the mountain keep him.\"",
+      "image": "images/page_8.webp",
+      "audio": "audio/page_8.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 9,
+      "text": "The Brotherhood scattered like roaches, their faith broken. Back at the hearth, Varak pressed snow to Zasha's wound while she cursed in three languages. The fire still crackled impossibly warm. She produced a wineskin, adding its contents to their empty cups with a wolf's grin.",
+      "image": "images/page_9.webp",
+      "audio": "audio/page_9.webm",
+      "audio_mime": "audio/webm"
+    },
+    {
+      "page": 10,
+      "text": "\"To dead sorcerers,\" Zasha toasted, wine-laced cocoa steaming between them. Outside, the blizzard raged, but the ancient hearth held winter at bay—for now.",
+      "image": "images/page_10.webp",
+      "audio": "audio/page_10.webm",
+      "audio_mime": "audio/webm"
+    }
+  ]
+}

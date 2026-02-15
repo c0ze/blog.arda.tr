@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Black Ice of the Ludus</title>
+  <meta name="theme-color" content="#151923">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-theme="grimdark">
+  <main class="app" id="app">
+    <header class="topbar">
+      <button id="prevBtn" class="nav-btn" aria-label="Previous page">Back</button>
+      <div class="meta">
+        <h1 id="bookTitle">Black Ice of the Ludus</h1>
+        <p id="pageMeta">Page 1 / 1</p>
+      </div>
+      <button id="nextBtn" class="nav-btn" aria-label="Next page">Next</button>
+    </header>
+
+    <section id="pageCard" class="page-card" aria-live="polite">
+      <div class="image-wrap">
+        <div id="imgShimmer" class="shimmer"></div>
+        <img id="pageImage" alt="Story page illustration" />
+      </div>
+      <div class="text-wrap">
+        <p id="pageText" class="story-text"></p>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <div class="player">
+        <button id="playPauseBtn" class="pill pill-play">Listen</button>
+        <button id="autoplayBtn" class="pill pill-auto on">Auto</button>
+      </div>
+      <div id="dots" class="dots"></div>
+    </footer>
+  </main>
+  <audio id="audio" preload="auto"></audio>
+  <script src="app.js"></script>
+</body>
+</html>

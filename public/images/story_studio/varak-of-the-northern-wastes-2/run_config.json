@@ -1,0 +1,71 @@
+{
+  "story_config": {
+    "slug": "varak-of-the-northern-wastes",
+    "title": "Varak of the Northern Wastes",
+    "character_anchor": "Varak, a towering barbarian warrior from the frozen northern wastes, with bronze weathered skin, battle-scarred arms, fierce pale eyes, dark wind-tangled hair, and a heavy notched sword carried across his broad back.",
+    "art_style": "Classic sword-and-sorcery pulp dark fantasy illustration, dramatic chiaroscuro lighting, ancient ruins and decadent cityscapes, blood-red skies, gritty cinematic action, textured painterly detail.",
+    "tone": "Grim, hard-edged sword-and-sorcery pulp with visceral action, terse dialogue, fatalistic humor, cosmic dread, and bittersweet or ironic endings.",
+    "audience": "adult",
+    "reader_theme": "grimdark",
+    "narration_style": "",
+    "world_rules": "Stories take place in a brutal ancient world of desert tombs, ruined vaults, tower-cities, caravan roads, taverns, and forgotten temples. Civilization is decadent and corrupt; wilderness is dangerous but honest. Magic exists but is rare, costly, and corrupting. Cursed artifacts and eldritch entities can appear, but power must always demand a price. Keep the world pre-modern: no guns, no modern technology, no contemporary slang, no sci-fi gadgets. Conflicts should be survival, revenge, theft, betrayal, or forbidden sorcery, ending with hard-won victories and lingering consequences.",
+    "glossary_map": {},
+    "supporting_cast": [
+      {
+        "name": "Zasha",
+        "description": "The She-Wolf of Zamora, a tall, lethal hill-tribe rogue with braided black hair, bronze skin, catlike reflexes, twin daggers, and a sly smile that often means trouble.",
+        "relationship": "Varak's dangerous ally, rival, and occasional romantic spark; they fight beside each other and betray each other in equal measure."
+      },
+      {
+        "name": "Khor",
+        "description": "A gaunt sorcerer-lord wrapped in blood-dark robes, with corpse-thin features and green eldritch eyes, master of forbidden pacts and tower-bound rituals.",
+        "relationship": "Varak's slain nemesis whose surviving cults, relics, and broken pacts continue to haunt the world."
+      },
+      {
+        "name": "Nemed",
+        "description": "A one-eyed tavern singer and rumor-broker with a scarred lute, a voice like gravel, and a gift for turning bloodshed into legend.",
+        "relationship": "A recurring informant who trades maps, secrets, and prophecy-laced gossip for coin and stories."
+      }
+    ]
+  },
+  "visual_config": {
+    "slug": "varak-of-the-northern-wastes",
+    "title": "Varak of the Northern Wastes",
+    "character_anchor": "Varak, a towering barbarian warrior from the frozen northern wastes, with bronze weathered skin, battle-scarred arms, fierce pale eyes, dark wind-tangled hair, and a heavy notched sword carried across his broad back.",
+    "art_style": "Classic sword-and-sorcery pulp dark fantasy illustration, dramatic chiaroscuro lighting, ancient ruins and decadent cityscapes, blood-red skies, gritty cinematic action, textured painterly detail.",
+    "tone": "Grim, hard-edged sword-and-sorcery pulp with visceral action, terse dialogue, fatalistic humor, cosmic dread, and bittersweet or ironic endings.",
+    "audience": "adult",
+    "reader_theme": "grimdark",
+    "narration_style": "",
+    "world_rules": "Stories take place in a brutal ancient world of desert tombs, ruined vaults, tower-cities, caravan roads, taverns, and forgotten temples. Civilization is decadent and corrupt; wilderness is dangerous but honest. Magic exists but is rare, costly, and corrupting. Cursed artifacts and eldritch entities can appear, but power must always demand a price. Keep the world pre-modern: no guns, no modern technology, no contemporary slang, no sci-fi gadgets. Conflicts should be survival, revenge, theft, betrayal, or forbidden sorcery, ending with hard-won victories and lingering consequences.",
+    "glossary_map": {},
+    "supporting_cast": [
+      {
+        "name": "Zasha",
+        "description": "The She-Wolf of Zamora, a tall, lethal hill-tribe rogue with braided black hair, bronze skin, catlike reflexes, twin daggers, and a sly smile that often means trouble.",
+        "relationship": "Varak's dangerous ally, rival, and occasional romantic spark; they fight beside each other and betray each other in equal measure."
+      },
+      {
+        "name": "Khor",
+        "description": "A gaunt sorcerer-lord wrapped in blood-dark robes, with corpse-thin features and green eldritch eyes, master of forbidden pacts and tower-bound rituals.",
+        "relationship": "Varak's slain nemesis whose surviving cults, relics, and broken pacts continue to haunt the world."
+      },
+      {
+        "name": "Nemed",
+        "description": "A one-eyed tavern singer and rumor-broker with a scarred lute, a voice like gravel, and a gift for turning bloodshed into legend.",
+        "relationship": "A recurring informant who trades maps, secrets, and prophecy-laced gossip for coin and stories."
+      }
+    ]
+  },
+  "language": "en",
+  "theme": "A winter story for Varak of the Northern Wastes: hot cocoa by the fire",
+  "num_pages": 10,
+  "story_structure": {
+    "name": "grim-odyssey",
+    "guide": "The protagonist enters a hostile world where each stop extracts a cost. Escalate danger, pressure, and moral compromise toward a hard-won resolution.",
+    "emotional_arc": "foreboding -> strain -> setback -> ruthless adaptation -> costly victory"
+  },
+  "allow_missing_assets": true,
+  "request_id": "req_20260214T110400Z_ae8836b0",
+  "source_request_id": null
+}
