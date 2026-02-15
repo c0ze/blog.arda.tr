@@ -20,7 +20,7 @@ description: >-
   story creation studio with bible editing, character tooling, async batch
   assets, translations, preview, and quality controls.
 author: Arda Karaduman
-image: /images/story_studio/story-studio-1.png
+image: /images/story_studio/varak-of-the-northern-waste-3/images/cover.png
 draft: false
 ---
 
