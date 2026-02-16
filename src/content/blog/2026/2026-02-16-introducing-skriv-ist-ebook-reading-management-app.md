@@ -19,13 +19,13 @@ draft: false
 
 Over the years I used lots of e readers. From the first kindles, to nooks, kobo at times to obscure MARS readers, Pocketbook, and finally a Boox Page. I also used lots of epub reading apps on android. There are some good ones, but I never found something that satisfied all my needs. When I settled on one, they disappeared from the store and was never heard of again. Others were either too barebones, or too over engineered, or locked to single ecosystem etc.
 
-Skriv.ist is my dream epub reader. It is built for readers who want a clean EPUB experience without dealing with heavy installs or fragmented libraries. You just upload your book and you are ready to go. Your progress is saved whatever device you login from.
+[Skriv.ist](https://skriv.ist) is my dream epub reader. It is built for readers who want a clean EPUB experience without dealing with heavy installs or fragmented libraries. You just upload your book and you are ready to go. Your progress is saved whatever device you login from.
 
 The goal is simple: make reading and managing ebooks easy across devices, while keeping the app fast, flexible, and enjoyable to use.
 
 ## Why Skriv.ist
 
-![Skriv.ist App](/images/skrivist.png)
+[![Skriv.ist App](/images/skrivist.png)](https://app.skriv.ist)
 
 Most ebook workflows are either locked into a single platform or require too much setup.
 
