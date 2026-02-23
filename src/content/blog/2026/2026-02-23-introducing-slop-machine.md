@@ -6,7 +6,7 @@ tags: ["dev", "ai", "storytelling", "projects"]
 keywords: "slop machine, ai story generator, ai narrated story, visual storytelling, automated story generation"
 description: "Introducing Slop Machine, an AI-powered story generation engine. Define your aesthetics and story tone, and generate narrated, illustrated story content."
 author: "Arda Karaduman"
-image: "/images/slop-machine.png"
+image: "/images/og-slop-machine.png"
 draft: false
 ---
 
