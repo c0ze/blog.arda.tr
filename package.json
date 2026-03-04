@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "post": "npx tsx scripts/new-post.ts",
-    "new-post": "npx tsx scripts/new-post.ts"
+    "new-post": "npx tsx scripts/new-post.ts",
+    "post-mastodon": "npx tsx scripts/post-to-mastodon.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.2.0",

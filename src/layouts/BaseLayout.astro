@@ -23,6 +23,7 @@ const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-im
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="alternate" type="application/rss+xml" title="Coze Blog" href={new URL("rss.xml", Astro.site)} />
+    <link rel="me" href="https://mastodon.world/@arda" />
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -33,6 +34,9 @@ const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-im
     <title>{title}</title>
     <meta name="description" content={description} />
     {keywords && <meta name="keywords" content={keywords} />}
+
+    <!-- Fediverse -->
+    <meta name="fediverse:creator" content="@arda@mastodon.world" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
