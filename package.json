@@ -9,13 +9,15 @@
     "astro": "astro",
     "post": "npx tsx scripts/new-post.ts",
     "new-post": "npx tsx scripts/new-post.ts",
-    "post-mastodon": "npx tsx scripts/post-to-mastodon.ts"
+    "post-mastodon": "npx tsx scripts/post-to-mastodon.ts",
+    "post-bluesky": "npx tsx scripts/post-to-bluesky.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.2.0",
     "@astrojs/rss": "^4.0.15",
     "@astrojs/sitemap": "^3.7.0",
     "@astrojs/tailwind": "^6.0.0",
+    "@atproto/api": "^0.19.3",
     "@google/generative-ai": "^0.24.1",
     "@tailwindcss/typography": "^0.5.16",
     "astro": "^5.2.0",

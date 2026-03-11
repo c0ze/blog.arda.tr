@@ -43,6 +43,14 @@ jobs:
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-mastodon
 
+      - name: Post to Blue Sky
+        if: github.event_name == 'push'
+        env:
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: npm run post-bluesky
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
