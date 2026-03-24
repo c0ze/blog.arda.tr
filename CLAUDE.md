@@ -12,7 +12,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 - **Styling**: TailwindCSS with CSS variables
 - **Content**: Markdown files via Astro Content Collections
 - **Theming**: Custom implementation with 3 themes (dark/light/dracula)
-- **Deployment**: Cloudflare Pages
+- **Deployment**: GitHub Pages
 
 ## Project Structure
 

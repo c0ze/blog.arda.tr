@@ -29,52 +29,64 @@ The `npm run build` command generates static HTML in the `dist/` folder. Astro a
 
 ## Deployment
 
-### Cloudflare Pages (Recommended)
+### GitHub Pages
 
-1. Connect your GitHub repo to Cloudflare Pages
-2. Set build command: `npm run build`
-3. Set output directory: `dist`
-4. Deploy
+This repo already ships with [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml).
+Push to `main` or trigger the workflow manually and GitHub Pages will build and publish `dist/`.
 
-### GitHub Actions
-
-Create `.github/workflows/deploy.yml`:
+If you need to recreate the workflow, the shape is:
 
 ```yaml
-name: Deploy to Cloudflare Pages
+name: Deploy to GitHub Pages
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: 20
           cache: 'npm'
 
       - run: npm ci
       - run: npm run build
 
-      - name: Deploy to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
+      - uses: actions/upload-pages-artifact@v3
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: your-project-name
-          directory: dist
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
 ```
 
 ### Manual Deploy
 
 ```bash
 npm run build
-# Upload contents of dist/ to your hosting provider
+# Publish dist/ to GitHub Pages or another plain static host
 ```
 
 ## Creating New Posts
