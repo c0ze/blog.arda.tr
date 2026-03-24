@@ -14,6 +14,11 @@ export default defineConfig({
     // Inline small assets as base64
     inlineStylesheets: 'auto',
   },
+  image: {
+    service: {
+      entrypoint: './src/magick-service.ts'
+    }
+  },
   compressHTML: true,
   vite: {
     resolve: {
