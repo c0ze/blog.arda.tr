@@ -6,7 +6,7 @@ tags: ["dev", "security", "vscode", "ai"]
 keywords: "VS Code extension security, LiteLLM supply chain compromise, Open VSX malware, VSIX audit, pinned extension forks"
 description: "How I audited my VS Code extensions after the LiteLLM compromise, removed unnecessary packages, and replaced several utilities with my own pinned forks."
 author: "Arda Karaduman"
-image: ""
+image: "/images/og/vscode-security.jpg"
 draft: false
 ---
 
