@@ -32,6 +32,7 @@ const formattedDate = post.data.date.toLocaleDateString('en-US', {
 
 // Determine OG image - use post image if available, otherwise default
 const ogImage = post.data.image || '/images/og-image.png';
+const ogImageAbsolute = new URL(ogImage, Astro.site).href;
 ---
 
 <BaseLayout
@@ -151,6 +152,8 @@ const ogImage = post.data.image || '/images/og-image.png';
     "headline": post.data.title,
     "description": post.data.description || post.data.excerpt,
     "datePublished": post.data.date.toISOString(),
+    "dateModified": post.data.date.toISOString(),
+    "image": ogImageAbsolute,
     "author": {
       "@type": "Person",
       "name": post.data.author || "Coze",
