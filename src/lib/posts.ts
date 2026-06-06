@@ -28,3 +28,8 @@ export async function getPublishedPosts(): Promise<Post[]> {
   const posts = await getCollection('blog', isVisible);
   return posts.sort(byNewestFirst);
 }
+
+/** The URL slug for a post: its filename without the year-directory prefix. */
+export function getSlug(post: Post): string {
+  return post.id.split('/').pop() ?? post.id;
+}
