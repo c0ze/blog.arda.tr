@@ -68,6 +68,7 @@ const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags))].sort()
   tagButtons.forEach(button => {
     button.addEventListener('click', () => {
       const tag = button.getAttribute('data-tag');
+      if (tag === null) return;
 
       // Update active state
       tagButtons.forEach(btn => {

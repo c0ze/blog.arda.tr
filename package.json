@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev --port 8080",
     "build": "astro build && npx tsx scripts/merge-sitemap.ts",
+    "check": "astro check",
     "preview": "astro preview",
     "astro": "astro",
     "post": "npx tsx scripts/new-post.ts",
@@ -25,10 +26,12 @@
     "npm": ">=11.9.0"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.9",
     "@atproto/api": "^0.20.9",
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.4.2",
     "gray-matter": "^4.0.3",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }
