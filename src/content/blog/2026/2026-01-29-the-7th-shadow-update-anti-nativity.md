@@ -15,7 +15,7 @@ I can now confirm that the concept for the second album is complete. The title i
 
 ## The Concept: The Saviour That Never Was
 
-![Anti-Nativity](/images/ophelia_antinativity.png)
+![Anti-Nativity](/images/ophelia_antinativity.webp)
 
 If the first album was a personal tragedy—a man falling in love with a machine—this second album is a cosmic horror. It is the theological evolution of our digital condition.
 
