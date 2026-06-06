@@ -1,14 +1,14 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { render } from 'astro:content';
-import { getPublishedPosts } from '@/lib/posts';
+import { getPublishedPosts, getSlug } from '@/lib/posts';
 
 export async function getStaticPaths() {
   const sortedPosts = await getPublishedPosts();
 
   return sortedPosts.map((post, index) => {
     // Extract the filename without extensions and without the year parent directory for the slug
-    const slug = post.id.split('/').pop() || post.id;
+    const slug = getSlug(post);
     
     return {
       params: { slug },
@@ -111,7 +111,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
       <div class="grid md:grid-cols-2 gap-4">
         {prevPost && (
           <a
-            href={`/blog/${prevPost.id.split('/').pop()}`}
+            href={`/blog/${getSlug(prevPost)}`}
             class="group flex flex-col p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-card transition-all"
           >
             <span class="text-sm text-muted-foreground mb-1 flex items-center gap-1">
@@ -128,7 +128,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
         {!prevPost && <div />}
         {nextPost && (
           <a
-            href={`/blog/${nextPost.id.split('/').pop()}`}
+            href={`/blog/${getSlug(nextPost)}`}
             class="group flex flex-col p-4 rounded-lg border border-border hover:border-primary/50 hover:bg-card transition-all text-right md:col-start-2"
           >
             <span class="text-sm text-muted-foreground mb-1 flex items-center justify-end gap-1">
@@ -166,7 +166,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://blog.arda.tr/blog/${post.id.split('/').pop()}`
+      "@id": `https://blog.arda.tr/blog/${getSlug(post)}`
     },
     "keywords": post.data.keywords
   })} />
