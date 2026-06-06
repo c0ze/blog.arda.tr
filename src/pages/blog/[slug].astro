@@ -42,6 +42,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
   keywords={post.data.keywords}
   type="article"
   publishedTime={post.data.date.toISOString()}
+  lang={post.data.lang}
 >
   <article class="container mx-auto px-4 py-16 max-w-4xl">
     <!-- Header -->

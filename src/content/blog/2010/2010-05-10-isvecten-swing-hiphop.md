@@ -1,6 +1,7 @@
 ---
 title: "İsveçten Swing HipHop"
 date: "2010-05-10"
+lang: "tr"
 excerpt: ""
 tags: ["legacy"]
 author: "Arda Karaduman"
