@@ -8,8 +8,8 @@ import { BskyAgent, RichText } from '@atproto/api';
 
 const SITE_URL = 'https://blog.arda.tr/blog';
 
-// Hardcoded user details
-const BLUESKY_IDENTIFIER = 'arda-karaduman.bsky.social'; // Handles must be full, usually appending .bsky.social if not on custom domain. If custom domain, probably blog.arda.tr. We will try arda-karaduman.bsky.social first, then fallback to arda-karaduman in error handling if needed, but let's just test. Wait, let me fallback to arda-karaduman.
+// Bluesky full handle; the app password comes from the BLUESKY_PASSWORD secret.
+const BLUESKY_IDENTIFIER = 'arda-karaduman.bsky.social';
 const BLUESKY_PASSWORD = process.env.BLUESKY_PASSWORD;
 
 async function postToBluesky(status: string) {
@@ -24,19 +24,10 @@ async function postToBluesky(status: string) {
     const agent = new BskyAgent({ service: 'https://bsky.social' });
 
     try {
-        try {
-            // we will first try what was explicitly asked "arda-karaduman", maybe user has it set without domain, though usually it includes ".bsky.social" or their domain. 
-            await agent.login({
-                identifier: 'arda-karaduman',
-                password: BLUESKY_PASSWORD
-            });
-        } catch (e) {
-            console.log("Login failed with 'arda-karaduman', trying 'arda-karaduman.bsky.social'...");
-            await agent.login({
-                identifier: 'arda-karaduman.bsky.social',
-                password: BLUESKY_PASSWORD
-            });
-        }
+        await agent.login({
+            identifier: BLUESKY_IDENTIFIER,
+            password: BLUESKY_PASSWORD,
+        });
 
         const rt = new RichText({ text: status });
         await rt.detectFacets(agent); // automatically detects links and mentions
