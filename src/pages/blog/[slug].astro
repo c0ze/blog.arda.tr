@@ -39,6 +39,8 @@ const ogImage = post.data.image || '/images/og-image.png';
   description={post.data.description || post.data.excerpt}
   image={ogImage}
   keywords={post.data.keywords}
+  type="article"
+  publishedTime={post.data.date.toISOString()}
 >
   <article class="container mx-auto px-4 py-16 max-w-4xl">
     <!-- Header -->
