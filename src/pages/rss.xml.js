@@ -1,14 +1,13 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '@/lib/posts';
 
 export async function GET(context) {
-    const blog = await getCollection('blog');
+    const blog = await getPublishedPosts();
     return rss({
         title: 'Coze Blog',
         description: 'AI/LLM tooling, Go/DevOps, home networking, and generative AI music.',
         site: context.site,
         items: blog
-            .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
             .map((post) => {
                 const image = post.data.image;
                 const description = post.data.excerpt || post.data.description;
