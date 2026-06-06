@@ -1,6 +1,7 @@
 ---
 title: "Ağlayan bahçe ..."
 date: "2010-05-17"
+lang: "tr"
 excerpt: ""
 tags: ["legacy"]
 author: "Arda Karaduman"

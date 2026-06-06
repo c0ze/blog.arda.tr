@@ -1,6 +1,7 @@
 ---
 title: "Canımı sıkan olaylar ..."
 date: "2010-05-11"
+lang: "tr"
 excerpt: ""
 tags: ["legacy"]
 author: "Arda Karaduman"

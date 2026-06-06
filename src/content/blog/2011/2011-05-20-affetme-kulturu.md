@@ -1,6 +1,7 @@
 ---
 title: "Affetme Kültürü"
 date: "2011-05-20"
+lang: "tr"
 excerpt: ""
 tags: ["legacy"]
 author: "Arda Karaduman"
