@@ -99,6 +99,8 @@ const isActive = (path: string) => pathname === path || pathname === path + '/';
         id="mobile-menu-button"
         class="flex items-center justify-center w-9 h-9 rounded-md hover:bg-accent transition-colors"
         aria-label="Toggle menu"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
       >
         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="4" x2="20" y1="12" y2="12"/>
@@ -132,7 +134,10 @@ const isActive = (path: string) => pathname === path || pathname === path + '/';
   const button = document.getElementById('mobile-menu-button');
   const menu = document.getElementById('mobile-menu');
 
-  button?.addEventListener('click', () => {
-    menu?.classList.toggle('hidden');
-  });
+  if (button && menu) {
+    button.addEventListener('click', () => {
+      menu.classList.toggle('hidden');
+      button.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+    });
+  }
 </script>
