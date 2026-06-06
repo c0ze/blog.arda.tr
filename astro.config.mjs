@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, passthroughImageService } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 
@@ -13,9 +13,10 @@ export default defineConfig({
     inlineStylesheets: 'auto',
   },
   image: {
-    service: {
-      entrypoint: './src/magick-service.ts'
-    }
+    // No build-time image optimization: content images live in public/ and are
+    // referenced directly, so nothing uses <Image>/getImage. Passthrough avoids
+    // falling back to Astro's sharp-based default service (sharp was removed).
+    service: passthroughImageService(),
   },
   compressHTML: true,
   vite: {
