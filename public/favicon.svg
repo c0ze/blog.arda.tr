@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="Coze">
+  <rect width="32" height="32" rx="7" fill="hsl(168, 15%, 15%)"/>
+  <g transform="translate(4 4)" fill="none" stroke="hsl(170, 100%, 75%)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="m18 16 4-4-4-4"/>
+    <path d="m6 8-4 4 4 4"/>
+    <path d="m14.5 4-5 16"/>
+  </g>
+</svg>
