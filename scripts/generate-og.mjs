@@ -2,14 +2,24 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import fs from "fs/promises";
 import path from "path";
+import { spawnSync } from "node:child_process";
 import dotenv from "dotenv";
-import sharp from "sharp";
 import matter from "gray-matter";
 
 dotenv.config();
 
 const API_KEY = process.env.GEMINI_API_KEY;
 const OUTPUT_DIR = "public/images/og";
+
+// Run ImageMagick's `magick` CLI (replaces the previous sharp pipeline so the
+// project relies on a single image tool — see src/magick-service.ts).
+function runMagick(args) {
+    const result = spawnSync("magick", args, { maxBuffer: 1024 * 1024 * 100 });
+    if (result.error) throw result.error;
+    if (result.status !== 0) {
+        throw new Error(`magick exited with code ${result.status}: ${result.stderr?.toString() ?? ""}`);
+    }
+}
 
 if (!API_KEY) {
     console.error("Error: GEMINI_API_KEY not found in .env");
@@ -105,31 +115,31 @@ async function run() {
         await fs.mkdir(OUTPUT_DIR, { recursive: true });
         await fs.writeFile(tempPath, buffer);
 
-        // 3. Optimize with Sharp
+        // 3. Optimize & compose with ImageMagick
         console.log("Optimizing image...");
 
-        let sharpChain = sharp(tempPath).resize(1200, 630, { fit: 'cover' });
+        // Resize onto a 1200x630 OG canvas, cropping to fill (cover).
+        const magickArgs = [tempPath, "-resize", "1200x630^", "-gravity", "center", "-extent", "1200x630"];
 
         if (logoPath) {
             const resolvedLogoPath = path.resolve(logoPath);
             try {
                 await fs.access(resolvedLogoPath);
                 console.log(`Compositing logo from: ${resolvedLogoPath}`);
-                const logoBuffer = await sharp(resolvedLogoPath)
-                    .resize({ width: 500, height: 500, fit: 'inside' })
-                    .toBuffer();
-
-                sharpChain = sharpChain.composite([{ input: logoBuffer, gravity: 'center' }]);
+                // Resize the logo to fit inside 500x500, then composite it centered.
+                magickArgs.push("(", resolvedLogoPath, "-resize", "500x500", ")", "-gravity", "center", "-composite");
             } catch (err) {
                 console.warn(`Warning: Logo file not found at ${resolvedLogoPath}, skipping composition.`);
             }
         }
 
-        await sharpChain
-            .png({ quality: 80, compressionLevel: 8 })
-            .toFile(outputPath);
-
-        await fs.unlink(tempPath);
+        magickArgs.push("-define", "png:compression-level=9", "-strip", outputPath);
+        try {
+            runMagick(magickArgs);
+        } finally {
+            // Always remove the temp Gemini PNG, even if magick fails.
+            await fs.unlink(tempPath).catch(() => {});
+        }
         console.log(`Image saved to: ${outputPath}`);
 
         // 4. Update Frontmatter
