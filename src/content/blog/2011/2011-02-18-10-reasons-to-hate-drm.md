@@ -1,6 +1,7 @@
 ---
 title: "DRM den nefret etmek icin 10 sebep ..."
 date: "2011-02-18"
+lang: "tr"
 excerpt: "DRM li bir ürünü kullanma macerası ..."
 tags: ["legacy"]
 author: "Arda Karaduman"
