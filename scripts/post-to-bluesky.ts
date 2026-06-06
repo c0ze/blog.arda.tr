@@ -41,14 +41,11 @@ async function postToBluesky(status: string) {
         const rt = new RichText({ text: status });
         await rt.detectFacets(agent); // automatically detects links and mentions
 
-        const postRecord = {
-            $type: 'app.bsky.feed.post',
+        const { uri } = await agent.post({
             text: rt.text,
             facets: rt.facets,
             createdAt: new Date().toISOString(),
-        };
-
-        const { uri, cid } = await agent.post(postRecord);
+        });
 
         console.log(`✅ Successfully posted to Blue Sky! URI: ${uri}`);
 
