@@ -1,9 +1,8 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getPublishedPosts } from '@/lib/posts';
 
-const allPosts = await getCollection('blog');
-const sortedPosts = allPosts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const sortedPosts = await getPublishedPosts();
 
 // Group posts by year
 const postsByYear = sortedPosts.reduce((acc, post) => {

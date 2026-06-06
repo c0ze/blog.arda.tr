@@ -1,12 +1,10 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getPublishedPosts } from '@/lib/posts';
 
 export async function getStaticPaths() {
-  const posts = await getCollection('blog', ({ data }) => {
-    return import.meta.env.PROD ? data.draft !== true : true;
-  });
-  const sortedPosts = posts.sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+  const sortedPosts = await getPublishedPosts();
 
   return sortedPosts.map((post, index) => {
     // Extract the filename without extensions and without the year parent directory for the slug
