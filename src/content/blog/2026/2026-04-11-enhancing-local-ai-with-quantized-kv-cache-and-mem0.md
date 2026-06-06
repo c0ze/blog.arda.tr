@@ -6,7 +6,7 @@ tags: ["ai", "dev", "homelab"]
 keywords: "local ai, llama.cpp, kv cache quantization, mem0, mempalace, lm studio, gemma, qwen, turbo quant"
 description: "A walkthrough of my local AI stack — LM Studio + Gemma on a 16GB GPU, asymmetric KV cache quantization on the Mac mini, and why I passed on MemPalace and landed on mem0 as my cross-service memory layer."
 author: "Arda Karaduman"
-image: "/images/2026-04-11-quantized-kv-cache-mem0-og.png"
+image: "/images/2026-04-11-quantized-kv-cache-mem0-og.webp"
 draft: false
 ---
 

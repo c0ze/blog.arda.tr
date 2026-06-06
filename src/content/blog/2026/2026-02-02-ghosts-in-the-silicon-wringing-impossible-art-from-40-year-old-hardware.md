@@ -17,7 +17,7 @@ I have deep respect for the demoscene, specifically the Amiga chapter. It is the
 
 ## The Visual Impossible: Steffest's "The Vision"
 
-![The Vision](/images/vision.gif)
+<video src="/images/vision.mp4" autoplay loop muted playsinline class="rounded-lg my-8" aria-label="The Vision"></video>
 
 
 The Amiga 500's OCS (Original Chip Set) is brutally limited. In standard modes, you are restricted to displaying **32 colors** on screen simultaneously, chosen from a palette of 4096. If you want animation, you usually have to redraw pixels, which eats precious CPU cycles.
