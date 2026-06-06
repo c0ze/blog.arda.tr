@@ -65,5 +65,9 @@ const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-im
       <slot />
     </main>
     <Footer />
+    <!-- Cloudflare Web Analytics (cookieless). is:inline keeps the beacon verbatim
+         so Astro doesn't bundle it or drop the data-cf-beacon attribute. -->
+    <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bd17608cad3d493a941bb5738f6f645f"}'></script>
+    <!-- End Cloudflare Web Analytics -->
   </body>
 </html>
