@@ -84,7 +84,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
 
       <div class="flex flex-wrap gap-2 mb-8">
         {post.data.tags.map((tag) => (
-          <span class="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-sm font-mono font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+          <span class="inline-flex items-center rounded-md bg-secondary px-2.5 py-0.5 text-sm font-mono font-medium text-secondary-foreground">
             #{tag}
           </span>
         ))}
