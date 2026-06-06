@@ -14,15 +14,24 @@ const MIME_TYPES = {
 
 /**
  * Builds a valid RSS <enclosure> for an image under `public/`, or returns
- * undefined when the type is unknown or the file can't be found. RSS requires a
- * correct MIME type and a real byte length (the old code hard-coded length 0 and
- * labelled every non-PNG — including .webp — as image/jpeg).
+ * undefined when the type is unknown, the path escapes `public/`, or the file
+ * can't be found. RSS requires a correct MIME type and a real byte length (the
+ * old code hard-coded length 0 and labelled every non-PNG — including .webp — as
+ * image/jpeg).
  */
 function imageEnclosure(imagePath, url) {
     const type = MIME_TYPES[path.extname(imagePath).toLowerCase()];
     if (!type) return undefined;
+
+    // Resolve within public/ and reject paths that escape it (path traversal).
+    const publicDir = path.join(process.cwd(), 'public');
+    const fullPath = path.join(publicDir, imagePath);
+    if (fullPath !== publicDir && !fullPath.startsWith(publicDir + path.sep)) {
+        return undefined;
+    }
+
     try {
-        const length = statSync(path.join(process.cwd(), 'public', imagePath)).size;
+        const length = statSync(fullPath).size;
         return { url, length, type };
     } catch {
         return undefined;
