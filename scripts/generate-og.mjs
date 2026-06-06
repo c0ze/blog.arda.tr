@@ -134,9 +134,12 @@ async function run() {
         }
 
         magickArgs.push("-define", "png:compression-level=9", "-strip", outputPath);
-        runMagick(magickArgs);
-
-        await fs.unlink(tempPath);
+        try {
+            runMagick(magickArgs);
+        } finally {
+            // Always remove the temp Gemini PNG, even if magick fails.
+            await fs.unlink(tempPath).catch(() => {});
+        }
         console.log(`Image saved to: ${outputPath}`);
 
         // 4. Update Frontmatter
