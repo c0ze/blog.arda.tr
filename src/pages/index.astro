@@ -1,84 +1,130 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PostCard from '@/components/PostCard.astro';
+import FeatureCard from '@/components/FeatureCard.astro';
+import LedgerRow from '@/components/LedgerRow.astro';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
+import { ledgerNo, tagChipClass } from '@/lib/display';
 
-const featuredPosts = (await getPublishedPosts()).slice(0, 3);
+const posts = await getPublishedPosts();
+const total = posts.length;
+const [latest, ...rest] = posts;
+const recent = rest.slice(0, 6);
+
+// Tag marquee: most-used tags, duplicated for a seamless CSS loop.
+const tagCounts = posts
+  .flatMap((post) => post.data.tags)
+  .reduce((acc, tag) => acc.set(tag, (acc.get(tag) ?? 0) + 1), new Map<string, number>());
+const marqueeTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 18).map(([tag]) => tag);
 ---
 
-<BaseLayout title="Coze - Software Development Journey">
-  <!-- Hero Section -->
-  <section class="container mx-auto px-4 py-20 text-center animate-fade-in">
-    <div class="flex items-center justify-center gap-2 mb-4">
-      <svg aria-hidden="true" class="w-5 h-5 text-primary animate-glow" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
-      </svg>
-      <span class="text-sm font-mono text-primary">Software Development Journey</span>
+<BaseLayout
+  title="Coze - Software Development Journey"
+  description="Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, generative music, and other side quests — logged since 2010."
+>
+  <!-- JSON-LD: Blog + author -->
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "name": "Coze",
+    "url": "https://blog.arda.tr/",
+    "description": "Software development journey: AI tooling, Go, DevOps, and side quests.",
+    "inLanguage": "en",
+    "author": {
+      "@type": "Person",
+      "name": "Arda Karaduman",
+      "url": "https://arda.tr",
+      "sameAs": [
+        "https://github.com/c0ze",
+        "https://mastodon.world/@arda",
+        "https://bsky.app/profile/arda-karaduman.bsky.social"
+      ]
+    }
+  })} />
+
+  <!-- Masthead -->
+  <section class="relative overflow-hidden">
+    <div class="dotgrid absolute inset-0" aria-hidden="true"></div>
+    <div class="container relative mx-auto px-4 pb-12 pt-16 sm:pt-24">
+      <span class="glass inline-flex items-center gap-3 rounded-full border px-4 py-1.5">
+        <span class="font-mono text-[0.66rem] uppercase tracking-[0.24em] text-primary">The ledger of side quests</span>
+        <span class="h-3.5 w-px bg-border" aria-hidden="true"></span>
+        <span class="font-mono text-[0.66rem] text-muted-foreground">est. 2010 · {total} entries</span>
+      </span>
+      <h1 class="mt-7 font-display text-6xl font-bold leading-[0.95] tracking-tight sm:text-7xl md:text-8xl">
+        Coze<span class="text-primary">.</span>
+      </h1>
+      <p class="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground sm:text-xl">
+        Software development journey — AI tooling, Go, DevOps, home networking,
+        generative music, and whatever refused to stay a small experiment.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/blog" class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-transform hover:scale-[1.03]">
+          Browse all entries
+        </a>
+        <a href="/archive" class="glass rounded-full border px-6 py-3 text-sm font-semibold text-foreground transition-colors hover:text-primary">
+          Archive by year
+        </a>
+      </div>
     </div>
-    <h1 class="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-cyan-400 bg-clip-text text-transparent">
-      Coze
-    </h1>
-    <p class="text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-      Exploring programming languages, frameworks, design patterns, and more.
-      A place where I share my journey through Go, AWS, DevOps, and modern web technologies.
-    </p>
-    <div class="flex gap-4 justify-center">
-      <a
-        href="/blog"
-        class="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors group"
-      >
-        View All Posts
-        <svg aria-hidden="true" class="w-4 h-4 group-hover:translate-x-1 transition-transform" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14"/>
-          <path d="m12 5 7 7-7 7"/>
-        </svg>
-      </a>
-      <a
-        href="/archive"
-        class="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-background px-6 py-3 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-      >
-        Browse Archive
-      </a>
+
+    <!-- Tag marquee -->
+    <div class="mask-fade-x overflow-hidden border-y border-border py-2.5" aria-hidden="true">
+      <div class="marquee-track flex gap-2.5 pr-2.5">
+        {[...marqueeTags, ...marqueeTags].map((tag) => (
+          <span class={tagChipClass(tag)}>#{tag}</span>
+        ))}
+      </div>
     </div>
   </section>
 
-  <!-- Featured Posts -->
-  <section class="container mx-auto px-4 py-16">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-3xl font-bold">Latest Posts</h2>
-      <a href="/blog" class="text-primary hover:underline flex items-center gap-2">
-        View all
-        <svg aria-hidden="true" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M5 12h14"/>
-          <path d="m12 5 7 7-7 7"/>
-        </svg>
-      </a>
+  <!-- Latest entry -->
+  {latest && (
+    <section class="container mx-auto px-4 pt-12">
+      <h2 class="sr-only">Latest entry</h2>
+      <FeatureCard
+        slug={getSlug(latest)}
+        title={latest.data.title}
+        date={latest.data.date}
+        excerpt={latest.data.excerpt}
+        tags={latest.data.tags}
+        no={ledgerNo(0, total)}
+        fresh
+      />
+    </section>
+  )}
+
+  <!-- Recent entries ledger -->
+  <section class="container mx-auto px-4 pt-12">
+    <div class="flex items-baseline justify-between border-b border-border pb-3">
+      <h2 class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground">Recent entries</h2>
+      <a href="/blog" class="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-primary hover:underline">view all →</a>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {featuredPosts.map((post, index) => (
-        <div style={`animation-delay: ${index * 0.1}s`}>
-          <PostCard
-            slug={getSlug(post)}
-            title={post.data.title}
-            date={post.data.date}
-            excerpt={post.data.excerpt}
-            tags={post.data.tags}
-          />
-        </div>
+    <div>
+      {recent.map((post, index) => (
+        <LedgerRow
+          slug={getSlug(post)}
+          title={post.data.title}
+          date={post.data.date}
+          tags={post.data.tags}
+          no={ledgerNo(index + 1, total)}
+        />
       ))}
     </div>
   </section>
 
-  <!-- About Section -->
-  <section class="container mx-auto px-4 py-16 animate-slide-up">
-    <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl font-bold mb-4">About This Blog</h2>
-      <p class="text-muted-foreground leading-relaxed">
-        This blog is a collection of technical articles, tutorials, and insights
-        from my experience as a software developer. I focus on practical solutions
-        to real-world problems, covering topics like Go programming, cloud infrastructure,
-        DevOps practices, and modern web development.
-      </p>
+  <!-- Colophon strip -->
+  <section class="container mx-auto px-4 pt-16">
+    <div class="grid gap-6 rounded-xl border border-border bg-card p-7 shadow-soft sm:grid-cols-[auto_1fr] sm:p-9">
+      <span class="font-mono text-xs tracking-widest text-primary">№ 000 / ABOUT</span>
+      <div>
+        <h2 class="font-display text-xl font-bold tracking-tight">What is this place?</h2>
+        <p class="mt-2 leading-relaxed text-muted-foreground">
+          Practical notes from a systems architect's workbench in Tokyo: real problems, working
+          solutions, and the occasional unhinged experiment with AI, retro hardware, or black metal.
+          The serious career stuff lives at <a href="https://resume.arda.tr" class="text-primary underline underline-offset-4">resume.arda.tr</a>;
+          everything else gets logged here.
+        </p>
+      </div>
     </div>
   </section>
 </BaseLayout>

@@ -1,76 +1,73 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
+import { ledgerNo } from '@/lib/display';
 
 const sortedPosts = await getPublishedPosts();
+const total = sortedPosts.length;
+
+// Ledger numbers follow the global newest-first order.
+const numbered = sortedPosts.map((post, index) => ({ post, no: ledgerNo(index, total) }));
 
 // Group posts by year
-const postsByYear = sortedPosts.reduce((acc, post) => {
-  const year = post.data.date.getFullYear();
+const postsByYear = numbered.reduce((acc, entry) => {
+  const year = entry.post.data.date.getFullYear();
   if (!acc[year]) acc[year] = [];
-  acc[year].push(post);
+  acc[year].push(entry);
   return acc;
-}, {} as Record<number, typeof sortedPosts>);
+}, {} as Record<number, typeof numbered>);
 
 const years = Object.keys(postsByYear).map(Number).sort((a, b) => b - a);
 ---
 
 <BaseLayout title="Archive - Coze" description="All blog posts organized by year">
-  <section class="container mx-auto px-4 py-16 max-w-4xl">
-    <div class="mb-12 animate-fade-in">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-        Archive
+  <section class="container mx-auto max-w-4xl px-4 py-14">
+    <header class="mb-12">
+      <span class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-primary">Back issues</span>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
+        Archive<span class="text-primary">.</span>
       </h1>
-      <p class="text-lg text-muted-foreground">
-        All posts organized by year. {sortedPosts.length} posts total.
+      <p class="mt-3 text-lg text-muted-foreground">
+        {total} entries, bound by year.
       </p>
-    </div>
+    </header>
 
-    <div class="space-y-12">
+    <div class="space-y-14">
       {years.map((year) => (
-        <div class="animate-slide-up">
-          <h2 class="text-2xl font-bold mb-6 flex items-center gap-3">
-            <span class="text-primary">{year}</span>
-            <span class="text-sm font-normal text-muted-foreground">
-              ({postsByYear[year].length} posts)
+        <section aria-labelledby={`year-${year}`}>
+          <div class="flex items-baseline gap-4 border-b border-border pb-2">
+            <h2 id={`year-${year}`} class="font-display text-3xl font-bold tracking-tight text-primary">{year}</h2>
+            <span class="font-mono text-xs text-muted-foreground">
+              {postsByYear[year].length} {postsByYear[year].length === 1 ? 'entry' : 'entries'}
             </span>
-          </h2>
-          <ul class="space-y-4 border-l-2 border-border pl-6">
-            {postsByYear[year].map((post) => {
+          </div>
+          <ul class="mt-1">
+            {postsByYear[year].map(({ post, no }) => {
               const formattedDate = post.data.date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric'
               });
               return (
-                <li class="relative">
-                  <div class="absolute -left-[1.625rem] top-2 w-3 h-3 rounded-full bg-primary" />
-                  <a
-                    href={`/blog/${getSlug(post)}`}
-                    class="group block p-4 -ml-2 rounded-lg hover:bg-card transition-colors"
-                  >
-                    <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-                      <time class="text-sm text-muted-foreground font-mono min-w-[4rem]">
-                        {formattedDate}
-                      </time>
-                      <span class="font-medium group-hover:text-primary transition-colors">
+                <li>
+                  <a href={`/blog/${getSlug(post)}`} class="ledger-row group px-1">
+                    <span class="ledger-no">{no}</span>
+                    <time datetime={post.data.date.toISOString()} class="font-mono text-xs text-muted-foreground">{formattedDate}</time>
+                    <span class="min-w-0">
+                      <span class="block truncate font-display text-base font-semibold tracking-tight transition-colors group-hover:text-primary">
                         {post.data.title}
                       </span>
-                    </div>
-                    {post.data.tags.length > 0 && (
-                      <div class="flex flex-wrap gap-1 mt-2 sm:ml-[4.5rem]">
-                        {post.data.tags.map((tag) => (
-                          <span class="text-xs text-muted-foreground font-mono">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
+                      {post.data.tags.length > 0 && (
+                        <span class="mt-1 hidden font-mono text-[0.66rem] text-muted-foreground sm:block">
+                          {post.data.tags.map((tag) => `#${tag}`).join('  ')}
+                        </span>
+                      )}
+                    </span>
                   </a>
                 </li>
               );
             })}
           </ul>
-        </div>
+        </section>
       ))}
     </div>
   </section>

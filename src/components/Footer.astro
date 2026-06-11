@@ -1,16 +1,22 @@
 ---
+const year = new Date().getFullYear();
 ---
 
-<footer class="py-8 mt-16 text-center text-sm text-muted-foreground border-t border-border bg-card/50">
-  <div class="container mx-auto px-4">
-    <p>
-      Human-driven. AI is utilized solely for editorial refinement.
-      <span class="mx-2">|</span>
-      <a href="/rss.xml" class="hover:text-primary transition-colors underline underline-offset-4">RSS Feed</a>
-      <span class="mx-2">|</span>
-      <a rel="me" href="https://mastodon.world/@arda" class="hover:text-primary transition-colors underline underline-offset-4">Mastodon</a>
-      <span class="mx-2">|</span>
-      <a rel="me" href="https://bsky.app/profile/arda-karaduman.bsky.social" class="hover:text-primary transition-colors underline underline-offset-4">Blue Sky</a>
+<footer class="mt-20 border-t border-border">
+  <div class="container mx-auto flex flex-col items-center gap-3 px-4 py-10 text-center">
+    <p class="font-mono text-[0.68rem] uppercase tracking-[0.22em] text-muted-foreground">
+      Coze — printed in the side-quest room since 2010
     </p>
+    <p class="text-sm text-muted-foreground">
+      Human-driven. AI is utilized solely for editorial refinement.
+    </p>
+    <nav class="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-sm" aria-label="Footer">
+      <a href="/rss.xml" class="text-muted-foreground underline underline-offset-4 transition-colors hover:text-primary">RSS</a>
+      <a rel="me" href="https://mastodon.world/@arda" class="text-muted-foreground underline underline-offset-4 transition-colors hover:text-primary">Mastodon</a>
+      <a rel="me" href="https://bsky.app/profile/arda-karaduman.bsky.social" class="text-muted-foreground underline underline-offset-4 transition-colors hover:text-primary">Bluesky</a>
+      <a href="https://arda.tr" class="text-muted-foreground underline underline-offset-4 transition-colors hover:text-primary">arda.tr</a>
+      <a href="https://resume.arda.tr" class="text-muted-foreground underline underline-offset-4 transition-colors hover:text-primary">Resume</a>
+    </nav>
+    <p class="font-mono text-[0.62rem] text-muted-foreground/70">© {year} Arda Karaduman</p>
   </div>
 </footer>

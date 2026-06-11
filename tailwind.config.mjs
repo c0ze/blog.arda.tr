@@ -15,8 +15,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        display: ['"Archivo"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans: ['Manrope', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -52,6 +53,16 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Theme-aware accent palette (re-tints per theme), shared naming with arda.tr.
+        "glow-cyan": "hsl(var(--theme-cyan) / <alpha-value>)",
+        "glow-green": "hsl(var(--theme-green) / <alpha-value>)",
+        "glow-pink": "hsl(var(--theme-pink) / <alpha-value>)",
+        "glow-yellow": "hsl(var(--theme-yellow) / <alpha-value>)",
+        "glow-red": "hsl(var(--theme-red) / <alpha-value>)",
+      },
+      boxShadow: {
+        soft: "var(--shadow-soft)",
+        medium: "var(--shadow-medium)",
       },
       borderRadius: {
         lg: "var(--radius)",

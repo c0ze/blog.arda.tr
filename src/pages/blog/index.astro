@@ -1,38 +1,41 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import PostCard from '@/components/PostCard.astro';
+import LedgerRow from '@/components/LedgerRow.astro';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
+import { ledgerNo } from '@/lib/display';
 
 const sortedPosts = await getPublishedPosts();
-
-// Get all unique tags
-const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags))].sort();
+const total = sortedPosts.length;
+const allTags = [...new Set(sortedPosts.flatMap((post) => post.data.tags))].sort();
 ---
 
 <BaseLayout title="Blog - Coze" description="All blog posts from Coze - Software Development Journey">
-  <section class="container mx-auto px-4 py-16">
-    <div class="mb-12 animate-fade-in">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-        Blog Posts
+  <section class="container mx-auto max-w-5xl px-4 py-14">
+    <header class="mb-10">
+      <span class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-primary">The full ledger</span>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
+        All entries<span class="text-primary">.</span>
       </h1>
-      <p class="text-lg text-muted-foreground max-w-2xl">
-        Thoughts, tutorials, and insights about software development, Go, AWS, DevOps, and more.
+      <p class="mt-3 max-w-2xl text-lg text-muted-foreground">
+        {total} posts of software, side quests, and the occasional séance with old hardware.
       </p>
-    </div>
+    </header>
 
-    <!-- Tag Filter -->
+    <!-- Tag filter -->
     <div class="mb-8">
-      <div class="flex flex-wrap gap-2" id="tag-filters">
+      <div class="flex flex-wrap gap-2" id="tag-filters" role="group" aria-label="Filter posts by tag">
         <button
-          class="tag-filter active inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition-colors"
+          class="tag-filter active rounded-full bg-primary px-3.5 py-1.5 font-mono text-xs font-semibold text-primary-foreground transition-colors"
           data-tag="all"
+          aria-pressed="true"
         >
           All
         </button>
         {allTags.map((tag) => (
           <button
-            class="tag-filter inline-flex items-center rounded-md bg-secondary px-3 py-1.5 text-sm font-medium text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors"
+            class="tag-filter rounded-full bg-secondary px-3.5 py-1.5 font-mono text-xs font-medium text-secondary-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
             data-tag={tag}
+            aria-pressed="false"
           >
             #{tag}
           </button>
@@ -40,53 +43,53 @@ const allTags = [...new Set(sortedPosts.flatMap(post => post.data.tags))].sort()
       </div>
     </div>
 
-    <!-- Posts Grid -->
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="posts-grid">
+    <!-- Ledger -->
+    <div class="border-t border-border" id="posts-list">
       {sortedPosts.map((post, index) => (
-        <div
-          class="post-item"
-          data-tags={post.data.tags.join(',')}
-          style={`animation-delay: ${index * 0.05}s`}
-        >
-          <PostCard
+        <div class="post-item" data-tags={post.data.tags.join(',')}>
+          <LedgerRow
             slug={getSlug(post)}
             title={post.data.title}
             date={post.data.date}
-            excerpt={post.data.excerpt}
             tags={post.data.tags}
+            no={ledgerNo(index, total)}
           />
         </div>
       ))}
     </div>
+    <p id="no-results" class="hidden py-12 text-center font-mono text-sm text-muted-foreground">
+      № 000 — no entries match that tag.
+    </p>
   </section>
 </BaseLayout>
 
 <script>
   const tagButtons = document.querySelectorAll('.tag-filter');
   const postItems = document.querySelectorAll('.post-item');
+  const noResults = document.getElementById('no-results');
 
   tagButtons.forEach(button => {
     button.addEventListener('click', () => {
       const tag = button.getAttribute('data-tag');
       if (tag === null) return;
 
-      // Update active state
       tagButtons.forEach(btn => {
         btn.classList.remove('active', 'bg-primary', 'text-primary-foreground');
         btn.classList.add('bg-secondary', 'text-secondary-foreground');
+        btn.setAttribute('aria-pressed', 'false');
       });
       button.classList.add('active', 'bg-primary', 'text-primary-foreground');
       button.classList.remove('bg-secondary', 'text-secondary-foreground');
+      button.setAttribute('aria-pressed', 'true');
 
-      // Filter posts
+      let visible = 0;
       postItems.forEach(item => {
         const itemTags = item.getAttribute('data-tags')?.split(',') || [];
-        if (tag === 'all' || itemTags.includes(tag)) {
-          (item as HTMLElement).style.display = 'block';
-        } else {
-          (item as HTMLElement).style.display = 'none';
-        }
+        const show = tag === 'all' || itemTags.includes(tag);
+        (item as HTMLElement).style.display = show ? 'block' : 'none';
+        if (show) visible++;
       });
+      noResults?.classList.toggle('hidden', visible > 0);
     });
   });
 </script>

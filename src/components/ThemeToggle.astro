@@ -1,99 +1,139 @@
 ---
+// Theme menu: lists the full canonical catalogue (shared with arda.tr and
+// resume.arda.tr). The swatch hexes mirror each theme's --primary/--background.
+const themes = [
+  { id: 'alucard', name: 'Ivory', hint: 'light', color: '#f7f5f0' },
+  { id: 'paper', name: 'Paper', hint: 'high contrast', color: '#ffffff' },
+  { id: 'blade', name: 'Abyss', hint: 'dark teal', color: '#80FFEA' },
+  { id: 'dracula-pro', name: 'Void', hint: 'dark purple', color: '#9580FF' },
+  { id: 'carbon', name: 'Carbon', hint: 'high contrast', color: '#0a0a0a' },
+  { id: 'buffy', name: 'Sakura', hint: 'dark magenta', color: '#FF80BF' },
+  { id: 'lincoln', name: 'Amber', hint: 'dark gold', color: '#FFFF80' },
+  { id: 'morbius', name: 'Ember', hint: 'dark red', color: '#FF9580' },
+  { id: 'van-helsing', name: 'Steel', hint: 'dark blue', color: '#708CA9' },
+];
 ---
 
-<button
-  class="theme-toggle flex items-center justify-center w-9 h-9 rounded-full bg-secondary border border-border text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-  aria-label="Toggle theme"
-  type="button"
->
-  <span class="theme-icon-dark hidden">
-    <svg aria-hidden="true" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
-    </svg>
-  </span>
-  <span class="theme-icon-light hidden">
-    <svg aria-hidden="true" class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <circle cx="12" cy="12" r="4"/>
-      <path d="M12 2v2"/>
-      <path d="M12 20v2"/>
-      <path d="m4.93 4.93 1.41 1.41"/>
-      <path d="m17.66 17.66 1.41 1.41"/>
-      <path d="M2 12h2"/>
-      <path d="M20 12h2"/>
-      <path d="m6.34 17.66-1.41 1.41"/>
-      <path d="m19.07 4.93-1.41 1.41"/>
-    </svg>
-  </span>
-  <span class="theme-icon-dracula hidden">
-    <svg aria-hidden="true" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" />
-      <path d="M8 14l2-4 2 4" />
-      <path d="M12 14l2-4 2 4" />
-    </svg>
-  </span>
-</button>
+<div class="theme-menu relative">
+  <button
+    class="theme-menu-button glass flex h-9 w-9 items-center justify-center rounded-full border text-muted-foreground transition-colors hover:text-primary"
+    aria-label="Select theme"
+    aria-haspopup="true"
+    aria-expanded="false"
+    type="button"
+  >
+    <span class="theme-menu-swatch h-4 w-4 rounded-full ring-1 ring-foreground/20" style="background:#80FFEA"></span>
+  </button>
+
+  <div
+    class="theme-menu-list glass hidden absolute right-0 top-11 z-50 w-60 rounded-lg border bg-popover p-1.5 shadow-medium"
+    role="menu"
+    aria-label="Themes"
+  >
+    {themes.map((t) => (
+      <button
+        class="theme-menu-item flex w-full items-center gap-3 rounded-md px-2.5 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
+        role="menuitemradio"
+        aria-checked="false"
+        data-theme-id={t.id}
+        type="button"
+      >
+        <span class="h-4 w-4 shrink-0 rounded-full border border-border" style={`background:${t.color}`}></span>
+        <span class="whitespace-nowrap font-medium">{t.name}</span>
+        <span class="ml-auto whitespace-nowrap text-right font-mono text-[0.62rem] leading-none text-muted-foreground">{t.hint}</span>
+      </button>
+    ))}
+  </div>
+</div>
 
 <script is:inline>
-(function() {
-  const themes = ['dark', 'light', 'dracula'];
+(function () {
+  var THEMES = ['blade', 'alucard', 'paper', 'dracula-pro', 'carbon', 'buffy', 'lincoln', 'morbius', 'van-helsing'];
+  var LEGACY = { dark: 'blade', light: 'alucard', dracula: 'dracula-pro' };
+  var COLORS = {
+    blade: '#212c2a', alucard: '#f7f5f0', paper: '#ffffff',
+    'dracula-pro': '#22202d', carbon: '#050505', buffy: '#2a202c',
+    lincoln: '#2c2a21', morbius: '#2c2021', 'van-helsing': '#090a0c'
+  };
+  var SWATCH = {
+    blade: '#80FFEA', alucard: '#f7f5f0', paper: '#ffffff',
+    'dracula-pro': '#9580FF', carbon: '#0a0a0a', buffy: '#FF80BF',
+    lincoln: '#FFFF80', morbius: '#FF9580', 'van-helsing': '#708CA9'
+  };
 
-  function getTheme() {
-    return localStorage.getItem('theme') || 'dark';
+  function currentTheme() {
+    var stored = localStorage.getItem('theme');
+    if (stored && LEGACY[stored]) stored = LEGACY[stored];
+    if (stored && THEMES.indexOf(stored) !== -1) return stored;
+    for (var i = 0; i < THEMES.length; i++) {
+      if (document.documentElement.classList.contains(THEMES[i])) return THEMES[i];
+    }
+    return 'blade';
   }
 
-  function setTheme(theme) {
-    document.documentElement.classList.remove('dark', 'light', 'dracula');
+  function applyTheme(theme) {
+    THEMES.forEach(function (t) { document.documentElement.classList.remove(t); });
     document.documentElement.classList.add(theme);
     localStorage.setItem('theme', theme);
-    updateIcons(theme);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta && COLORS[theme]) meta.setAttribute('content', COLORS[theme]);
+    syncUI(theme);
   }
 
-  function updateIcons(theme) {
-    document.querySelectorAll('.theme-toggle').forEach(function(button) {
-      button.querySelector('.theme-icon-dark')?.classList.add('hidden');
-      button.querySelector('.theme-icon-light')?.classList.add('hidden');
-      button.querySelector('.theme-icon-dracula')?.classList.add('hidden');
-      button.querySelector('.theme-icon-' + theme)?.classList.remove('hidden');
+  function syncUI(theme) {
+    document.querySelectorAll('.theme-menu-swatch').forEach(function (el) {
+      el.style.background = SWATCH[theme] || SWATCH.blade;
+    });
+    document.querySelectorAll('.theme-menu-item').forEach(function (item) {
+      item.setAttribute('aria-checked', String(item.getAttribute('data-theme-id') === theme));
     });
   }
 
-  function cycleTheme(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    var current = getTheme();
-    var currentIndex = themes.indexOf(current);
-    var nextIndex = (currentIndex + 1) % themes.length;
-    setTheme(themes[nextIndex]);
+  function closeAll() {
+    document.querySelectorAll('.theme-menu').forEach(function (menu) {
+      menu.querySelector('.theme-menu-list').classList.add('hidden');
+      menu.querySelector('.theme-menu-button').setAttribute('aria-expanded', 'false');
+    });
   }
 
-  function initThemeToggle() {
-    // Update icons for current theme
-    updateIcons(getTheme());
+  function init() {
+    syncUI(currentTheme());
+    document.querySelectorAll('.theme-menu').forEach(function (menu) {
+      if (menu.hasAttribute('data-init')) return;
+      menu.setAttribute('data-init', 'true');
 
-    // Attach click handlers using event delegation on document
-    // This ensures it works even if buttons are added dynamically
-    document.querySelectorAll('.theme-toggle').forEach(function(button) {
-      // Remove any existing listeners by cloning
-      if (!button.hasAttribute('data-theme-init')) {
-        button.setAttribute('data-theme-init', 'true');
-        button.addEventListener('click', cycleTheme);
-        // Also handle touch events for mobile
-        button.addEventListener('touchend', function(e) {
-          e.preventDefault();
-          cycleTheme(e);
+      var button = menu.querySelector('.theme-menu-button');
+      var list = menu.querySelector('.theme-menu-list');
+
+      button.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = !list.classList.contains('hidden');
+        closeAll();
+        if (!open) {
+          list.classList.remove('hidden');
+          button.setAttribute('aria-expanded', 'true');
+        }
+      });
+
+      menu.querySelectorAll('.theme-menu-item').forEach(function (item) {
+        item.addEventListener('click', function () {
+          applyTheme(item.getAttribute('data-theme-id'));
+          closeAll();
         });
-      }
+      });
+    });
+
+    document.addEventListener('click', closeAll);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeAll();
     });
   }
 
-  // Run on DOMContentLoaded and also immediately if DOM is already ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initThemeToggle);
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    initThemeToggle();
+    init();
   }
-
-  // Also run on astro:page-load for View Transitions support
-  document.addEventListener('astro:page-load', initThemeToggle);
+  document.addEventListener('astro:page-load', init);
 })();
 </script>

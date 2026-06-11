@@ -2,146 +2,454 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
-All colors MUST be HSL.
+/*
+  Canonical theme catalogue — shared with arda.tr and resume.arda.tr.
+  All colors are raw HSL triplets consumed as hsl(var(--x)).
+
+  Light:          alucard (Ivory)         paper (Paper, high-contrast)
+  Dark:           dracula-pro (Void)      carbon (Carbon, high-contrast)
+  Mid accents:    blade (Abyss) · buffy (Sakura) · lincoln (Amber) ·
+                  morbius (Ember) · van-helsing (Steel)
+
+  Defined outside @layer so Tailwind never purges them.
 */
 
-@layer base {
-  /* Dark mode (default) - Dracula Pro Blade theme */
-  :root,
-  .dark {
-    --background: 168 15% 15%;
-    --foreground: 60 30% 96%;
+/* Abyss — dark teal (blog default; the blog's historical identity) */
+:root,
+.blade {
+  --background: 168 15% 15%;
+  --foreground: 60 30% 96%;
+  --card: 168 15% 18%;
+  --card-foreground: 60 30% 96%;
+  --popover: 168 15% 18%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 170 80% 75%;
+  --primary-foreground: 168 15% 15%;
+  --secondary: 168 15% 22%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 168 15% 22%;
+  --muted-foreground: 168 15% 57%;
+  --accent: 170 80% 75%;
+  --accent-foreground: 168 15% 15%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 168 15% 15%;
+  --border: 168 15% 28%;
+  --input: 168 15% 28%;
+  --ring: 170 80% 75%;
+  --radius: 0.75rem;
 
-    --card: 168 15% 18%;
-    --card-foreground: 60 30% 96%;
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-    --popover: 168 15% 18%;
-    --popover-foreground: 60 30% 96%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  color-scheme: dark;
+}
 
-    --primary: 170 100% 75%;
-    --primary-foreground: 168 15% 15%;
+/* Ivory — light */
+.alucard {
+  --background: 40 20% 97%;
+  --foreground: 250 15% 12%;
+  --card: 0 0% 100%;
+  --card-foreground: 250 15% 12%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 250 15% 12%;
+  --primary: 253 55% 42%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 40 12% 92%;
+  --secondary-foreground: 250 15% 12%;
+  --muted: 40 12% 92%;
+  --muted-foreground: 250 8% 38%;
+  --accent: 253 55% 42%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 8 75% 42%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 40 10% 84%;
+  --input: 40 10% 84%;
+  --ring: 253 55% 42%;
 
-    --secondary: 168 15% 22%;
-    --secondary-foreground: 60 30% 96%;
+  --theme-cyan: 192 90% 28%;
+  --theme-green: 130 70% 26%;
+  --theme-pink: 336 75% 38%;
+  --theme-yellow: 42 90% 30%;
+  --theme-red: 8 75% 42%;
 
-    --muted: 168 15% 22%;
-    --muted-foreground: 168 15% 55%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.12);
+  color-scheme: light;
+}
 
-    --accent: 170 100% 75%;
-    --accent-foreground: 168 15% 15%;
+/* Paper — high-contrast light (targets WCAG AAA pairings) */
+.paper {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 4%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 4%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 0 0% 4%;
+  --primary: 253 85% 30%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 94%;
+  --secondary-foreground: 0 0% 4%;
+  --muted: 0 0% 94%;
+  --muted-foreground: 0 0% 24%;
+  --accent: 253 85% 30%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 8 90% 32%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 32%;
+  --input: 0 0% 32%;
+  --ring: 253 85% 30%;
 
-    --destructive: 10 100% 75%;
-    --destructive-foreground: 168 15% 15%;
+  --theme-cyan: 192 100% 21%;
+  --theme-green: 130 90% 18%;
+  --theme-pink: 336 90% 28%;
+  --theme-yellow: 42 100% 22%;
+  --theme-red: 8 90% 32%;
 
-    --border: 168 15% 28%;
-    --input: 168 15% 28%;
-    --ring: 170 100% 75%;
+  --shadow-soft: none;
+  --shadow-medium: none;
+  color-scheme: light;
+}
 
-    --radius: 0.75rem;
+/* Void — dark purple */
+.dracula-pro {
+  --background: 252 18% 15%;
+  --foreground: 60 30% 96%;
+  --card: 252 18% 18%;
+  --card-foreground: 60 30% 96%;
+  --popover: 252 18% 18%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 265 74% 75%;
+  --primary-foreground: 252 18% 15%;
+  --secondary: 252 18% 22%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 252 18% 22%;
+  --muted-foreground: 252 15% 61%;
+  --accent: 265 74% 75%;
+  --accent-foreground: 252 18% 15%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 252 18% 15%;
+  --border: 252 18% 28%;
+  --input: 252 18% 28%;
+  --ring: 265 74% 75%;
 
-    /* Custom design tokens - Blade */
-    --gradient-primary: linear-gradient(135deg, hsl(170 100% 75%) 0%, hsl(115 100% 75%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(168 15% 18%) 0%, hsl(168 15% 21%) 100%);
-    --shadow-glow: 0 0 40px hsl(170 100% 75% / 0.15);
-    --shadow-card: 0 10px 30px -10px hsl(168 15% 15% / 0.4);
-  }
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-  /* Light mode - Dracula Pro Alucard theme */
-  .light {
-    --background: 0 0% 96%;
-    --foreground: 0 0% 12%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  color-scheme: dark;
+}
 
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 12%;
+/* Carbon — high-contrast dark (targets WCAG AAA pairings) */
+.carbon {
+  --background: 0 0% 2%;
+  --foreground: 0 0% 98%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 98%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 265 100% 84%;
+  --primary-foreground: 0 0% 2%;
+  --secondary: 0 0% 12%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 0 0% 12%;
+  --muted-foreground: 0 0% 80%;
+  --accent: 265 100% 84%;
+  --accent-foreground: 0 0% 2%;
+  --destructive: 10 100% 80%;
+  --destructive-foreground: 0 0% 2%;
+  --border: 0 0% 52%;
+  --input: 0 0% 52%;
+  --ring: 265 100% 84%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 12%;
+  --theme-cyan: 170 100% 80%;
+  --theme-green: 115 95% 78%;
+  --theme-pink: 326 100% 83%;
+  --theme-yellow: 60 100% 78%;
+  --theme-red: 10 100% 80%;
 
-    --primary: 253 53% 54%;
-    --primary-foreground: 0 0% 100%;
+  --shadow-soft: none;
+  --shadow-medium: none;
+  color-scheme: dark;
+}
 
-    --secondary: 240 18% 90%;
-    --secondary-foreground: 0 0% 12%;
+/* Sakura — dark magenta */
+.buffy {
+  --background: 292 15% 15%;
+  --foreground: 60 30% 96%;
+  --card: 292 15% 18%;
+  --card-foreground: 60 30% 96%;
+  --popover: 292 15% 18%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 326 80% 75%;
+  --primary-foreground: 292 15% 15%;
+  --secondary: 292 15% 22%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 292 15% 22%;
+  --muted-foreground: 292 15% 61%;
+  --accent: 326 80% 75%;
+  --accent-foreground: 292 15% 15%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 292 15% 15%;
+  --border: 292 15% 28%;
+  --input: 292 15% 28%;
+  --ring: 326 80% 75%;
 
-    --muted: 240 18% 90%;
-    --muted-foreground: 0 0% 40%;
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-    --accent: 253 53% 54%;
-    --accent-foreground: 0 0% 100%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  color-scheme: dark;
+}
 
-    --destructive: 6 67% 48%;
-    --destructive-foreground: 0 0% 100%;
+/* Amber — dark gold */
+.lincoln {
+  --background: 48 15% 15%;
+  --foreground: 60 30% 96%;
+  --card: 48 15% 18%;
+  --card-foreground: 60 30% 96%;
+  --popover: 48 15% 18%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 60 80% 75%;
+  --primary-foreground: 48 15% 15%;
+  --secondary: 48 15% 22%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 48 15% 22%;
+  --muted-foreground: 48 15% 57%;
+  --accent: 60 80% 75%;
+  --accent-foreground: 48 15% 15%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 48 15% 15%;
+  --border: 48 15% 28%;
+  --input: 48 15% 28%;
+  --ring: 60 80% 75%;
 
-    --border: 240 18% 84%;
-    --input: 240 18% 84%;
-    --ring: 253 53% 54%;
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-    /* Custom design tokens - light mode (Alucard) */
-    --gradient-primary: linear-gradient(135deg, hsl(253 53% 54%) 0%, hsl(253 53% 64%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(0 0% 100%) 0%, hsl(240 18% 98%) 100%);
-    --shadow-glow: 0 0 40px hsl(253 53% 54% / 0.1);
-    --shadow-card: 0 10px 30px -10px hsl(0 0% 12% / 0.1);
-  }
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  color-scheme: dark;
+}
 
-  /* Dracula Pro mode */
-  .dracula {
-    --background: 250 22% 10%;
-    --foreground: 60 30% 96%;
+/* Ember — dark red */
+.morbius {
+  --background: 355 15% 15%;
+  --foreground: 60 30% 96%;
+  --card: 355 15% 18%;
+  --card-foreground: 60 30% 96%;
+  --popover: 355 15% 18%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 10 80% 75%;
+  --primary-foreground: 355 15% 15%;
+  --secondary: 355 15% 22%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 355 15% 22%;
+  --muted-foreground: 355 15% 61%;
+  --accent: 10 80% 75%;
+  --accent-foreground: 355 15% 15%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 355 15% 15%;
+  --border: 355 15% 28%;
+  --input: 355 15% 28%;
+  --ring: 10 80% 75%;
 
-    --card: 250 18% 14%;
-    --card-foreground: 60 30% 96%;
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-    --popover: 250 18% 14%;
-    --popover-foreground: 60 30% 96%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.3);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.4);
+  color-scheme: dark;
+}
 
-    --primary: 265 89% 78%;
-    --primary-foreground: 250 22% 10%;
+/* Steel — near-black blue */
+.van-helsing {
+  --background: 210 15% 4%;
+  --foreground: 60 30% 96%;
+  --card: 210 15% 8%;
+  --card-foreground: 60 30% 96%;
+  --popover: 210 15% 8%;
+  --popover-foreground: 60 30% 96%;
+  --primary: 210 60% 62%;
+  --primary-foreground: 210 15% 4%;
+  --secondary: 210 15% 14%;
+  --secondary-foreground: 60 30% 96%;
+  --muted: 210 15% 14%;
+  --muted-foreground: 210 15% 55%;
+  --accent: 170 80% 75%;
+  --accent-foreground: 210 15% 4%;
+  --destructive: 10 80% 75%;
+  --destructive-foreground: 210 15% 4%;
+  --border: 210 15% 18%;
+  --input: 210 15% 18%;
+  --ring: 210 60% 62%;
 
-    --secondary: 250 18% 18%;
-    --secondary-foreground: 60 30% 96%;
+  --theme-cyan: 170 80% 75%;
+  --theme-green: 115 80% 75%;
+  --theme-pink: 326 80% 75%;
+  --theme-yellow: 60 80% 75%;
+  --theme-red: 10 80% 75%;
 
-    --muted: 250 18% 18%;
-    --muted-foreground: 225 27% 51%;
+  --shadow-soft: 0 2px 8px -2px hsl(0 0% 0% / 0.4);
+  --shadow-medium: 0 4px 16px -4px hsl(0 0% 0% / 0.5);
+  color-scheme: dark;
+}
 
-    --accent: 265 89% 78%;
-    --accent-foreground: 250 22% 10%;
-
-    --destructive: 10 80% 76%;
-    --destructive-foreground: 250 22% 10%;
-
-    --border: 250 18% 24%;
-    --input: 250 18% 24%;
-    --ring: 265 89% 78%;
-
-    /* Custom design tokens - dracula */
-    --gradient-primary: linear-gradient(135deg, hsl(265 89% 78%) 0%, hsl(326 100% 74%) 100%);
-    --gradient-card: linear-gradient(135deg, hsl(250 18% 14%) 0%, hsl(250 18% 17%) 100%);
-    --shadow-glow: 0 0 40px hsl(265 89% 78% / 0.15);
-    --shadow-card: 0 10px 30px -10px hsl(250 22% 10% / 0.4);
-  }
+/* Derived atmosphere tokens — re-tint automatically per theme. */
+:root {
+  --gradient-accent: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--theme-pink)));
+  --glass-bg: hsl(var(--card) / 0.6);
+  --glass-border: hsl(var(--foreground) / 0.08);
 }
 
 @layer base {
-  * {
-    @apply border-border;
+  html {
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', sans-serif;
-  }
-
-  code, pre {
-    font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    line-height: 1.65;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-display font-semibold tracking-tight;
+    line-height: 1.15;
+  }
+
+  code, pre {
+    @apply font-mono;
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--primary) / 0.4);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.6);
+    background-clip: content-box;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 3px;
+    border-radius: 6px;
   }
 }
 
-/* Respect users who prefer reduced motion: neutralize animations & transitions. */
+@layer components {
+  /* Frosted-glass surface (header). Opaque in high-contrast themes below. */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border-color: var(--glass-border);
+  }
+
+  /* Hairline dot grid behind the masthead — the "printing room" paper. */
+  .dotgrid {
+    background-image: radial-gradient(circle, hsl(var(--foreground) / 0.09) 1px, transparent 1.4px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, #000 30%, transparent 80%);
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, #000 30%, transparent 80%);
+  }
+
+  /* Ledger row — the list unit used on home, /blog and /archive. */
+  .ledger-row {
+    @apply grid items-baseline gap-x-4 border-b border-border py-4 no-underline;
+    grid-template-columns: 3.6rem 6.4rem 1fr;
+    transition: background-color 0.15s ease;
+  }
+  .ledger-row:hover { background: hsl(var(--muted) / 0.5); }
+  .ledger-no {
+    @apply font-mono text-xs tracking-widest text-muted-foreground;
+  }
+  .ledger-row:hover .ledger-no { color: hsl(var(--primary)); }
+
+  /* Tag chips, tinted by the five theme accents (assigned by tag hash). */
+  .chip {
+    @apply inline-flex items-center rounded px-2 py-0.5 font-mono text-[0.68rem] font-medium;
+  }
+  .chip-cyan   { background: hsl(var(--theme-cyan) / 0.14);   color: hsl(var(--theme-cyan)); }
+  .chip-green  { background: hsl(var(--theme-green) / 0.14);  color: hsl(var(--theme-green)); }
+  .chip-pink   { background: hsl(var(--theme-pink) / 0.14);   color: hsl(var(--theme-pink)); }
+  .chip-yellow { background: hsl(var(--theme-yellow) / 0.14); color: hsl(var(--theme-yellow)); }
+  .chip-red    { background: hsl(var(--theme-red) / 0.14);    color: hsl(var(--theme-red)); }
+}
+
+@layer utilities {
+  /* "Fresh ink" marquee of tags on the front page. Pauses on hover. */
+  .marquee-track {
+    width: max-content;
+    animation: marquee 36s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  .mask-fade-x {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+}
+
+/*
+  High-contrast themes: kill translucency and soft depth, strengthen edges.
+  Chips switch from tinted fills to outlined ink so text stays AAA.
+*/
+.paper .glass,
+.carbon .glass {
+  background: hsl(var(--card));
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-color: hsl(var(--border));
+}
+.paper .chip-cyan, .paper .chip-green, .paper .chip-pink, .paper .chip-yellow, .paper .chip-red,
+.carbon .chip-cyan, .carbon .chip-green, .carbon .chip-pink, .carbon .chip-yellow, .carbon .chip-red {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px currentColor;
+}
+.paper .dotgrid,
+.carbon .dotgrid {
+  background-image: none;
+}
+.paper a:not(.chip):hover,
+.carbon a:not(.chip):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* Respect users who prefer reduced motion. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
