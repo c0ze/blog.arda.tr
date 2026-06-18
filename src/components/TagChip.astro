@@ -1,0 +1,18 @@
+---
+import { tagChipClass, tagHref } from '@/lib/display';
+
+interface Props {
+  tag: string;
+  /** For decorative duplicates (e.g. the marquee loop): hide from AT + keyboard. */
+  hidden?: boolean;
+}
+
+const { tag, hidden = false } = Astro.props;
+---
+
+<a
+  href={tagHref(tag)}
+  class={`${tagChipClass(tag)} relative z-[1] transition-opacity hover:opacity-70`}
+  aria-hidden={hidden ? 'true' : undefined}
+  tabindex={hidden ? -1 : undefined}
+>#{tag}</a>

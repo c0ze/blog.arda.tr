@@ -1,5 +1,6 @@
 ---
-import { tagChipClass, formatDateShort } from '@/lib/display';
+import { formatDateShort } from '@/lib/display';
+import TagChip from '@/components/TagChip.astro';
 
 interface Props {
   slug: string;
@@ -12,17 +13,20 @@ interface Props {
 const { slug, title, date, tags, no } = Astro.props;
 ---
 
-<a href={`/blog/${slug}`} class="ledger-row group px-1">
+<div class="ledger-row group relative px-1">
   <span class="ledger-no">{no}</span>
   <time datetime={date.toISOString()} class="font-mono text-xs text-muted-foreground">{formatDateShort(date)}</time>
   <span class="min-w-0">
-    <span class="block truncate font-display text-base font-semibold tracking-tight transition-colors group-hover:text-primary sm:text-lg">
+    <a
+      href={`/blog/${slug}`}
+      class="block truncate font-display text-base font-semibold tracking-tight transition-colors after:absolute after:inset-0 after:content-[''] group-hover:text-primary sm:text-lg"
+    >
       {title}
-    </span>
+    </a>
     {tags.length > 0 && (
-      <span class="mt-1.5 hidden flex-wrap gap-1.5 sm:flex">
-        {tags.slice(0, 4).map((tag) => <span class={tagChipClass(tag)}>#{tag}</span>)}
+      <span class="relative z-[1] mt-1.5 hidden flex-wrap gap-1.5 sm:flex">
+        {tags.slice(0, 4).map((tag) => <TagChip tag={tag} />)}
       </span>
     )}
   </span>
-</a>
+</div>

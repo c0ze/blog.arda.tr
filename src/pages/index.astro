@@ -1,14 +1,13 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import FeatureCard from '@/components/FeatureCard.astro';
-import LedgerRow from '@/components/LedgerRow.astro';
+import CarouselCard from '@/components/CarouselCard.astro';
+import TagChip from '@/components/TagChip.astro';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
-import { ledgerNo, tagChipClass } from '@/lib/display';
+import { ledgerNo } from '@/lib/display';
 
 const posts = await getPublishedPosts();
 const total = posts.length;
-const [latest, ...rest] = posts;
-const recent = rest.slice(0, 6);
+const featured = posts.slice(0, 6);
 
 // Tag marquee: most-used tags, duplicated for a seamless CSS loop.
 const tagCounts = posts
@@ -67,48 +66,53 @@ const marqueeTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0
       </div>
     </div>
 
-    <!-- Tag marquee -->
-    <div class="mask-fade-x overflow-hidden border-y border-border py-2.5" aria-hidden="true">
+    <!-- Tag marquee — each tag links to its filtered listing; hover to pause -->
+    <div class="mask-fade-x overflow-hidden border-y border-border py-2.5">
       <div class="marquee-track flex gap-2.5 pr-2.5">
-        {[...marqueeTags, ...marqueeTags].map((tag) => (
-          <span class={tagChipClass(tag)}>#{tag}</span>
-        ))}
+        {marqueeTags.map((tag) => <TagChip tag={tag} />)}
+        {marqueeTags.map((tag) => <TagChip tag={tag} hidden />)}
       </div>
     </div>
   </section>
 
-  <!-- Latest entry -->
-  {latest && (
-    <section class="container mx-auto px-4 pt-12">
-      <h2 class="sr-only">Latest entry</h2>
-      <FeatureCard
-        slug={getSlug(latest)}
-        title={latest.data.title}
-        date={latest.data.date}
-        excerpt={latest.data.excerpt}
-        tags={latest.data.tags}
-        no={ledgerNo(0, total)}
-        fresh
-      />
-    </section>
-  )}
-
-  <!-- Recent entries ledger -->
+  <!-- Latest entries carousel -->
   <section class="container mx-auto px-4 pt-12">
     <div class="flex items-baseline justify-between border-b border-border pb-3">
-      <h2 class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground">Recent entries</h2>
+      <h2 class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-muted-foreground">Latest entries</h2>
       <a href="/blog" class="font-mono text-[0.7rem] uppercase tracking-[0.14em] text-primary hover:underline">view all →</a>
     </div>
-    <div>
-      {recent.map((post, index) => (
-        <LedgerRow
-          slug={getSlug(post)}
-          title={post.data.title}
-          date={post.data.date}
-          tags={post.data.tags}
-          no={ledgerNo(index + 1, total)}
-        />
-      ))}
+
+    <div class="relative mt-5">
+      <button
+        type="button"
+        data-carousel-prev
+        aria-label="Previous entries"
+        class="carousel-arrow absolute left-0 top-[38%] z-10 h-10 w-10 -translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-2xl leading-none text-foreground shadow-medium transition-colors hover:border-primary hover:text-primary"
+      >‹</button>
+
+      <ul id="latest-carousel" class="carousel-track flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-4">
+        {featured.map((post, index) => (
+          <li class="carousel-item shrink-0 snap-start list-none">
+            <CarouselCard
+              slug={getSlug(post)}
+              title={post.data.title}
+              date={post.data.date}
+              excerpt={post.data.excerpt}
+              tags={post.data.tags}
+              no={ledgerNo(index, total)}
+              image={post.data.image}
+              fresh={index === 0}
+            />
+          </li>
+        ))}
+      </ul>
+
+      <button
+        type="button"
+        data-carousel-next
+        aria-label="More entries"
+        class="carousel-arrow absolute right-0 top-[38%] z-10 h-10 w-10 translate-x-1/2 items-center justify-center rounded-full border border-border bg-card text-2xl leading-none text-foreground shadow-medium transition-colors hover:border-primary hover:text-primary"
+      >›</button>
     </div>
   </section>
 
@@ -128,3 +132,27 @@ const marqueeTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).slice(0
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .carousel-track { scrollbar-width: none; -ms-overflow-style: none; }
+  .carousel-track::-webkit-scrollbar { display: none; }
+  /* Latest card is wider (focused); the rest are scrollable peers. */
+  .carousel-item { width: clamp(17rem, 80vw, 22rem); }
+  .carousel-item:first-child { width: clamp(20rem, 88vw, 30rem); }
+  .carousel-arrow { display: none; }
+  @media (min-width: 768px) { .carousel-arrow { display: inline-flex; } }
+  /* Pause the tag marquee on hover so the tags are easy to click. */
+  .marquee-track:hover { animation-play-state: paused; }
+</style>
+
+<script is:inline>
+  (function () {
+    var track = document.getElementById('latest-carousel');
+    if (!track) return;
+    var step = function () { return Math.max(track.clientWidth * 0.8, 280); };
+    var prev = document.querySelector('[data-carousel-prev]');
+    var next = document.querySelector('[data-carousel-next]');
+    if (prev) prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+    if (next) next.addEventListener('click', function () { track.scrollBy({ left: step(), behavior: 'smooth' }); });
+  })();
+</script>

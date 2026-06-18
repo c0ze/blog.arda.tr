@@ -64,32 +64,48 @@ const allTags = [...new Set(sortedPosts.flatMap((post) => post.data.tags))].sort
 </BaseLayout>
 
 <script>
-  const tagButtons = document.querySelectorAll('.tag-filter');
-  const postItems = document.querySelectorAll('.post-item');
+  const tagButtons = document.querySelectorAll<HTMLButtonElement>('.tag-filter');
+  const postItems = document.querySelectorAll<HTMLElement>('.post-item');
   const noResults = document.getElementById('no-results');
 
-  tagButtons.forEach(button => {
+  function applyFilter(tag: string, updateUrl: boolean) {
+    tagButtons.forEach((btn) => {
+      const active = btn.getAttribute('data-tag') === tag;
+      btn.classList.toggle('active', active);
+      btn.classList.toggle('bg-primary', active);
+      btn.classList.toggle('text-primary-foreground', active);
+      btn.classList.toggle('bg-secondary', !active);
+      btn.classList.toggle('text-secondary-foreground', !active);
+      btn.setAttribute('aria-pressed', String(active));
+    });
+
+    let visible = 0;
+    postItems.forEach((item) => {
+      const itemTags = item.getAttribute('data-tags')?.split(',') || [];
+      const show = tag === 'all' || itemTags.includes(tag);
+      item.style.display = show ? 'block' : 'none';
+      if (show) visible++;
+    });
+    noResults?.classList.toggle('hidden', visible > 0);
+
+    if (updateUrl) {
+      const url = new URL(window.location.href);
+      if (tag === 'all') url.searchParams.delete('tag');
+      else url.searchParams.set('tag', tag);
+      history.replaceState(null, '', url);
+    }
+  }
+
+  tagButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const tag = button.getAttribute('data-tag');
-      if (tag === null) return;
-
-      tagButtons.forEach(btn => {
-        btn.classList.remove('active', 'bg-primary', 'text-primary-foreground');
-        btn.classList.add('bg-secondary', 'text-secondary-foreground');
-        btn.setAttribute('aria-pressed', 'false');
-      });
-      button.classList.add('active', 'bg-primary', 'text-primary-foreground');
-      button.classList.remove('bg-secondary', 'text-secondary-foreground');
-      button.setAttribute('aria-pressed', 'true');
-
-      let visible = 0;
-      postItems.forEach(item => {
-        const itemTags = item.getAttribute('data-tags')?.split(',') || [];
-        const show = tag === 'all' || itemTags.includes(tag);
-        (item as HTMLElement).style.display = show ? 'block' : 'none';
-        if (show) visible++;
-      });
-      noResults?.classList.toggle('hidden', visible > 0);
+      if (tag !== null) applyFilter(tag, true);
     });
   });
+
+  // Deep-link support: a tag chip anywhere links to /blog?tag=dev, landing pre-filtered.
+  const requested = new URLSearchParams(window.location.search).get('tag');
+  if (requested && [...tagButtons].some((b) => b.getAttribute('data-tag') === requested)) {
+    applyFilter(requested, false);
+  }
 </script>

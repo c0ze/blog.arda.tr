@@ -8,6 +8,11 @@ export function tagChipClass(tag: string): string {
   return `chip ${CHIP_CLASSES[Math.abs(hash) % CHIP_CLASSES.length]}`;
 }
 
+/** Link target for a tag chip: the blog listing deep-linked to that tag's filter. */
+export function tagHref(tag: string): string {
+  return `/blog?tag=${encodeURIComponent(tag)}`;
+}
+
 /** Estimated reading time in whole minutes (~220 wpm, min 1). */
 export function readingTimeMinutes(body: string | undefined): number {
   const words = (body ?? '').split(/\s+/).filter(Boolean).length;
