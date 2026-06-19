@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
 import matter from 'gray-matter';
-import { BskyAgent, RichText } from '@atproto/api';
+import { AtpAgent, RichText } from '@atproto/api';
 
 const SITE_URL = 'https://blog.arda.tr/blog';
 
@@ -21,7 +21,7 @@ async function postToBluesky(status: string) {
         return;
     }
 
-    const agent = new BskyAgent({ service: 'https://bsky.social' });
+    const agent = new AtpAgent({ service: 'https://bsky.social' });
 
     try {
         await agent.login({
