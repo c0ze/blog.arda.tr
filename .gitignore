@@ -21,3 +21,6 @@ pnpm-debug.log*
 
 # macOS
 .DS_Store
+
+# editor / AI tooling
+.claude/
