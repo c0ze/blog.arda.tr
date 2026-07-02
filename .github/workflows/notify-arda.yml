@@ -1,0 +1,34 @@
+name: Notify arda.tr
+
+# When blog content changes, tell arda.tr to rebuild so it re-fetches the
+# latest posts (repository_dispatch [blog-updated]) at build time.
+#
+# Requires a fine-grained PAT secret ARDA_DISPATCH_TOKEN scoped to
+# c0ze/arda.tr with "Contents: Read and write" (authorizes the
+# repository dispatch API). Until that secret is set, the step no-ops.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/content/blog/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger arda.tr rebuild
+        env:
+          GH_TOKEN: ${{ secrets.ARDA_DISPATCH_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "ARDA_DISPATCH_TOKEN not set; skipping arda.tr notify."
+            exit 0
+          fi
+          gh api --method POST repos/c0ze/arda.tr/dispatches \
+            -f event_type=blog-updated
+          echo "Dispatched blog-updated to c0ze/arda.tr."
