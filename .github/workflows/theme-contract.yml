@@ -1,0 +1,29 @@
+name: Theme contract
+
+# Verifies the blog's theme menu and CSS tokens against the canonical
+# "Ink & Ledger" catalogue published by c0ze/arda.tr (config/themes.json).
+# Runs as its own workflow so a drift never blocks the Pages deploy; the
+# check itself soft-skips (exit 0) when the contract can't be fetched.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+
+      - name: Check theme contract
+        run: node scripts/check-theme-contract.mjs
