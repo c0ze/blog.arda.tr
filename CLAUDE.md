@@ -38,8 +38,9 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   ├── index.astro         # Home page
 │   │   ├── blog/
 │   │   │   ├── index.astro     # Blog listing with tag filter
-│   │   │   └── [slug].astro    # Individual blog post
+│   │   │   └── [slug].astro    # Individual blog post (+ related posts)
 │   │   ├── archive.astro       # Posts grouped by year
+│   │   ├── search.astro        # Pagefind search (only page that loads JS beyond inline scripts)
 │   │   ├── rss.xml.js          # RSS feed
 │   │   └── 404.astro           # Not found page
 │   ├── content.config.ts       # Content collection schema
@@ -55,9 +56,13 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 
 ```bash
 npm run dev      # Development server (port 8080)
-npm run build    # Production build to dist/
+npm run build    # Production build to dist/ (merges sitemap, then indexes search with Pagefind)
 npm run preview  # Preview production build
 ```
+
+The Pagefind search index (`dist/pagefind/`) only exists after a build, so
+`/search` shows a quiet fallback message under `npm run dev`. Only blog post
+pages are indexed (`data-pagefind-body` on the post article).
 
 ## Blog Posts
 
@@ -100,6 +105,8 @@ Nine themes defined in `src/styles/global.css` as per-theme HSL CSS variable blo
 | `van-helsing` | Steel | Near-black blue |
 
 Theme is stored in localStorage and applied via class on `<html>` element. The boot script in `BaseLayout.astro` migrates legacy stored values (`dark`→`blade`, `light`→`alucard`, `dracula`→`dracula-pro`) and falls back to the system color-scheme/contrast preference when nothing is stored.
+
+`scripts/check-theme-contract.mjs` (run by `.github/workflows/theme-contract.yml`) verifies the menu and CSS tokens against the canonical catalogue published by `c0ze/arda.tr` (`config/themes.json`). Known intentional divergences live in the script's `ALLOWED_DRIFT` allowlist. Run it locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/check-theme-contract.mjs`.
 
 ## SEO & Social Sharing
 

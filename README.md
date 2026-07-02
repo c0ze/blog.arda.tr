@@ -27,6 +27,11 @@ The `npm run build` command generates static HTML in the `dist/` folder. Astro a
 - **Minifies JS** - Via Vite/Rollup with tree-shaking
 - **Optimizes assets** - Content-hashed filenames for caching
 
+After the Astro build, the sitemap is merged and [Pagefind](https://pagefind.app)
+indexes the post pages into `dist/pagefind/`, powering the `/search` page. The
+index only exists after a build, so `/search` shows a quiet fallback note under
+`npm run dev`.
+
 ## Deployment
 
 ### GitHub Pages
@@ -158,7 +163,7 @@ dist/                 # Build output (git-ignored)
 ## Performance Features
 
 - **Zero JS by default** - Pages ship no JavaScript unless needed
-- **Inline scripts only** - Interactivity (theme menu, mobile nav, tag filter) uses small inline scripts
+- **Inline scripts only** - Interactivity (theme menu, mobile nav, tag filter) uses small inline scripts; the only exception is `/search`, which lazy-loads the Pagefind UI on that page alone
 - **Static HTML** - Every page is pre-rendered at build time
 - **Optimized fonts** - Google Fonts with preconnect
 - **CSS purging** - Unused Tailwind classes removed automatically
