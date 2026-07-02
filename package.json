@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev --port 8080",
-    "build": "astro build && npx tsx scripts/merge-sitemap.ts",
+    "build": "astro build && npx tsx scripts/merge-sitemap.ts && pagefind --site dist",
     "check": "astro check",
     "preview": "astro preview",
     "astro": "astro",
@@ -31,6 +31,7 @@
     "@google/generative-ai": "^0.24.1",
     "dotenv": "^17.4.2",
     "gray-matter": "^4.0.3",
+    "pagefind": "^1.5.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }

@@ -1,0 +1,91 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+
+// Full-text search over the ledger, powered by Pagefind. The index is
+// generated at build time (`pagefind --site dist`, chained in `npm run build`),
+// and the UI bundle is lazy-loaded only on this page so every other page keeps
+// shipping zero JavaScript.
+---
+
+<BaseLayout title="Search - Coze" description="Full-text search across every entry in the Coze ledger.">
+  <section class="container mx-auto max-w-3xl px-4 py-14">
+    <header class="mb-10">
+      <span class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-primary">Grep the ledger</span>
+      <h1 class="mt-3 font-display text-4xl font-bold tracking-tight md:text-5xl">
+        Search<span class="text-primary">.</span>
+      </h1>
+      <p class="mt-3 max-w-2xl text-lg text-muted-foreground">
+        Full-text search across every entry — posts only, no chrome.
+      </p>
+    </header>
+
+    <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
+    <div id="search"></div>
+    <p id="search-unavailable" class="hidden py-12 text-center font-mono text-sm text-muted-foreground">
+      № 000 — the search index only exists in production builds.
+      Run <code class="text-primary">npm run build</code> and preview <code class="text-primary">dist/</code> to try it here.
+    </p>
+  </section>
+</BaseLayout>
+
+<!-- Lazy-load the Pagefind UI bundle. In `astro dev` the /pagefind/ bundle
+     doesn't exist (it is generated after `astro build`), so on load failure we
+     quietly swap in the explanation above instead of a broken widget. -->
+<script is:inline>
+  (function () {
+    var script = document.createElement('script');
+    script.src = '/pagefind/pagefind-ui.js';
+    script.onload = function () {
+      new PagefindUI({
+        element: '#search',
+        showImages: false,
+        showSubResults: true,
+        autofocus: true,
+      });
+    };
+    script.onerror = function () {
+      document.getElementById('search-unavailable').classList.remove('hidden');
+    };
+    document.head.appendChild(script);
+  })();
+</script>
+
+<!-- Restyle the Pagefind UI with the site's theme tokens so it follows all
+     nine themes. Pagefind exposes these custom properties for exactly this. -->
+<style is:global>
+  #search {
+    --pagefind-ui-scale: 0.9;
+    --pagefind-ui-primary: hsl(var(--primary));
+    --pagefind-ui-text: hsl(var(--foreground));
+    --pagefind-ui-background: hsl(var(--background));
+    --pagefind-ui-border: hsl(var(--border));
+    --pagefind-ui-tag: hsl(var(--muted));
+    --pagefind-ui-border-width: 1px;
+    --pagefind-ui-border-radius: var(--radius, 0.75rem);
+    --pagefind-ui-image-border-radius: var(--radius, 0.75rem);
+    --pagefind-ui-font: inherit;
+  }
+  #search .pagefind-ui__search-input {
+    @apply bg-card font-sans font-normal;
+  }
+  #search .pagefind-ui__search-input::placeholder {
+    color: hsl(var(--muted-foreground));
+    opacity: 1;
+  }
+  #search .pagefind-ui__message,
+  #search .pagefind-ui__result-title {
+    @apply font-display tracking-tight;
+  }
+  #search .pagefind-ui__result-link {
+    color: hsl(var(--primary));
+  }
+  #search .pagefind-ui__result-excerpt mark {
+    background: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+    border-radius: 3px;
+  }
+  #search .pagefind-ui__button {
+    @apply bg-secondary font-mono text-xs uppercase tracking-[0.14em];
+    color: hsl(var(--secondary-foreground));
+  }
+</style>
