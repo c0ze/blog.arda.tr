@@ -4,6 +4,7 @@ import { render } from 'astro:content';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
 import { ledgerNo, readingTimeMinutes, formatDate } from '@/lib/display';
 import TagChip from '@/components/TagChip.astro';
+import LedgerRow from '@/components/LedgerRow.astro';
 
 export async function getStaticPaths() {
   const sortedPosts = await getPublishedPosts();
@@ -12,6 +13,24 @@ export async function getStaticPaths() {
     // Extract the filename without extensions and without the year parent directory for the slug
     const slug = getSlug(post);
 
+    // Up to 3 related posts, scored by shared-tag count with recency as the
+    // tie-break (sortedPosts is newest-first, so a lower index is more recent).
+    // Drafts are already excluded by getPublishedPosts(). Build-time only.
+    const tags = new Set(post.data.tags);
+    const related = sortedPosts
+      .map((candidate, candidateIndex) => ({
+        candidate,
+        candidateIndex,
+        shared: candidate.data.tags.filter((tag) => tags.has(tag)).length,
+      }))
+      .filter(({ candidate, shared }) => candidate.id !== post.id && shared > 0)
+      .sort((a, b) => b.shared - a.shared || a.candidateIndex - b.candidateIndex)
+      .slice(0, 3)
+      .map(({ candidate, candidateIndex }) => ({
+        post: candidate,
+        no: ledgerNo(candidateIndex, sortedPosts.length),
+      }));
+
     return {
       params: { slug },
       props: {
@@ -19,12 +38,13 @@ export async function getStaticPaths() {
         no: ledgerNo(index, sortedPosts.length),
         prevPost: sortedPosts[index + 1] || null,
         nextPost: sortedPosts[index - 1] || null,
+        related,
       },
     };
   });
 }
 
-const { post, no, prevPost, nextPost } = Astro.props;
+const { post, no, prevPost, nextPost, related } = Astro.props;
 const { Content } = await render(post);
 
 const formattedDate = formatDate(post.data.date);
@@ -44,7 +64,9 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
   publishedTime={post.data.date.toISOString()}
   lang={post.data.lang}
 >
-  <article class="container mx-auto max-w-3xl px-4 py-14">
+  <!-- data-pagefind-body scopes the Pagefind search index to post content:
+       once any page declares it, pages without it (home, listings) are skipped. -->
+  <article class="container mx-auto max-w-3xl px-4 py-14" data-pagefind-body>
     <!-- Header -->
     <header class="mb-10">
       <a
@@ -94,8 +116,29 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
       <Content />
     </div>
 
+    <!-- Related entries: shared-tag neighbours, resolved at build time.
+         data-pagefind-ignore keeps their titles out of this page's search record. -->
+    {related.length > 0 && (
+      <section class="mt-16 border-t border-border pt-8" aria-labelledby="related-heading" data-pagefind-ignore>
+        <h2 id="related-heading" class="font-mono text-[0.7rem] uppercase tracking-[0.24em] text-primary">
+          Related entries
+        </h2>
+        <div class="mt-4 border-t border-border">
+          {related.map(({ post: rel, no: relNo }) => (
+            <LedgerRow
+              slug={getSlug(rel)}
+              title={rel.data.title}
+              date={rel.data.date}
+              tags={rel.data.tags}
+              no={relNo}
+            />
+          ))}
+        </div>
+      </section>
+    )}
+
     <!-- Prev / next -->
-    <nav class="mt-16 border-t border-border pt-8" aria-label="Adjacent posts">
+    <nav class="mt-16 border-t border-border pt-8" aria-label="Adjacent posts" data-pagefind-ignore>
       <div class="grid gap-4 md:grid-cols-2">
         {prevPost && (
           <a
