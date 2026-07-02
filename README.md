@@ -162,3 +162,10 @@ dist/                 # Build output (git-ignored)
 - **Static HTML** - Every page is pre-rendered at build time
 - **Optimized fonts** - Google Fonts with preconnect
 - **CSS purging** - Unused Tailwind classes removed automatically
+
+## License
+
+The code is [MIT-licensed](./LICENSE). Blog posts (`src/content/blog/`) are
+licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — share and
+adapt with attribution (a link back to the original post is enough). Images are
+© Arda Karaduman unless noted otherwise in the post.
