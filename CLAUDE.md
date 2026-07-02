@@ -11,7 +11,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 - **Framework**: Astro 5 (Static Site Generator)
 - **Styling**: TailwindCSS with CSS variables
 - **Content**: Markdown files via Astro Content Collections
-- **Theming**: Custom implementation with 3 themes (dark/light/dracula)
+- **Theming**: Custom implementation with a 9-theme catalogue (see Theming below)
 - **Deployment**: GitHub Pages
 
 ## Project Structure
@@ -20,26 +20,33 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 .
 ├── src/
 │   ├── content/
-│   │   └── blog/               # Markdown blog posts (YYYY-MM-DD-slug.md)
+│   │   └── blog/               # Markdown posts in year folders (YYYY/YYYY-MM-DD-slug.md)
 │   ├── components/
 │   │   ├── Header.astro        # Navigation header with mobile menu
 │   │   ├── Footer.astro        # Page footer
-│   │   ├── PostCard.astro      # Blog post card component
-│   │   └── ThemeToggle.astro   # Theme switcher (dark→light→dracula)
+│   │   ├── CarouselCard.astro  # Featured-post carousel card
+│   │   ├── FeatureCard.astro   # Feature card for post highlights
+│   │   ├── LedgerRow.astro     # Ledger-style post list row
+│   │   ├── TagChip.astro       # Colored tag chip linking to the tag filter
+│   │   └── ThemeToggle.astro   # Theme menu (9 themes)
 │   ├── layouts/
-│   │   └── BaseLayout.astro    # Base HTML layout with SEO
+│   │   └── BaseLayout.astro    # Base HTML layout with SEO + theme boot script
+│   ├── lib/
+│   │   ├── posts.ts            # getPublishedPosts()/getSlug() helpers (pages + RSS)
+│   │   └── display.ts          # Date, reading-time, and tag-chip formatting helpers
 │   ├── pages/
 │   │   ├── index.astro         # Home page
 │   │   ├── blog/
 │   │   │   ├── index.astro     # Blog listing with tag filter
 │   │   │   └── [slug].astro    # Individual blog post
 │   │   ├── archive.astro       # Posts grouped by year
+│   │   ├── rss.xml.js          # RSS feed
 │   │   └── 404.astro           # Not found page
+│   ├── content.config.ts       # Content collection schema
 │   └── styles/
 │       └── global.css          # Theme CSS variables, Tailwind
 ├── public/
 │   └── images/                 # Static images, OG images
-├── content.config.ts           # Content collection schema
 ├── astro.config.mjs            # Astro configuration
 └── tailwind.config.mjs         # Tailwind with CSS variables
 ```
@@ -55,7 +62,7 @@ npm run preview  # Preview production build
 ## Blog Posts
 
 ### File Naming
-Posts in `src/content/blog/` with format: `YYYY-MM-DD-slug-name.md`
+Posts live in year subdirectories of `src/content/blog/` with format: `YYYY/YYYY-MM-DD-slug-name.md` (e.g. `src/content/blog/2026/2026-01-28-my-post.md`)
 
 ### Frontmatter Fields
 ```markdown
@@ -68,6 +75,8 @@ keywords: "seo, keywords"     # SEO keywords
 description: "SEO desc"       # Meta description
 author: "Author Name"         # Post author
 image: "/images/og.png"       # Optional: custom OG image
+lang: "en"                    # Optional: post language (default "en")
+draft: true                   # Optional: hide from production builds (default false)
 ---
 ```
 
@@ -76,15 +85,21 @@ Posts are loaded via Astro Content Collections defined in `src/content.config.ts
 
 ## Theming
 
-Three themes defined in `src/styles/global.css` using HSL CSS variables:
+Nine themes defined in `src/styles/global.css` as per-theme HSL CSS variable blocks. The theme lists live in `src/layouts/BaseLayout.astro` (boot script) and `src/components/ThemeToggle.astro` (`THEMES` array). Catalogue, in menu order:
 
-| Theme | Description | Colors |
-|-------|-------------|--------|
-| `dark` | Default. Dracula Pro Blade | Cyan/green palette |
-| `light` | Alucard theme | Light purple/blue |
-| `dracula` | Full Dracula Pro | Purple/pink palette |
+| ID | Name | Kind |
+|----|------|------|
+| `alucard` | Ivory | Light |
+| `paper` | Paper | High-contrast light |
+| `blade` | Abyss | Dark teal (default, bound to `:root`) |
+| `dracula-pro` | Void | Dark purple |
+| `carbon` | Carbon | High-contrast dark |
+| `buffy` | Sakura | Dark magenta |
+| `lincoln` | Amber | Dark gold |
+| `morbius` | Ember | Dark red |
+| `van-helsing` | Steel | Near-black blue |
 
-Theme is stored in localStorage and applied via class on `<html>` element.
+Theme is stored in localStorage and applied via class on `<html>` element. The boot script in `BaseLayout.astro` migrates legacy stored values (`dark`→`blade`, `light`→`alucard`, `dracula`→`dracula-pro`) and falls back to the system color-scheme/contrast preference when nothing is stored.
 
 ## SEO & Social Sharing
 
