@@ -53,7 +53,7 @@ const minutes = readingTimeMinutes(post.body);
 const gaugeWidth = Math.min(120, Math.max(14, minutes * 9));
 
 // Determine OG image - use post image if available, otherwise default
-const ogImage = post.data.image || '/images/og-image.png';
+const ogImage = post.data.image || '/images/og-image.jpg';
 const ogImageAbsolute = new URL(ogImage, Astro.site).href;
 ---
 

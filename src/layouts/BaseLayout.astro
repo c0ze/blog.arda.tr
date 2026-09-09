@@ -15,7 +15,7 @@ interface Props {
 
 const { title, description = "Coze - Software Development Journey", image, keywords, type = 'website', publishedTime, lang = 'en' } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-image.png', Astro.site).href;
+const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-image.jpg', Astro.site).href;
 const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 ---
 
