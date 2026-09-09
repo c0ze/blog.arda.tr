@@ -41,22 +41,6 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
-      - name: Post to Mastodon
-        if: github.event_name == 'push'
-        env:
-          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
-        run: npm run post-mastodon
-
-      - name: Post to Blue Sky
-        if: github.event_name == 'push'
-        env:
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
-        run: npm run post-bluesky
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v5
         with:
@@ -72,3 +56,39 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  # Announces after deploy so the new post is actually live when Mastodon and
+  # Bluesky crawl the link for its preview card. Announcing from the build job
+  # raced the deploy, and an announce failure used to fail the deploy itself.
+  announce:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Post to Mastodon
+        env:
+          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: npm run post-mastodon
+
+      - name: Post to Blue Sky
+        env:
+          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
+          BEFORE_SHA: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+        run: npm run post-bluesky

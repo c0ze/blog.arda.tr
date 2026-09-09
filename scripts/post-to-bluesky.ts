@@ -2,7 +2,7 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 import matter from 'gray-matter';
 import { AtpAgent, RichText } from '@atproto/api';
 
@@ -108,6 +108,15 @@ function processFile(filePath: string) {
     return postToBluesky(statusText);
 }
 
+function getFrontmatterAtSha(sha: string, filePath: string): Record<string, any> | null {
+    try {
+        const content = execFileSync('git', ['show', `${sha}:${filePath}`], { encoding: 'utf-8' });
+        return matter(content).data;
+    } catch {
+        return null;
+    }
+}
+
 async function main() {
     const args = process.argv.slice(2);
 
@@ -141,21 +150,35 @@ async function main() {
             return;
         }
 
-        const newFiles = diffOutput
+        const changedFiles = diffOutput
             .split('\n')
-            .filter(line => line.startsWith('A\t') || line.startsWith('A ')) // Added files
-            .map(line => line.split('\t')[1] || line.split(' ')[1]) // Get file path
-            .filter(filePath => filePath?.startsWith('src/content/blog/') && filePath?.endsWith('.md'));
+            .filter(line => /^[AM][\t ]/.test(line)) // Added or Modified files
+            .map(line => ({ status: line[0], filePath: line.split('\t')[1] || line.split(' ')[1] })) // Get file path
+            .filter(({ filePath }) => filePath?.startsWith('src/content/blog/') && filePath?.endsWith('.md'));
 
-        if (newFiles.length === 0) {
-            console.log('ℹ️ No new blog posts found in this commit range.');
+        // Announce a post when this push introduced it (status A), or when the
+        // push flipped it from draft to published (status M). Edits to posts
+        // that were already published must not re-announce. Current drafts are
+        // still filtered out by the draft check in processFile.
+        const postsToAnnounce = changedFiles.filter(({ status, filePath }) => {
+            if (status === 'A') return true;
+            const before = getFrontmatterAtSha(beforeSha, filePath);
+            if (before !== null && (before.draft === true || before.draft === 'true')) {
+                console.log(`📢 ${filePath} was draft before this push — announcing.`);
+                return true;
+            }
+            return false;
+        });
+
+        if (postsToAnnounce.length === 0) {
+            console.log('ℹ️ No blog posts to announce in this commit range.');
             return;
         }
 
-        console.log(`Found ${newFiles.length} new blog post(s) to publish.`);
+        console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
 
-        for (const file of newFiles) {
-            const fullPath = path.join(process.cwd(), file);
+        for (const { filePath } of postsToAnnounce) {
+            const fullPath = path.join(process.cwd(), filePath);
             await processFile(fullPath);
         }
     } catch (error) {
