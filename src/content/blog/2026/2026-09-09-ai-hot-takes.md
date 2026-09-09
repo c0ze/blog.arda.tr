@@ -7,7 +7,7 @@ keywords: "theo codebase, navier-stokes openai buckmaster alpoge, sabine hossenf
 description: "My hot takes on Theo's codebase take, the OpenAI Navier-Stokes drama, and Sabine Hossenfelder's exposé of paid AI doom content."
 author: "Arda Karaduman"
 image: "/images/ai-hot-takes-og.jpg"
-draft: true
+draft: false
 ---
 
 Three things from the last few weeks of the AI scene that I have opinions
@@ -20,6 +20,18 @@ Codebase](https://www.youtube.com/watch?v=5KvY8CnBB3w) (reacting to Sean
 Goedecke's [In defense of not understanding your
 codebase](https://www.seangoedecke.com/in-defense-of-not-understanding-your-codebase/)),
 and the internet did what the internet does.
+
+<div class="aspect-video my-8">
+  <iframe
+    class="w-full h-full rounded-lg shadow-lg"
+    src="https://www.youtube-nocookie.com/embed/5KvY8CnBB3w"
+    title="Stop Pretending You Understand Your Codebase - Theo - t3.gg"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  ></iframe>
+</div>
 
 I listened to the take, and then to the criticism of the take. I am mostly on
 Theo's side, and I think the hornet's nest he poked was mostly
@@ -97,11 +109,23 @@ respect the attribution of novel ideas instead of trying to snatch them away.
 
 ## Sabine's exposé: some of the doom has an invoice attached
 
-Finally: Sabine Hossenfelder's latest exposé, where she says she was
+Finally: Sabine Hossenfelder's latest exposé, [I Was Offered Money to Tell You AI Will Kill Us](https://www.youtube.com/watch?v=lPdmYMHrWKg), where she says she was
 approached by certain "parties" and offered money to talk badly about AI —
 to make doomsday videos about how it will take your jobs, pollute the
 planet, and so on. (She declined, and then dug into who else got similar
 offers. Worth watching.)
+
+<div class="aspect-video my-8">
+  <iframe
+    class="w-full h-full rounded-lg shadow-lg"
+    src="https://www.youtube-nocookie.com/embed/lPdmYMHrWKg"
+    title="I Was Offered Money to Tell You AI Will Kill Us - Sabine Hossenfelder"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen
+  ></iframe>
+</div>
 
 This is concerning because it leaves the public in a difficult state: who
 are we going to trust?
