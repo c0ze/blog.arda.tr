@@ -7,7 +7,7 @@ const { entries, total, tags, firstYear, lastYear } = await getLedger();
 const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
 ---
 
-<BaseLayout title="Blog - Coze" description="All blog posts from Coze - Software Development Journey">
+<BaseLayout title="Blog - Coze" description="Every post on Coze, newest first, filterable by tag.">
   <header class="phead" lang="en">
     <h1>Ledger</h1>
     <p class="phead__sub">every entry, newest first<br /><b>{total} entries</b> · {firstYear} — {lastYear}</p>
@@ -17,6 +17,9 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
     <!-- The filter: the tag chips are the control. Deep-linked from anywhere on
          the site as /blog?tag=dev; with no script it is simply the full list. -->
     <p class="prompt">arda@coze:~$ <b>ls entries/ --tag=<span id="tag-now">*</span></b></p>
+    <!-- Phones only (global.css): the script shows this toggle and collapses the
+         chips to the active one. Without script every chip stays visible. -->
+    <button type="button" class="chip tag-toggle" id="tag-toggle" aria-controls="tag-filters" aria-expanded="false" hidden>tags <span id="tag-toggle-arrow" aria-hidden="true">▾</span><em id="tag-toggle-now" hidden></em></button>
     <div class="chips chips--filter" id="tag-filters" role="group" aria-label="Filter entries by tag">
       <button type="button" class="chip" data-tag="all" aria-pressed="true">* <em>{total}</em></button>
       {allTags.map(({ tag, count }) => (
@@ -42,7 +45,7 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
     </div>
 
     <p id="no-results" class="empty" hidden>
-      <b>№000</b> — no entries match that tag.
+      <b>№000</b>: no entries match that tag.
     </p>
   </div>
 </BaseLayout>
@@ -54,7 +57,20 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
     var rows = list ? list.querySelectorAll('.file') : [];
     var empty = document.getElementById('no-results');
     var now = document.getElementById('tag-now');
+    var filters = document.getElementById('tag-filters');
+    var toggle = document.getElementById('tag-toggle');
+    var toggleArrow = document.getElementById('tag-toggle-arrow');
+    var toggleNow = document.getElementById('tag-toggle-now');
     if (!list) return;
+
+    // Phones: the chips collapse behind the toggle, leaving the active chip.
+    // data-collapsed only takes effect under the ≤640px rule in global.css.
+    function setOpen(open) {
+      if (!filters || !toggle) return;
+      filters.setAttribute('data-collapsed', String(!open));
+      toggle.setAttribute('aria-expanded', String(open));
+      if (toggleArrow) toggleArrow.textContent = open ? '▴' : '▾';
+    }
 
     function applyFilter(tag, updateUrl) {
       buttons.forEach(function (btn) {
@@ -70,6 +86,10 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
       });
       if (empty) empty.hidden = visible > 0;
       if (now) now.textContent = tag === 'all' ? '*' : tag;
+      if (toggleNow) {
+        toggleNow.textContent = tag === 'all' ? '' : tag;
+        toggleNow.hidden = tag === 'all';
+      }
 
       if (updateUrl) {
         var url = new URL(window.location.href);
@@ -83,8 +103,17 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
       button.addEventListener('click', function () {
         var tag = button.getAttribute('data-tag');
         if (tag !== null) applyFilter(tag, true);
+        setOpen(false);
       });
     });
+
+    if (toggle) {
+      toggle.hidden = false;
+      toggle.addEventListener('click', function () {
+        setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+      });
+    }
+    setOpen(false);
 
     // Deep-link support: a tag chip anywhere links to /blog?tag=dev, landing pre-filtered.
     var requested = new URLSearchParams(window.location.search).get('tag');

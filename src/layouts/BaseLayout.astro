@@ -13,7 +13,7 @@ interface Props {
   lang?: string;
 }
 
-const { title, description = "Coze - Software Development Journey", image, keywords, type = 'website', publishedTime, lang = 'en' } = Astro.props;
+const { title, description = "Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, and generative music. Posts since 2010.", image, keywords, type = 'website', publishedTime, lang = 'en' } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-image.jpg', Astro.site).href;
 const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
@@ -52,7 +52,7 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 
     <!-- Open Graph -->
     <meta property="og:type" content={type} />
-    <meta property="og:site_name" content="Coze — blog.arda.tr" />
+    <meta property="og:site_name" content="Coze · blog.arda.tr" />
     <meta property="og:locale" content={ogLocale} />
     {type === 'article' && publishedTime && (
       <meta property="article:published_time" content={publishedTime} />

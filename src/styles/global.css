@@ -421,6 +421,14 @@ button.chip:hover { color: var(--fg); border-color: var(--fg-2); }
 .chip--on { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
 .chip[aria-pressed="true"] em { opacity: 0.85; }
 .chips--filter { margin-bottom: 26px; }
+/* /blog on phones: a toggle collapses the filter chips to the active one */
+.tag-toggle { margin-bottom: 8px; }
+.tag-toggle[hidden] { display: none; }
+@media (min-width: 641px) { .tag-toggle { display: none; } }
+@media (max-width: 640px) {
+  .chips--filter[data-collapsed="true"] .chip:not([aria-pressed="true"]),
+  .chips--filter[data-collapsed="true"] .chip[data-tag="all"] { display: none; }
+}
 
 .empty { font: 13px/1.6 var(--mono); color: var(--fg-2); padding: 18px 0; }
 .empty b { color: var(--signal); font-weight: 400; }

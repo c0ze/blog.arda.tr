@@ -34,10 +34,10 @@ const spineHeight = (count: number) => (count === 0 ? 1 : Math.max(4, Math.round
 const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
 ---
 
-<BaseLayout title="Archive - Coze" description="Every entry in the Coze ledger, bound by year.">
+<BaseLayout title="Archive - Coze" description="Every post on Coze, grouped by year.">
   <header class="phead" lang="en">
     <h1>Archive</h1>
-    <p class="phead__sub">back issues, bound by year<br /><b>{total} entries</b> · {firstYear} — {lastYear}</p>
+    <p class="phead__sub">every entry, grouped by year<br /><b>{total} entries</b> · {firstYear} — {lastYear}</p>
   </header>
 
   <div class="body" lang="en">
@@ -91,7 +91,7 @@ const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
             <div class="void" role="group" aria-label={`${gap.from} to ${gap.to}, no entries`}>
               <b>{gap.from === gap.to ? gap.from : `${gap.from} — ${gap.to}`}</b>
               <span>
-                {gap === longestGap ? 'the silence · ' : ''}{spell(quiet)} {quiet === 1 ? 'year' : 'years'} · no entries
+                {gap === longestGap ? 'longest gap · ' : ''}{spell(quiet)} {quiet === 1 ? 'year' : 'years'} · no entries
               </span>
             </div>
           )}

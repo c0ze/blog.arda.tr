@@ -35,6 +35,7 @@ if (silence) {
 /* The tag index: the head of a long tail, with the tail counted. */
 const maxTag = tags[0]?.count ?? 1;
 const headTags = tags.filter((t) => t.count > 1).slice(0, 11);
+const legacyYears = entries.filter((e) => e.post.data.tags.includes('legacy')).map((e) => e.date.getUTCFullYear());
 
 /* The year spine, newest first, empty years included. */
 const maxYear = Math.max(1, ...years.map((y) => y.count));
@@ -42,15 +43,15 @@ const spine = [...years].reverse();
 ---
 
 <BaseLayout
-  title="Coze - Software Development Journey"
-  description="Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, generative music, and other side quests — logged since 2010."
+  title="Coze - Arda Karaduman's tech blog"
+  description="Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, generative music, and other side quests. Posts since 2010."
 >
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Blog",
     "name": "Coze",
     "url": "https://blog.arda.tr/",
-    "description": "Software development journey: AI tooling, Go, DevOps, and side quests.",
+    "description": "Arda Karaduman's tech blog: AI tooling, Go, DevOps, and side quests.",
     "inLanguage": "en",
     "author": {
       "@type": "Person",
@@ -128,7 +129,7 @@ const spine = [...years].reverse();
   <div class="decks" lang="en">
     <!-- the run + the silence -->
     <section class="deck" aria-labelledby="run-h">
-      <h2 id="run-h"><b>the run — {currentYear}</b><span>{runTotal} entries</span></h2>
+      <h2 id="run-h"><b>{currentYear} by month</b><span>{runTotal} entries</span></h2>
       {run.map((tier, i) => (
         <a class={`tally${i === 0 ? ' tally--now' : ''}`} href={`/archive#y${currentYear}`}>
           <span class="tally__l">{tier.label.toLowerCase()}</span>
@@ -136,13 +137,13 @@ const spine = [...years].reverse();
           <span class="tally__n">{tier.entries.length}<span class="sr-only"> entries</span></span>
         </a>
       ))}
-      <p class="note">month by month · bar = entries</p>
+      <p class="note">bar = entries</p>
 
       {silence && (
         <div class="silence" role="group" aria-label={`${silence.from} to ${silence.to}: no entries`}>
           <div class="silence__yrs">{silence.from} — {silence.to}</div>
           <canvas class="px" data-static aria-hidden="true"></canvas>
-          <p class="silence__cap"><span><b>the silence</b> · {spell(silenceYears)} years</span><span>no entries</span></p>
+          <p class="silence__cap"><span><b>longest gap</b> · {spell(silenceYears)} years</span><span>no entries</span></p>
         </div>
       )}
     </section>
@@ -162,7 +163,7 @@ const spine = [...years].reverse();
         <span>used exactly once ▸</span>
         <span class="tally__n"></span>
       </a>
-      <p class="note"><span class="sig">legacy</span> marks everything published before the silence.</p>
+      {legacyYears.length > 0 && <p class="note"><span class="sig">legacy</span> marks the posts from {Math.min(...legacyYears)} to {Math.max(...legacyYears)}.</p>}
     </section>
 
     <!-- the archive teaser: the year spine -->
@@ -185,7 +186,7 @@ const spine = [...years].reverse();
       ))}
       <div class="gate">
         <span class="gate__n">{total}</span>
-        <a class="btn btn--ghost" href="/archive">enter the archive ▸</a>
+        <a class="btn btn--ghost" href="/archive">open the archive ▸</a>
       </div>
     </section>
   </div>

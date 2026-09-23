@@ -17,7 +17,7 @@ const navLinks = [
 <!-- lang="en" on the chrome: a Turkish post sets <html lang="tr">, and the
      chrome is English wherever the post is not (uppercase follows lang). -->
 <header class="bar" lang="en">
-  <a class="bar__site" href="/" aria-label="Coze — blog.arda.tr, home"><i aria-hidden="true"></i>blog.arda.tr</a>
+  <a class="bar__site" href="/" aria-label="Coze, blog.arda.tr, home"><i aria-hidden="true"></i>blog.arda.tr</a>
   <nav aria-label="Primary">
     {navLinks.map((link) => (
       <a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a>

@@ -69,7 +69,7 @@ generative black metal.
   optional. `image` does double duty as OG image and card art. No `heroImage`,
   no `series`, no `updated`.
 - **49 tags, long-tail** — `dev` 42, `legacy` 23, `ai` 22, `geek` 13, `music` 9,
-  and 32 tags used exactly once. `legacy` marks the pre-2019 archive.
+  and 32 tags used exactly once. `legacy` marks the 2010–2011 posts.
 - **No tag pages and no pagination.** `/blog` renders all 86 posts at once and
   filters client-side via `?tag=`.
 - **Automated gates:** `npm test` (node:test — OG images exist in `public/`,
@@ -83,7 +83,7 @@ generative black metal.
 ## Brand Commitments
 
 - Wordmark **"Coze."**; the strapline *the ledger of side quests*; the footer
-  line *"Coze — printed in the side-quest room since 2010."*
+  line *"Coze: Arda Karaduman’s blog, since 2010."*
 - The disclosure **"Human-driven. AI is utilized solely for editorial
   refinement."** must survive any redesign.
 - Voice is dry, first-person, unhyped — "first post baby", "Grep Thyself".

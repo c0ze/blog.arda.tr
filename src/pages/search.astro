@@ -11,7 +11,7 @@ const { total } = await getLedger();
 <BaseLayout title="Search - Coze" description="Full-text search across every entry in the Coze ledger.">
   <header class="phead" lang="en">
     <h1>Search</h1>
-    <p class="phead__sub">grep the ledger<br /><b>{total} entries</b> · posts only, no chrome</p>
+    <p class="phead__sub">grep the ledger<br /><b>{total} entries</b> · post text only</p>
   </header>
 
   <div class="body search-shell" lang="en">
@@ -19,7 +19,7 @@ const { total } = await getLedger();
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
     <div id="search"></div>
     <p id="search-unavailable" class="empty" hidden>
-      <b>№000</b> — the search index only exists in production builds. Run
+      <b>№000</b>: the search index only exists in production builds. Run
       <code>npm run build</code> and preview <code>dist/</code> to try it here.
     </p>
   </div>
