@@ -8,9 +8,9 @@ const script = source.match(/<script is:inline>([\s\S]*?)<\/script>/)[1];
 assert.match(script, /var RENDITIONS =/, 'expected the theme controls script');
 
 function theme({ blocked = false, stored = null } = {}) {
-  const classes = new Set(['pulp']);
+  const classes = new Set(['night']);
   let metaColor;
-  const buttons = ['pulp', 'pulp-hc', 'beta', 'beta-hc'].map((id) => {
+  const buttons = ['night', 'night-hc', 'xerox', 'xerox-hc'].map((id) => {
     const attrs = { 'data-rendition': id };
     return {
       attrs,
@@ -42,27 +42,36 @@ function theme({ blocked = false, stored = null } = {}) {
 test('theme changes persist and update the selected control', () => {
   const t = theme();
   t.buttons[2].click();
-  assert.equal(t.stored(), 'beta');
+  assert.equal(t.stored(), 'xerox');
   assert.equal(t.buttons[2].attrs['aria-pressed'], 'true');
+  assert.equal(t.metaColor(), '#efede6');
+});
+
+// A returning visitor still carries a Weekly Page id; they must land on the
+// rendition with the same role (HC light stays HC light), not on the default.
+test('a stored legacy rendition is read by role', () => {
+  const t = theme({ stored: 'pulp-hc' });
+  assert.equal(t.buttons[3].attrs['aria-pressed'], 'true');
+  assert.equal(t.buttons[0].attrs['aria-pressed'], 'false');
 });
 
 test('theme controls remain usable when browser storage is blocked', () => {
   const t = theme({ blocked: true });
   assert.equal(t.buttons[0].attrs['aria-pressed'], 'true');
-  t.buttons[2].click();
-  assert.deepEqual([...t.classes], ['beta']);
-  assert.equal(t.buttons[2].attrs['aria-pressed'], 'true');
-  assert.equal(t.metaColor(), '#0B0B0C');
+  t.buttons[1].click();
+  assert.deepEqual([...t.classes], ['night-hc']);
+  assert.equal(t.buttons[1].attrs['aria-pressed'], 'true');
+  assert.equal(t.metaColor(), '#000000');
 });
 
 const layout = await readFile(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
-const boot = layout.match(/<script is:inline>([\s\S]*?)<\/script>/)[1];
-assert.match(boot, /var RENDITIONS =/, 'expected the pre-paint theme script');
+const boot_src = layout.match(/<script is:inline>([\s\S]*?)<\/script>/)[1];
+assert.match(boot_src, /var RENDITIONS =/, 'expected the pre-paint theme script');
 
 test('the pre-paint theme uses system preferences when storage is blocked', () => {
   const applied = [];
   let color;
-  vm.runInNewContext(boot, {
+  vm.runInNewContext(boot_src, {
     localStorage: { getItem() { throw new Error('Storage blocked'); } },
     matchMedia: () => ({ matches: true }),
     document: {
@@ -70,6 +79,33 @@ test('the pre-paint theme uses system preferences when storage is blocked', () =
       querySelector: () => ({ setAttribute: (_name, value) => { color = value; } }),
     },
   });
-  assert.deepEqual(applied, ['beta-hc']);
-  assert.equal(color, '#050506');
+  assert.deepEqual(applied, ['night-hc']);
+  assert.equal(color, '#000000');
+});
+
+function boot({ stored = null, prefs = {} } = {}) {
+  const applied = [];
+  let color;
+  vm.runInNewContext(boot_src, {
+    localStorage: { getItem: () => stored },
+    matchMedia: (q) => ({ matches: Boolean(prefs[q]) }),
+    document: {
+      documentElement: { classList: { add: (value) => applied.push(value) } },
+      querySelector: () => ({ setAttribute: (_name, value) => { color = value; } }),
+    },
+  });
+  return { applied, color };
+}
+
+test('the pre-paint theme migrates legacy ids by role', () => {
+  assert.deepEqual(boot({ stored: 'beta' }).applied, ['night']);
+  assert.deepEqual(boot({ stored: 'pulp-hc' }).applied, ['xerox-hc']);
+  assert.deepEqual(boot({ stored: 'carbon' }).applied, ['night-hc']);
+});
+
+test('the pre-paint theme follows a light system preference, else Night', () => {
+  const light = boot({ prefs: { '(prefers-color-scheme: light)': true } });
+  assert.deepEqual(light.applied, ['xerox']);
+  assert.equal(light.color, '#efede6');
+  assert.deepEqual(boot().applied, ['night']);
 });

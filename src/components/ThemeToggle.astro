@@ -1,42 +1,49 @@
 ---
 /**
- * The rendition switch — the printer's plate selector, set as a corner tag.
+ * The rendition switch, in the status bar. A <details> disclosure, so it opens
+ * without script; the summary names the current rendition through CSS
+ * (.rend__cur in global.css), so it is right before any script runs.
  *
- * Four renditions, in menu order: Pulp (native), Pulp HC, Beta (the reversed
- * page), Beta HC. The two HC plates target WCAG AAA. The id list is duplicated
- * in the boot script in BaseLayout.astro; keep them in step.
+ * Four renditions, in menu order — the family ids (DESIGN-SYSTEM.md):
+ * Night (default), Night HC, Xerox, Xerox HC. The two HC renditions target
+ * WCAG AAA. The id list is duplicated in the boot script in BaseLayout.astro
+ * and in scripts/check-theme-contract.mjs; keep them in step.
  */
 const renditions = [
-  { id: 'pulp', name: 'Pulp', hint: 'light' },
-  { id: 'pulp-hc', name: 'Pulp HC', hint: 'high contrast light' },
-  { id: 'beta', name: 'Beta', hint: 'dark' },
-  { id: 'beta-hc', name: 'Beta HC', hint: 'high contrast dark' },
+  { id: 'night', name: 'Night', role: 'dark', hint: 'dark' },
+  { id: 'night-hc', name: 'Night HC', role: 'hc-dark', hint: 'high contrast dark' },
+  { id: 'xerox', name: 'Xerox', role: 'light', hint: 'light' },
+  { id: 'xerox-hc', name: 'Xerox HC', role: 'hc-light', hint: 'high contrast light' },
 ];
 ---
 
-<div class="corner" role="group" aria-label="Rendition">
-  {renditions.map((r) => (
-    <button
-      type="button"
-      class="corner__btn"
-      data-rendition={r.id}
-      aria-pressed="false"
-      title={`${r.name} — ${r.hint}`}
-    >{r.name}</button>
-  ))}
-</div>
+<details class="rend">
+  <summary aria-label="Rendition"><span class="rend__cur"></span> ▾</summary>
+  <div class="corner" role="group" aria-label="Rendition">
+    {renditions.map((r) => (
+      <button
+        type="button"
+        class="corner__btn"
+        data-rendition={r.id}
+        aria-pressed="false"
+        title={`${r.name} — ${r.hint}`}
+      >{r.name.toLowerCase()}<em>{r.hint}</em></button>
+    ))}
+  </div>
+</details>
 
 <script is:inline>
 (function () {
-  var RENDITIONS = ['pulp', 'pulp-hc', 'beta', 'beta-hc'];
-  var COLORS = { pulp: '#EDEAE3', 'pulp-hc': '#F1EEE7', beta: '#0B0B0C', 'beta-hc': '#050506' };
-  // Returning visitors carry an Ink & Ledger theme id; land them on the
-  // nearest plate rather than leaving them themeless.
+  var RENDITIONS = ['night', 'night-hc', 'xerox', 'xerox-hc'];
+  var COLORS = { night: '#0a0908', 'night-hc': '#000000', xerox: '#efede6', 'xerox-hc': '#ffffff' };
+  // Returning visitors carry an older id (The Weekly Page, Ink & Ledger, and
+  // before); land them on the rendition with the same role.
   var LEGACY = {
-    dark: 'beta', light: 'pulp', dracula: 'beta',
-    alucard: 'pulp', paper: 'pulp-hc', blade: 'beta', 'dracula-pro': 'beta',
-    carbon: 'beta-hc', buffy: 'beta', lincoln: 'beta', morbius: 'beta',
-    'van-helsing': 'beta'
+    pulp: 'xerox', 'pulp-hc': 'xerox-hc', beta: 'night', 'beta-hc': 'night-hc',
+    dark: 'night', light: 'xerox', dracula: 'night',
+    alucard: 'xerox', paper: 'xerox-hc', blade: 'night', 'dracula-pro': 'night',
+    carbon: 'night-hc', buffy: 'night', lincoln: 'night', morbius: 'night',
+    'van-helsing': 'night'
   };
 
   function current() {
@@ -47,7 +54,7 @@ const renditions = [
     for (var i = 0; i < RENDITIONS.length; i++) {
       if (document.documentElement.classList.contains(RENDITIONS[i])) return RENDITIONS[i];
     }
-    return 'pulp';
+    return 'night';
   }
 
   function apply(rendition) {
@@ -73,6 +80,8 @@ const renditions = [
       group.querySelectorAll('[data-rendition]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           apply(btn.getAttribute('data-rendition'));
+          var menu = btn.closest ? btn.closest('details') : null;
+          if (menu) menu.open = false;
         });
       });
     });

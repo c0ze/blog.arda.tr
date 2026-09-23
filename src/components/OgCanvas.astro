@@ -1,0 +1,38 @@
+---
+/**
+ * A post's OG image, shown as a live 1-bit canvas (src/scripts/site.js wakes
+ * it with onebit's dithered() once it nears the viewport). Without script the
+ * <noscript> <img> shows the plain image instead.
+ *
+ * `alt` given → the canvas is announced as an image; omitted → decorative
+ * (list thumbnails sit next to their own title, so a label would be noise).
+ * A post without an image dithers a sigil seeded by its slug; its no-script
+ * fallback is the site's default OG image.
+ */
+interface Props {
+  src?: string;
+  seed: string;
+  alt?: string;
+  /** CSS px per 1-bit pixel. */
+  px?: number;
+  contrast?: number;
+  class?: string;
+}
+
+const { src, seed, alt, px = 2, contrast, class: cls = '' } = Astro.props;
+const image = src && src.trim() ? src.trim() : '';
+---
+
+<div class={`og ${cls}`.trim()}>
+  <canvas
+    class="px"
+    data-og={image}
+    data-seed={seed}
+    data-px={px}
+    data-contrast={contrast}
+    role={alt ? 'img' : undefined}
+    aria-label={alt}
+    aria-hidden={alt ? undefined : 'true'}
+  ></canvas>
+  <noscript><img src={image || '/images/og-image.jpg'} alt={alt ?? ''} loading="lazy" decoding="async" /></noscript>
+</div>

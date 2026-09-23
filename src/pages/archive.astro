@@ -1,8 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import LedgerRow from '@/components/LedgerRow.astro';
+import FileRow from '@/components/FileRow.astro';
 import { getLedger, spell } from '@/lib/ledger';
-import { tonePlate } from '@/lib/display';
 
 const { entries, total, years, gaps, firstYear, lastYear } = await getLedger();
 
@@ -31,54 +30,49 @@ function elapsed(from: number, to: number): number {
 }
 
 const maxYear = Math.max(1, ...years.map((y) => y.count));
-const spineHeight = (count: number) => (count === 0 ? 3 : Math.max(5, Math.round((count / maxYear) * 92)));
+const spineHeight = (count: number) => (count === 0 ? 1 : Math.max(4, Math.round((count / maxYear) * 100)));
 const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
 ---
 
 <BaseLayout title="Archive - Coze" description="Every entry in the Coze ledger, bound by year.">
-  <div class="section-rule">
-    <h1 class="label label--b">Back issues</h1>
-    <span class="section-rule__line"></span>
-    <span class="label meta">{total} entries · {firstYear} — {lastYear}</span>
-  </div>
+  <header class="phead" lang="en">
+    <h1>Archive</h1>
+    <p class="phead__sub">back issues, bound by year<br /><b>{total} entries</b> · {firstYear} — {lastYear}</p>
+  </header>
 
-  <!-- The volume index: tone pitch is volume, gap years left blank. -->
-  <div class="tagindex">
-    <p class="narration narration--tight">
-      Every entry, bound by year. The run is not uniform and does not pretend to be.
-    </p>
+  <div class="body" lang="en">
+    <!-- The year spine: bar height is volume, empty years left blank. -->
     <div
-      class="spine mt-half"
+      class="spine"
       role="img"
       aria-label={`Entries per year, ${firstYear} to ${lastYear}. ${voidYears.join(', ')} are empty.`}
     >
       {years.map(({ year, count }) => (
-        <span class={`spine__yr${count === 0 ? ' spine__yr--void' : ''}`}>
+        <span class={`spine__yr${year === lastYear ? ' spine__yr--now' : ''}`}>
           <span
-            class={count === 0 ? 'spine__bar spine__bar--void' : `spine__bar ${tonePlate(count, maxYear)}`}
+            class={count === 0 ? 'spine__bar spine__bar--void' : 'spine__bar'}
             style={`height:${spineHeight(count)}px`}
           ></span>
           <span class="spine__lab">’{String(year).slice(2)}</span>
         </span>
       ))}
     </div>
-  </div>
 
-  <div class="tiers">
     {descending.map(({ year, count }, index) => {
       const gap = gapAt.get(year);
       const yearEntries = byYear.get(year) ?? [];
+      const quiet = gap ? elapsed(gap.from, gap.to) : 0;
       return (
         <>
           {count > 0 && (
-            <section class="tier-row" aria-label={`${year}`}>
-              <div class={`tierlab${year === lastYear ? ' tierlab--now' : ''}`}>
-                <span class="tierlab__txt">{year}</span>
-                <span class="tierlab__n">{count} {count === 1 ? 'entry' : 'entries'}</span>
+            <section aria-labelledby={`y${year}`}>
+              <div class={`yr${year === lastYear ? ' yr--now' : ''}`}>
+                <h2 id={`y${year}`}>{year}</h2>
+                <span>{count} {count === 1 ? 'entry' : 'entries'}</span>
               </div>
-              <div class="ledger">
+              <div class="ls ls--text">
                 {yearEntries.map((entry) => (
-                  <LedgerRow
+                  <FileRow
                     slug={entry.slug}
                     title={entry.post.data.title}
                     date={entry.date}
@@ -86,28 +80,20 @@ const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
                     no={entry.no}
                     minutes={entry.minutes}
                     lang={entry.post.data.lang}
+                    thumb={false}
+                    showNo
                   />
                 ))}
               </div>
             </section>
           )}
           {gap && index < descending.length - 1 && (
-            <section class="tier-row" aria-label={`${gap.from} to ${gap.to}, no entries`}>
-              <div class="tierlab tierlab--void">
-                <span class="tierlab__txt">
-                  {gap.from === gap.to ? gap.from : `${gap.from} — ${gap.to}`}
-                </span>
-                <span class="tierlab__n">0</span>
-              </div>
-              <div class={`silence ${gap === longestGap ? 'tone-30' : 'tone-10'}`}>
-                <p class="silence__cap">
-                  <span class="label label--b">
-                    {spell(elapsed(gap.from, gap.to))} {elapsed(gap.from, gap.to) === 1 ? 'year' : 'years'}
-                  </span><br />
-                  <span class="label meta">No entries</span>
-                </p>
-              </div>
-            </section>
+            <div class="void" role="group" aria-label={`${gap.from} to ${gap.to}, no entries`}>
+              <b>{gap.from === gap.to ? gap.from : `${gap.from} — ${gap.to}`}</b>
+              <span>
+                {gap === longestGap ? 'the silence · ' : ''}{spell(quiet)} {quiet === 1 ? 'year' : 'years'} · no entries
+              </span>
+            </div>
           )}
         </>
       );

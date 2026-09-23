@@ -1,52 +1,27 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import StripCell from '@/components/StripCell.astro';
-import { getLedger, spell, type Tier } from '@/lib/ledger';
-import { tagHref, tonePlate } from '@/lib/display';
+import FileRow from '@/components/FileRow.astro';
+import OgCanvas from '@/components/OgCanvas.astro';
+import { getLedger, spell } from '@/lib/ledger';
+import { formatDateShort, tagHref, tallyBar } from '@/lib/display';
 
 const ledger = await getLedger();
-const { total, entries, tiers, years, gaps, tags, tagsUsedOnce, firstYear, lastYear } = ledger;
+const { total, entries, tiers, years, gaps, tags, tagsUsedOnce, firstYear, lastYear, latest } = ledger;
 
-/* THE RUN — the current year, month by month, newest first. Full tiers are
-   printed until the page is carrying about a screen's worth of panels; the
-   rest of the year compresses into tone measures, because a strip that keeps
-   going stops being a strip. */
+/* The lead is the newest entry; the file list carries the next few. */
+const [lead, ...rest] = entries;
+const LIST = 7;
+const listed = rest.slice(0, LIST);
+
+/* THE RUN — the current year, month by month, newest first. */
 const currentYear = lastYear;
-const yearTiers = tiers.filter((tier) => Number(tier.key.slice(0, 4)) === currentYear);
+const run = tiers.filter((tier) => Number(tier.key.slice(0, 4)) === currentYear);
+const runMax = Math.max(1, ...run.map((t) => t.entries.length));
+const runTotal = run.reduce((sum, t) => sum + t.entries.length, 0);
+const newest = tiers[0];
 
-const RUN_BUDGET = 24;
-const full: Tier[] = [];
-const compressed: Tier[] = [];
-let carried = 0;
-for (const tier of yearTiers) {
-  if (compressed.length === 0 && carried + tier.entries.length <= RUN_BUDGET) {
-    full.push(tier);
-    carried += tier.entries.length;
-  } else {
-    compressed.push(tier);
-  }
-}
-
-const shortMonth = (key: string) =>
-  new Date(`${key}-01T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', timeZone: 'UTC' });
-const compressedLabel =
-  compressed.length === 0 ? ''
-  : compressed.length <= 2 ? compressed.map((t) => shortMonth(t.key)).join(' · ')
-  : `${shortMonth(compressed[0].key)} — ${shortMonth(compressed[compressed.length - 1].key)}`;
-const compressedCount = compressed.reduce((sum, tier) => sum + tier.entries.length, 0);
-
-/* The longest month, the shortest entry, the newest entry — the notes a
-   weekly prints under a panel so the proportion is legible as a fact. */
-const runEntries = full.flatMap((tier) => tier.entries);
-const longestMinutes = Math.max(0, ...runEntries.map((e) => e.minutes));
-const shortestMinutes = Math.min(...runEntries.map((e) => e.minutes), Infinity);
-const noteFor = (minutes: number) =>
-  minutes === longestMinutes ? 'longest on the page'
-  : minutes === shortestMinutes ? 'shortest'
-  : undefined;
-
-/* THE SILENCE — the signature moment. Elapsed time, not empty calendar years:
-   the gap between the last entry before it and the first entry after it. */
+/* THE SILENCE — elapsed time, not empty calendar years: the gap between the
+   last entry before it and the first entry after it. */
 const silence = gaps[0];
 let silenceYears = silence ? silence.years : 0;
 if (silence) {
@@ -57,16 +32,13 @@ if (silence) {
   }
 }
 
-/* The tag index: pitch is frequency, and the printed count carries what four
-   pitches cannot. */
+/* The tag index: the head of a long tail, with the tail counted. */
 const maxTag = tags[0]?.count ?? 1;
 const headTags = tags.filter((t) => t.count > 1).slice(0, 11);
 
-/* The year spine: sixteen years, tone pitch is volume, gap years left blank. */
+/* The year spine, newest first, empty years included. */
 const maxYear = Math.max(1, ...years.map((y) => y.count));
-const SPINE_MAX = 92;
-const spineHeight = (count: number) => (count === 0 ? 3 : Math.max(5, Math.round((count / maxYear) * SPINE_MAX)));
-const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
+const spine = [...years].reverse();
 ---
 
 <BaseLayout
@@ -92,160 +64,129 @@ const voidYears = years.filter((y) => y.count === 0).map((y) => y.year);
     }
   })} />
 
-  <div class="section-rule">
-    <h1 class="label label--b">The run — {currentYear}, month by month</h1>
-    <span class="section-rule__line"></span>
-    <span class="label meta">panel width = reading time</span>
-  </div>
+  <header class="mast" lang="en">
+    <h1 aria-label="Coze">C<span>0</span>ze</h1>
+    <p class="mast__sub">
+      the ledger of side quests<br />
+      <b>▲ {newest.entries.length} {newest.entries.length === 1 ? 'entry' : 'entries'} in {newest.label}</b> · <span>last entry {formatDateShort(latest)}</span><br />
+      <span>{total} entries · {firstYear} — {lastYear}</span> · <span>{tags.length} tags</span>
+    </p>
+  </header>
 
-  <div class="tiers">
-    {full.map((tier, tierIndex) => (
-      <section class="tier-row" aria-label={tier.label}>
-        <div class={`tierlab${tierIndex === 0 ? ' tierlab--now' : ''}`}>
-          <span class="tierlab__txt">{tier.label}</span>
-          <span class="tierlab__n">{tier.entries.length} {tier.entries.length === 1 ? 'entry' : 'entries'}</span>
-        </div>
-        <div class="run">
-          {tier.entries.map((entry, entryIndex) => (
-            <StripCell
-              slug={entry.slug}
-              title={entry.post.data.title}
-              date={entry.date}
-              no={entry.no}
-              minutes={entry.minutes}
-              tags={entry.post.data.tags}
-              excerpt={entry.post.data.excerpt}
-              lang={entry.post.data.lang}
-              current={tierIndex === 0 && entryIndex === 0}
-              lead={entry.minutes >= 8 || (tierIndex === 0 && entryIndex === 0)}
-              sitBack={entry.minutes <= 3}
-              note={noteFor(entry.minutes)}
-            />
-          ))}
-        </div>
-      </section>
-    ))}
-
-    {compressed.length > 0 && (
-      <section class="tier-row" aria-label={`${compressedLabel} ${currentYear}, compressed`}>
-        <div class="tierlab">
-          <span class="tierlab__txt">{compressedLabel}</span>
-          <span class="tierlab__n">{compressedCount} entries</span>
-        </div>
-        <div class="compress">
-          <p class="narration narration--tight">
-            The year opened faster than it reads. {spell(compressedCount)} more entries sit behind
-            these rules; the tone measure is the count, not a sample.
-          </p>
-          {compressed.map((tier) => (
-            <div class="compress__row">
-              <span class="label label--b compress__lab">{tier.label}</span>
-              <!-- The bar's length is the count; the plate stays fixed at 50,
-                   because two months a single entry apart both floor onto the
-                   70 plate and stop telling the reader anything. -->
-              <span
-                class="compress__bar tone-50"
-                style={`width:${tier.entries.length * 20}px;max-width:55%`}
-              ></span>
-              <span class="label meta">{tier.entries.length} entries</span>
-            </div>
-          ))}
-          <a class="readmore" href="/archive">See the year in full →</a>
-        </div>
-      </section>
-    )}
-
-    {silence && (
-      <section class="tier-row" aria-label={`${silence.from} to ${silence.to}, no entries`}>
-        <div class="tierlab tierlab--void">
-          <span class="tierlab__txt">{silence.from} — {silence.to}</span>
-          <span class="tierlab__n">0</span>
-        </div>
-        <div class="silence tone-30">
-          <p class="silence__cap">
-            <span class="label label--b">{spell(silenceYears)} years</span><br />
-            <span class="label meta">No entries</span>
-          </p>
-        </div>
-      </section>
-    )}
-  </div>
-
-  <!-- ================================================ below the fold: tags -->
-  <section aria-labelledby="tags-h">
-    <div class="section-rule">
-      <h2 class="label label--b" id="tags-h">Tags — pitch is frequency</h2>
-      <span class="section-rule__line"></span>
-      <span class="label meta">{tags.length} tags · {tagsUsedOnce} used once</span>
-    </div>
-    <div class="tagindex">
-      <p class="narration">
-        {tags.length} tags across {total} entries, and {tagsUsedOnce} of them are used exactly
-        once. Tone pitch stands in for volume, so the shape of the ledger is legible before a
-        single word of it is read. <span class="label label--b">legacy</span> marks everything
-        published before the silence.
-      </p>
-      <div class="tagindex__grid">
-        {headTags.map(({ tag, count }) => (
-          <a class="tagcell" href={tagHref(tag)}>
-            <span class={`tagcell__tone ${tonePlate(count, maxTag)}`}></span>
-            <span class="tagcell__body">
-              <span class="tagcell__name">{tag}</span>
-              <span class="tagcell__n">{count} entries</span>
-            </span>
-          </a>
-        ))}
-        <a class="tagcell tagcell--tail" href="/blog">
-          <span class="tagcell__tone"></span>
-          <span class="tagcell__body">
-            <span class="tagcell__name">{tagsUsedOnce} more</span>
-            <span class="tagcell__n">used exactly once</span>
-          </span>
+  <div class="front">
+    {lead && (
+      <article class="lead" data-og-host>
+        <a href={`/blog/${lead.slug}`} tabindex="-1" aria-hidden="true">
+          <OgCanvas
+            src={lead.post.data.image}
+            seed={lead.slug}
+            px={2}
+            contrast={1.35}
+            class="lead__img"
+          />
         </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============================================= below the fold: archive -->
-  <section aria-labelledby="arch-h">
-    <div class="section-rule">
-      <h2 class="label label--b" id="arch-h">The archive</h2>
-      <span class="section-rule__line"></span>
-      <span class="label meta">one deliberate click</span>
-    </div>
-    <div class="gate">
-      <div class="gate__body">
-        <p class="narration">
-          Recent work leads; the years behind it stay one click away and are never merged into
-          the front page. The run is not uniform and does not pretend to be — a Turkish and
-          Japanese scrapbook, a thin decade of infrastructure notes, a {silenceYears}-year
-          silence, then everything at once.
-        </p>
-        <div
-          class="spine"
-          role="img"
-          aria-label={`Entries per year, ${firstYear} to ${lastYear}. ${voidYears.join(', ')} are empty.`}
-        >
-          {years.map(({ year, count }) => (
-            <span class={`spine__yr${count === 0 ? ' spine__yr--void' : ''}`}>
-              <span
-                class={count === 0 ? 'spine__bar spine__bar--void' : `spine__bar ${tonePlate(count, maxYear)}`}
-                style={`height:${spineHeight(count)}px`}
-              ></span>
-              <span class="spine__lab">’{String(year).slice(2)}</span>
-            </span>
-          ))}
+        <div class="lead__meta" lang="en">
+          <span>{lead.no}</span>
+          <time datetime={lead.date.toISOString()}>{formatDateShort(lead.date)}</time>
+          <span>{lead.minutes} min</span>
+          {lead.post.data.tags.length > 0 && <span>{lead.post.data.tags.slice(0, 4).join(' · ')}</span>}
         </div>
-        {silence && (
-          <p class="label meta">{silence.from} – {silence.to} · the silence · no entries</p>
+        <h2 lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>
+          <a href={`/blog/${lead.slug}`}>{lead.post.data.title}</a>
+        </h2>
+        {lead.post.data.excerpt && (
+          <p lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>{lead.post.data.excerpt}</p>
         )}
-      </div>
-      <a class="gate__cta" href="/archive">
-        <span class="label meta">Entries in the ledger</span>
-        <span class="gate__cta-n">{total}</span>
-        <span class="label meta">{firstYear} — {lastYear}</span>
-        <span class="gate__cta-go mt-half">Enter the archive →</span>
+        <a class="btn" href={`/blog/${lead.slug}`} lang="en">read ▸<span class="sr-only"> {lead.post.data.title}</span></a>
+      </article>
+    )}
+
+    <section class="files" aria-label="Latest entries" lang="en">
+      <div class="ls-head" aria-hidden="true"><span>cover</span><span>date</span><span>entry</span><span>min</span></div>
+      {listed.map((entry) => (
+        <FileRow
+          slug={entry.slug}
+          title={entry.post.data.title}
+          date={entry.date}
+          tags={entry.post.data.tags}
+          no={entry.no}
+          minutes={entry.minutes}
+          lang={entry.post.data.lang}
+          image={entry.post.data.image}
+        />
+      ))}
+      <nav class="keys" aria-label="More">
+        <a href="/archive" data-key="a"><b>[a]</b>rchive</a>
+        <a href="/search" data-key="/"><b>[/]</b>search</a>
+        <a href="#tags" data-key="t"><b>[t]</b>ags</a>
+        <a href="/rss.xml" data-key="r"><b>[r]</b>ss</a>
+        <a class="keys__all" href="/blog" data-key="l">[l]ist all {total} ▸</a>
+      </nav>
+    </section>
+  </div>
+
+  <div class="decks" lang="en">
+    <!-- the run + the silence -->
+    <section class="deck" aria-labelledby="run-h">
+      <h2 id="run-h"><b>the run — {currentYear}</b><span>{runTotal} entries</span></h2>
+      {run.map((tier, i) => (
+        <a class={`tally${i === 0 ? ' tally--now' : ''}`} href={`/archive#y${currentYear}`}>
+          <span class="tally__l">{tier.label.toLowerCase()}</span>
+          <span class="bars" aria-hidden="true">{tallyBar(tier.entries.length, runMax, 16)}</span>
+          <span class="tally__n">{tier.entries.length}<span class="sr-only"> entries</span></span>
+        </a>
+      ))}
+      <p class="note">month by month · bar = entries</p>
+
+      {silence && (
+        <div class="silence" role="group" aria-label={`${silence.from} to ${silence.to}: no entries`}>
+          <div class="silence__yrs">{silence.from} — {silence.to}</div>
+          <canvas class="px" data-static aria-hidden="true"></canvas>
+          <p class="silence__cap"><span><b>the silence</b> · {spell(silenceYears)} years</span><span>no entries</span></p>
+        </div>
+      )}
+    </section>
+
+    <!-- the tag index -->
+    <section class="deck" id="tags" aria-labelledby="tags-h">
+      <h2 id="tags-h"><b>tags</b><span>{tags.length} tags · {tagsUsedOnce} used once</span></h2>
+      {headTags.map(({ tag, count }) => (
+        <a class="tally" href={tagHref(tag)}>
+          <span class="tally__l">{tag}</span>
+          <span class="bars" aria-hidden="true">{tallyBar(count, maxTag, 20)}</span>
+          <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
+        </a>
+      ))}
+      <a class="tally" href="/blog">
+        <span class="tally__l">+{tagsUsedOnce}</span>
+        <span>used exactly once ▸</span>
+        <span class="tally__n"></span>
       </a>
-    </div>
-  </section>
+      <p class="note"><span class="sig">legacy</span> marks everything published before the silence.</p>
+    </section>
+
+    <!-- the archive teaser: the year spine -->
+    <section class="deck" aria-labelledby="arch-h">
+      <h2 id="arch-h"><b>the archive</b><span>{firstYear} — {lastYear}</span></h2>
+      {spine.map(({ year, count }) => (
+        count === 0 ? (
+          <span class="tally tally--void">
+            <span class="tally__l">{year}</span>
+            <span class="bars" aria-hidden="true">{silence && year >= silence.from && year <= silence.to ? '· · ·' : '·'}</span>
+            <span class="tally__n">0</span>
+          </span>
+        ) : (
+          <a class={`tally${year === lastYear ? ' tally--now' : ''}`} href={`/archive#y${year}`}>
+            <span class="tally__l">{year}</span>
+            <span class="bars" aria-hidden="true">{tallyBar(count, maxYear, 20)}</span>
+            <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
+          </a>
+        )
+      ))}
+      <div class="gate">
+        <span class="gate__n">{total}</span>
+        <a class="btn btn--ghost" href="/archive">enter the archive ▸</a>
+      </div>
+    </section>
+  </div>
 </BaseLayout>

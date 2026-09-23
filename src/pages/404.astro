@@ -1,26 +1,27 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
+import OgCanvas from '@/components/OgCanvas.astro';
 ---
 
 <BaseLayout title="404 - Page Not Found - Coze">
-  <div class="section-rule">
-    <h1 class="label label--b">Missing entry</h1>
-    <span class="section-rule__line"></span>
-    <span class="label meta">not in the ledger</span>
-  </div>
+  <header class="phead" lang="en">
+    <h1>4<span>0</span>4</h1>
+    <p class="phead__sub">missing entry<br /><b>not in the ledger</b></p>
+  </header>
 
-  <!-- The closing panel: this page spends the screen's one solid fill. -->
-  <div class="panel panel--solid missing">
-    <span class="missing__n">№404</span>
-    <p class="t-2">This page isn’t in the ledger.</p>
-    <p class="narration">
-      Either it never existed, or it was quietly retired during a side quest.
-      The run continues either way.
-    </p>
-    <div class="row mt-half">
-      <a class="readmore" href="/">← the front page</a>
-      <a class="readmore" href="/archive">the archive</a>
-      <a class="readmore" href="/search">search</a>
+  <div class="body notfound" lang="en">
+    <div>
+      <p class="prompt">arda@coze:~$ <b>cat entry</b><br />no such file or directory</p>
+      <p class="lede">
+        This page isn’t in the ledger. Either it never existed, or it was quietly
+        retired during a side quest. The run continues either way.
+      </p>
+      <nav class="keys" aria-label="Where to next">
+        <a href="/" data-key="i"><b>[i]</b>ndex</a>
+        <a href="/archive" data-key="a"><b>[a]</b>rchive</a>
+        <a href="/search" data-key="/"><b>[/]</b>search</a>
+      </nav>
     </div>
+    <OgCanvas seed="404" class="notfound__img" />
   </div>
 </BaseLayout>

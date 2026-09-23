@@ -33,24 +33,14 @@ export function monthKey(date: Date): string {
   return date.toISOString().slice(0, 7);
 }
 
-/** "22" — the day, zero-padded, for the strip cell's date stamp. */
-export function dayStamp(date: Date): string {
-  return date.toISOString().slice(8, 10);
+/** Reading time as a bar of ▮, one per minute, capped so a long essay reads
+ * as long rather than running out of its column. */
+export function minuteBars(minutes: number, cap = 12): string {
+  return '▮'.repeat(Math.max(1, Math.min(cap, minutes)));
 }
 
-/**
- * The screentone plate for a count.
- *
- * Four pitches cannot encode a long-tail distribution — `dev` 42, `legacy` 23
- * and `ai` 22 all land on the 70 plate — so the plate is floored and the
- * printed count carries the difference. DESIGN.md, "Don't expect four pitches
- * to encode a long-tail distribution".
- */
-export function tonePlate(count: number, max: number): 'tone-10' | 'tone-30' | 'tone-50' | 'tone-70' {
-  if (max <= 0) return 'tone-10';
-  const share = count / max;
-  if (share >= 0.5) return 'tone-70';
-  if (share >= 0.25) return 'tone-50';
-  if (share >= 0.1) return 'tone-30';
-  return 'tone-10';
+/** A count as a proportional ▮ bar, `width` cells at the maximum. */
+export function tallyBar(count: number, max: number, width = 20): string {
+  if (count <= 0 || max <= 0) return '';
+  return '▮'.repeat(Math.max(1, Math.round((count / max) * width)));
 }

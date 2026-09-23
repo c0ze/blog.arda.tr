@@ -25,19 +25,21 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#EDEAE3" />
+    <meta name="theme-color" content="#0a0908" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="canonical" href={canonicalURL} />
     <link rel="alternate" type="application/rss+xml" title="Coze Blog" href={new URL("rss.xml", Astro.site)} />
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="me" href="https://mastodon.world/@arda" />
 
-    <!-- Fonts: gothic for titling and dialogue, mincho for narration — the
-         actual manga convention, and full CJK/Latin-ext coverage for the
-         Japanese and Turkish posts. -->
+    <!-- Fonts (One Bit Forest): Big Shoulders Display for the masthead,
+         Plex Sans / Mono / Serif for UI, meta and long-form reading, Plex
+         Sans JP for the Japanese posts (Google serves it in unicode-range
+         slices, so English pages download no CJK glyphs). Plex covers
+         Latin Extended-A, so the Turkish posts' ğ ş İ stay in-face. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet" />
 
     <!-- SEO -->
     <title>{title}</title>
@@ -68,29 +70,32 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
 
-    <!-- Rendition boot: runs before paint to avoid a flash. Migrates the
-         Ink & Ledger theme ids a returning visitor may still be carrying,
-         otherwise falls back to the visitor's system preference (including
-         prefers-contrast → the AAA plates). Keep the id list in step with
-         src/components/ThemeToggle.astro. -->
+    <!-- Rendition boot: runs before paint to avoid a flash. Migrates any
+         older id a returning visitor may still be carrying (The Weekly Page,
+         Ink & Ledger and before) onto the rendition with the same role,
+         otherwise follows the system preference (prefers-contrast → the AAA
+         renditions); Night when the system states none. Keep the id list in
+         step with src/components/ThemeToggle.astro. -->
     <script is:inline>
       (function () {
-        var RENDITIONS = ['pulp', 'pulp-hc', 'beta', 'beta-hc'];
+        var RENDITIONS = ['night', 'night-hc', 'xerox', 'xerox-hc'];
         var LEGACY = {
-          dark: 'beta', light: 'pulp', dracula: 'beta',
-          alucard: 'pulp', paper: 'pulp-hc', blade: 'beta', 'dracula-pro': 'beta',
-          carbon: 'beta-hc', buffy: 'beta', lincoln: 'beta', morbius: 'beta',
-          'van-helsing': 'beta'
+          pulp: 'xerox', 'pulp-hc': 'xerox-hc', beta: 'night', 'beta-hc': 'night-hc',
+          dark: 'night', light: 'xerox', dracula: 'night',
+          alucard: 'xerox', paper: 'xerox-hc', blade: 'night', 'dracula-pro': 'night',
+          carbon: 'night-hc', buffy: 'night', lincoln: 'night', morbius: 'night',
+          'van-helsing': 'night'
         };
-        var COLORS = { pulp: '#EDEAE3', 'pulp-hc': '#F1EEE7', beta: '#0B0B0C', 'beta-hc': '#050506' };
+        var COLORS = { night: '#0a0908', 'night-hc': '#000000', xerox: '#efede6', 'xerox-hc': '#ffffff' };
         var stored = null;
         try { stored = localStorage.getItem('theme'); } catch (e) {}
         if (stored && LEGACY[stored]) stored = LEGACY[stored];
         var rendition = stored;
         if (!rendition || RENDITIONS.indexOf(rendition) === -1) {
           var hc = matchMedia('(prefers-contrast: more)').matches;
-          var dark = matchMedia('(prefers-color-scheme: dark)').matches;
-          rendition = hc ? (dark ? 'beta-hc' : 'pulp-hc') : (dark ? 'beta' : 'pulp');
+          var light = !matchMedia('(prefers-color-scheme: dark)').matches &&
+            matchMedia('(prefers-color-scheme: light)').matches;
+          rendition = light ? (hc ? 'xerox-hc' : 'xerox') : (hc ? 'night-hc' : 'night');
         }
         document.documentElement.classList.add(rendition);
         var meta = document.querySelector('meta[name="theme-color"]');
@@ -99,13 +104,15 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     </script>
   </head>
   <body>
-    <div class="trim">
-      <Header />
-      <main>
-        <slot />
-      </main>
-      <Footer />
-    </div>
+    <Header />
+    <main>
+      <slot />
+    </main>
+    <Footer />
+    <!-- The 1-bit engine and its wiring: dithered OG images, treeline, clock. -->
+    <script>
+      import '@/scripts/site.js';
+    </script>
     <!-- Cloudflare Web Analytics (cookieless). is:inline keeps the beacon verbatim
          so Astro doesn't bundle it or drop the data-cf-beacon attribute. -->
     <script is:inline defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bd17608cad3d493a941bb5738f6f645f"}'></script>

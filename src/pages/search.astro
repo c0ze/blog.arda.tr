@@ -4,23 +4,22 @@ import { getLedger } from '@/lib/ledger';
 
 // Full-text search over the ledger, powered by Pagefind. The index is
 // generated at build time (`pagefind --site dist`, chained in `npm run build`),
-// and the UI bundle is lazy-loaded only on this page so every other page keeps
-// shipping zero JavaScript.
+// and the UI bundle is lazy-loaded only on this page.
 const { total } = await getLedger();
 ---
 
 <BaseLayout title="Search - Coze" description="Full-text search across every entry in the Coze ledger.">
-  <div class="section-rule">
-    <h1 class="label label--b">Grep the ledger</h1>
-    <span class="section-rule__line"></span>
-    <span class="label meta">{total} entries · posts only, no chrome</span>
-  </div>
+  <header class="phead" lang="en">
+    <h1>Search</h1>
+    <p class="phead__sub">grep the ledger<br /><b>{total} entries</b> · posts only, no chrome</p>
+  </header>
 
-  <div class="panel searchpanel">
+  <div class="body search-shell" lang="en">
+    <p class="prompt">arda@coze:~$ <b>grep -ri</b> …</p>
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
     <div id="search"></div>
-    <p id="search-unavailable" class="narration" hidden>
-      №000 — the search index only exists in production builds. Run
+    <p id="search-unavailable" class="empty" hidden>
+      <b>№000</b> — the search index only exists in production builds. Run
       <code>npm run build</code> and preview <code>dist/</code> to try it here.
     </p>
   </div>
@@ -48,91 +47,78 @@ const { total } = await getLedger();
   })();
 </script>
 
-<!-- Restyle the Pagefind UI onto the printed page: hairline trim, radius 0,
-     gothic labels, mincho excerpts. Pagefind exposes these custom properties
-     for exactly this, and they re-tint with the rendition. -->
+<!-- Pagefind UI in the One Bit language: a terminal input line, mono meta,
+     Plex Sans titles, Plex Serif excerpts, hits marked in signal. Pagefind
+     exposes these custom properties for exactly this; they follow the rendition. -->
 <style is:global>
-  .searchpanel { padding: var(--pad); }
-
   #search {
     --pagefind-ui-scale: 0.9;
-    --pagefind-ui-primary: var(--ink);
-    --pagefind-ui-text: var(--ink);
-    --pagefind-ui-background: var(--pulp);
-    --pagefind-ui-border: var(--trim);
-    --pagefind-ui-tag: var(--pulp-deep);
+    --pagefind-ui-primary: var(--signal);
+    --pagefind-ui-text: var(--fg);
+    --pagefind-ui-background: var(--bg);
+    --pagefind-ui-border: var(--rule);
+    --pagefind-ui-tag: var(--surface);
     --pagefind-ui-border-width: 1px;
     --pagefind-ui-border-radius: 0;
     --pagefind-ui-image-border-radius: 0;
-    --pagefind-ui-font: var(--mincho);
+    --pagefind-ui-font: var(--sans);
   }
   #search .pagefind-ui__search-input {
-    @apply bg-card font-sans font-medium;
+    font: 500 18px/1 var(--mono);
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--rule);
     border-radius: 0;
-    border: 1px solid var(--trim);
   }
   #search .pagefind-ui__search-input:focus {
-    border-color: var(--ink);
-    outline: 2px solid var(--spot);
+    border-color: var(--signal);
+    outline: 2px solid var(--signal);
     outline-offset: 2px;
   }
-  #search .pagefind-ui__search-input::placeholder {
-    color: var(--ink-grey);
-    opacity: 1;
-  }
+  #search .pagefind-ui__search-input::placeholder { color: var(--fg-2); opacity: 1; }
+  #search .pagefind-ui__form::before { background-color: var(--signal); opacity: 1; }
   #search .pagefind-ui__search-clear {
+    font: 12px/1 var(--mono);
     background: transparent;
-    color: var(--ink-grey);
+    color: var(--fg-2);
     border-radius: 0;
   }
+  #search .pagefind-ui__search-clear:hover { color: var(--signal); }
   #search .pagefind-ui__message {
-    @apply font-sans;
-    font-size: 0.7rem;
-    letter-spacing: 0.08em;
+    font: 12px/1.4 var(--mono);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--ink-grey);
+    color: var(--fg-2);
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
   }
   #search .pagefind-ui__result {
-    border-top: 1px solid var(--trim);
-    padding-top: 0.8rem;
+    border-top: 0;
+    border-bottom: 1px solid var(--rule-2);
+    padding: 16px 0;
   }
-  #search .pagefind-ui__result-title {
-    @apply font-sans;
-    font-weight: 700;
-    letter-spacing: -0.005em;
-  }
-  #search .pagefind-ui__result-link {
-    color: var(--ink);
-    text-decoration: underline;
-    text-decoration-color: var(--trim);
-    text-underline-offset: 0.18em;
-  }
-  #search .pagefind-ui__result-link:hover {
-    text-decoration-color: var(--ink);
-    text-decoration-thickness: 2px;
-  }
-  #search .pagefind-ui__result-excerpt {
-    font-family: var(--mincho);
-    color: var(--ink);
-  }
-  /* The hit marker is a band, not a spot: a result page can carry twenty of
-     them and Spot Vermilion is rationed to two per screen. */
-  #search .pagefind-ui__result-excerpt mark {
-    background: var(--pulp-deep);
-    color: var(--ink);
+  #search .pagefind-ui__result-title { font-family: var(--sans); font-weight: 500; }
+  #search .pagefind-ui__result-link { color: var(--fg); text-decoration: none; }
+  #search .pagefind-ui__result-link:hover { color: var(--signal); }
+  #search .pagefind-ui__result-excerpt { font-family: var(--serif); color: var(--fg-soft); }
+  #search .pagefind-ui__result-nested { border-left: 1px solid var(--rule); padding-left: 14px; }
+  #search mark {
+    background: none;
+    color: var(--signal);
     border-radius: 0;
     box-shadow: none;
-    border-bottom: 2px solid var(--ink);
+    border-bottom: 1px solid var(--signal);
   }
   #search .pagefind-ui__button {
-    @apply bg-secondary font-sans;
-    color: var(--ink);
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    border: 1px solid var(--trim);
+    font: 13px/1 var(--mono);
+    color: var(--on-signal);
+    background: var(--signal);
+    border: 0;
     border-radius: 0;
+    height: auto;
+    padding: 10px 14px;
   }
-  #search .pagefind-ui__button:hover { border-color: var(--ink); }
+  #search .pagefind-ui__button:hover { filter: brightness(1.12); }
+  #search .pagefind-ui__filter-name,
+  #search .pagefind-ui__filter-label { font-family: var(--mono); }
 </style>

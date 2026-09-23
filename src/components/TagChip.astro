@@ -3,18 +3,14 @@ import { tagHref } from '@/lib/display';
 
 interface Props {
   tag: string;
-  /** The active tag is the second and last place Spot Vermilion is allowed. */
+  /** Shown dimmed after the name. */
+  count?: number;
   active?: boolean;
-  /** Render as plain text — inside a row that is already one link. */
-  plain?: boolean;
 }
 
-const { tag, active = false, plain = false } = Astro.props;
-const cls = `tag${active ? ' tag--active' : ''}`;
+const { tag, count, active = false } = Astro.props;
 ---
 
-{plain ? (
-  <span class={cls}>{tag}</span>
-) : (
-  <a class={cls} href={tagHref(tag)} aria-current={active ? 'true' : undefined}>{tag}</a>
-)}
+<a class={`chip${active ? ' chip--on' : ''}`} href={tagHref(tag)} aria-current={active ? 'true' : undefined}>
+  {tag}{count !== undefined && <em>{count}</em>}
+</a>

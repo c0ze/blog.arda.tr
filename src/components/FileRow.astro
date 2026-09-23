@@ -1,0 +1,39 @@
+---
+import OgCanvas from '@/components/OgCanvas.astro';
+import { formatDateShort, minuteBars } from '@/lib/display';
+
+/**
+ * One row of the BBS-style file list: cover (the dithered OG image), №, date,
+ * title + tags, minutes with ▮ bars. The title link stretches over the row;
+ * hovering the row tints and re-develops its cover. `data-tags` feeds the
+ * /blog tag filter.
+ */
+interface Props {
+  slug: string;
+  title: string;
+  date: Date;
+  tags: string[];
+  no: string;
+  minutes: number;
+  lang?: string;
+  image?: string;
+  /** Text-only row (the archive): no cover. */
+  thumb?: boolean;
+  /** Print the ledger number column. */
+  showNo?: boolean;
+}
+
+const { slug, title, date, tags, no, minutes, lang, image, thumb = true, showNo = false } = Astro.props;
+const foreign = lang && lang !== 'en' ? lang : undefined;
+---
+
+<div class="file" data-tags={tags.join(',')} data-og-host={thumb ? '' : undefined}>
+  {thumb && <OgCanvas src={image} seed={slug} px={1.5} class="file__thumb" />}
+  {showNo && <span class="file__no">{no}</span>}
+  <time class="file__d" datetime={date.toISOString()}>{formatDateShort(date)}</time>
+  <span class="file__t">
+    <a href={`/blog/${slug}`} lang={foreign}>{title}</a>
+    {tags.length > 0 && <small>{tags.slice(0, 5).join(' · ')}</small>}
+  </span>
+  <span class="file__m">{minutes}<span class="sr-only"> min</span><span class="bars" aria-hidden="true">{minuteBars(minutes)}</span></span>
+</div>
