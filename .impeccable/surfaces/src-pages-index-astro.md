@@ -1,8 +1,8 @@
 ---
-version: 1
+version: 2
 slug: "src-pages-index-astro"
 primary_target: "src/pages/index.astro"
-related_targets: ["src/layouts/BaseLayout.astro","src/styles/global.css"]
+related_targets: ["src/layouts/BaseLayout.astro","src/styles/global.css","src/scripts/site.js"]
 ---
 
 ## Scope & mode
@@ -17,45 +17,16 @@ specific thing. Success is finishing a post and coming back. No funnel.
 
 ## Direction contract
 
-**THESIS.** Sixteen years of writing set as a weekly manga page, where material
-is rendered by screentone pitch and structure by panel and gutter. Refuses the
-blog-index arrangement: full-bleed hero, card grid, infinite scroll, tag cloud.
+**THESIS.** The family system One Bit Forest at the "semi" dial: a BBS file
+listing of sixteen years of posts, where every post's own OG image is dithered
+live to one bit and comes alive on hover. Approved reference: section 02 of
+`design-previews/sketch-1bit.html` (2026-09-23).
 
-**OWN-WORLD.** Ink `#121212` on pulp `#EDEAE3`, with one rationed vermilion
-`#D93A1E`. Every intermediate value is an SVG dot pattern at 10/30/50/70 —
-never a flat grey, never an opacity. Zen Kaku Gothic New 900 for titles and
-labels, Zen Old Mincho for prose: the actual manga convention of gothic
-dialogue over mincho narration, and full CJK coverage for the eight non-English
-posts. Radius 0, no shadow, no blur, no glass, zero JS.
+**OWN-WORLD.** Amber phosphor `#ffb224` on a warm night `#0a0908`; Xerox
+renditions turn it to risograph brown on paper. Big Shoulders Display for the
+`C0ZE` masthead, IBM Plex Sans / Mono / Serif / Sans JP everywhere else.
+Radius 0, no shadow, no gradient, 1px rules. See DESIGN.md.
 
-**STORY.** A peer sees sixteen years of uneven output as one continuous
-serial, finds the current entry immediately, and reads it at a 68ch measure.
-
-**FIRST VIEWPORT.** Masthead (`Coze.` / *the ledger of side quests* / 86 entries
-· since 2010), the four-pitch register strip, then THE RUN — 2026 month by
-month as horizontal tiers, tier label set vertically in the gutter, panel width
-proportional to reading time, the current entry marked in vermilion.
-
-**FORM.** Weekly manga page; brief-pinned by the user, so no roll was run.
-Staged as the serialised strip (comp C), approved 2026-07-25. Its signature
-moment is the silence tier: 2019–2024 rendered as a tone band captioned SEVEN
-YEARS / NO ENTRIES, which makes the gap a designed beat rather than an omission.
-
-## Memorable moment
-
-The silence tier. Every other blog hides its quiet years; this one prints them
-at full width as a measured tone plate.
-
-## Confirmed at comp approval (2026-07-25)
-
-- Build comp C (serialised strip).
-- Panel width proportional to reading time carries forward.
-- Recent leads; the archive stays one deliberate click away and is never merged
-  into the front page.
-
-## Unresolved
-
-- Whether Pulp HC / Beta HC can hit AAA without darkening Ink Grey (6.0:1 today).
-- The cross-repo theme contract: arda.tr now publishes v2 with four renditions
-  and different ids. This repo's `check-theme-contract.mjs` will hard-fail on
-  drift once arda.tr merges.
+**FORM.** Status bar → masthead → lead + file list → compact mono decks (the
+run, the silence, tags, the archive) → treeline footer. Brief-pinned by the
+user after several rejected rounds; don't drift toward a generic blog index.

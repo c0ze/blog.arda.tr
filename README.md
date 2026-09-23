@@ -2,9 +2,9 @@
 
 Personal tech blog at **blog.arda.tr** - built with Astro for static HTML output, perfect SEO, and per-page social media previews.
 
-The visual system is **"The Weekly Page"** — sixteen years of posts set as a
-weekly manga page, with screentone pitch as material and panel-and-gutter as
-structure. See [DESIGN.md](./DESIGN.md).
+The visual system is **One Bit Forest**, shared with arda.tr, resume.arda.tr
+and ai.arda.tr: amber phosphor on a warm night, a BBS-style file list, and every
+post's OG image dithered live to one bit in the browser. See [DESIGN.md](./DESIGN.md).
 
 ## Quick Start
 
@@ -147,7 +147,7 @@ Your content here...
 
 ### Available Tags
 
-Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as outlined chips and drive the `/blog?tag=` filter; on the front page their screentone plate is picked by frequency in `src/lib/display.ts`.
+Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as ruled mono chips and drive the `/blog?tag=` filter; the front page tallies them with ▮ bars.
 
 ## Project Structure
 
@@ -158,7 +158,8 @@ src/
 ├── layouts/          # Page layouts
 ├── lib/              # Post, ledger and display helpers
 ├── pages/            # Route pages
-└── styles/           # Rendition tokens, screentone and the panel system
+├── scripts/          # onebit.js (shared 1-bit engine, verbatim) + site.js (wiring)
+└── styles/           # Rendition tokens and component styles
 public/
 └── images/           # Static images
 dist/                 # Build output (git-ignored)
@@ -166,10 +167,10 @@ dist/                 # Build output (git-ignored)
 
 ## Performance Features
 
-- **Zero JS** - The build emits no Astro JavaScript bundle at all
-- **Inline scripts only** - Four `is:inline` scripts in total: the rendition boot, the rendition switch, the `/blog` tag filter, and the `/search` Pagefind loader (which lazy-loads the Pagefind UI on that page alone)
+- **Small JS** - One bundled module (`site.js` + the `onebit.js` engine) dithers the post images; covers are created lazily as they scroll near, so `/blog` never decodes every image on load. Everything else is four `is:inline` scripts: the rendition boot, the rendition switch, the `/blog` tag filter, and the `/search` Pagefind loader
+- **No-JS fallback** - Each dithered canvas carries a `<noscript>` plain image
 - **Static HTML** - Every page is pre-rendered at build time
-- **Optimized fonts** - Zen Kaku Gothic New + Zen Old Mincho from Google Fonts, with preconnect
+- **Fonts** - Big Shoulders Display and IBM Plex Sans / Mono / Serif / Sans JP from Google Fonts, with preconnect
 - **CSS purging** - Unused Tailwind classes removed automatically
 
 ## License

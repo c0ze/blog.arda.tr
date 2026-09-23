@@ -50,10 +50,12 @@ generative black metal.
 - **Astro 5.16 static**, `@astrojs/tailwind` + `@astrojs/sitemap` only.
   Tailwind 3.4 with `@tailwindcss/typography`. No MDX integration, and the
   content glob is `**/*.md` — posts cannot embed components today.
-- **Zero JS by default is a stated repo invariant.** No hydration except the
-  theme toggle; interactive JS must be small inline `is:inline` scripts.
-  `/search` is the single exception, lazily loading Pagefind. A redesign that
-  needs a JS framework is the wrong redesign.
+- **Minimal JS, no framework.** No hydration. Chrome behaviour is small
+  `is:inline` scripts (rendition boot + switch, `/blog` tag filter, the
+  `/search` Pagefind loader). The one bundled module is `src/scripts/site.js`
+  plus the shared 1-bit engine `onebit.js` (One Bit Forest, 2026-09-23): the
+  dithered OG images, treeline and clock. Every page reads fully without it.
+  A redesign that needs a JS framework is the wrong redesign.
 - **Post bodies contain raw HTML** — 66 markdown images plus 15 `<img>`,
   11 `<iframe>` (youtube-nocookie, SoundCloud), 2 `<video>`. These must keep
   rendering inside the prose column.
@@ -70,11 +72,13 @@ generative black metal.
   and 32 tags used exactly once. `legacy` marks the pre-2019 archive.
 - **No tag pages and no pagination.** `/blog` renders all 86 posts at once and
   filters client-side via `?tag=`.
-- **Only automated gates are `astro check` and the theme-contract script.**
-  There is no lint, no test suite, and no `verify` script.
+- **Automated gates:** `npm test` (node:test — OG images exist in `public/`,
+  and the rendition scripts under a fake DOM), `astro check`, the build, and
+  the theme-contract script. There is no lint and no `verify` script.
 - Node 24.14.0 pinned via `.mise.toml`.
-- **Everything about the current visual system is in scope for replacement**,
-  including the shared nine-theme Ink & Ledger catalogue (confirmed 2026-07-25).
+- **Visual system:** the family's One Bit Forest (2026-09-23), see DESIGN.md
+  and `../DESIGN-SYSTEM.md`. It replaced The Weekly Page, which had replaced
+  the shared Ink & Ledger catalogue.
 
 ## Brand Commitments
 
@@ -100,7 +104,9 @@ site collects none of these.
 
 1. **The post is the product.** Every design decision serves reading a single
    piece of prose to the end.
-2. **Zero JS by default.** Interactivity is a cost, not a feature.
+2. **Minimal JS.** Interactivity is a cost, not a feature; the dithered
+   images are the one place the site spends it, and they degrade to plain
+   images.
 3. **Recent work leads; the archive stays reachable.** The front page is
    current; sixteen years of history is one deliberate click away, not buried
    and not shoved forward (confirmed 2026-07-25).
@@ -112,7 +118,9 @@ site collects none of these.
 
 - WCAG-conscious contrast in every theme, with at least one AAA-targeted
   high-contrast light mode and one AAA-targeted high-contrast dark mode.
-- `prefers-reduced-motion` fully respected.
-- Posts carry `lang` where they are not English (5 `tr`, 3 `ja`); `<html lang>`
-  follows it. `og:locale` is currently hardcoded `en_US` — a known defect.
+- `prefers-reduced-motion` fully respected: every 1-bit canvas draws one
+  still frame.
+- Posts carry `lang` where they are not English (5 `tr`, 4 `ja`); `<html lang>`
+  follows it, and so does `og:locale` (`tr_TR`, `ja_JP`, else `en_US`). The
+  chrome keeps `lang="en"`.
 - Semantic sectioning, keyboard-reachable navigation, visible focus states.
