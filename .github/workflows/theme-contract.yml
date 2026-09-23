@@ -1,7 +1,7 @@
 name: Theme contract
 
-# Verifies the blog's theme menu and CSS tokens against the canonical
-# "Ink & Ledger" catalogue published by c0ze/arda.tr (config/themes.json).
+# Verifies the blog's rendition ids, roles and required tokens against the
+# One Bit Forest catalogue published by c0ze/arda.tr (config/themes.json, v3).
 # Runs as its own workflow so a drift never blocks the Pages deploy; the
 # check itself soft-skips (exit 0) when the contract can't be fetched.
 on:
