@@ -32,6 +32,7 @@ one way to earn its keep and one next step.
   and one paid Cloud plan.
 - **FableSpun is paused.**
 - **SUDONE is live on Android**, with iOS next.
+- **Games get their own home** at gand.games.
 
 ## The vigil.\* family
 
@@ -48,7 +49,8 @@ It has since become the organising principle of the whole family.
   publishing.
 - [Vigil Quest](https://vigil.quest/): long goals broken into milestones.
 - [vigil.directory](https://vigil.directory/): the public face, where published
-  notes live. The original of this post lives there.
+  notes live. [The original of this post](https://vigil.directory/gand/announcements/state-of-gand-september-2026)
+  lives there.
 - [vigil.computer](https://vigil.computer/): private AI that runs in your
   browser. It is on hold while I focus on the rest.
 
@@ -115,6 +117,13 @@ It is on Google Play today, and iOS follows as soon as my App Store setup is
 complete. Before I spend anything on promotion, I want to measure which prices
 people actually act on. After that I am exploring a "restock at home" feature:
 a price watch for the things you buy again and again.
+
+## gand.games
+
+One more change: games are spinning off into their own corner,
+[gand.games](https://gand.games/). That's where I'll be publishing them from
+now on, kept apart from the tools so neither has to pretend to be the other.
+More on that front in a later update.
 
 ## What's next
 
