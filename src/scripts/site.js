@@ -7,6 +7,8 @@
  *                          nears the viewport, so /blog never decodes 92 images on
  *                          load. data-og = image URL ("" → seeded sigil),
  *                          data-seed = the post slug, data-px, data-contrast.
+ *                          With data-reveal (the post page's cover) it develops, then
+ *                          the dither burns off to the real <img> underneath.
  *   [data-og-host]         hovering/focusing it tints its canvas and replays the
  *                          develop-out-of-noise.
  *   canvas[data-treeline]  the family treeline, drifting slowly.
@@ -20,11 +22,18 @@ const live = [];
 
 function wake(canvas) {
   const src = canvas.dataset.og || '';
+  const frame = canvas.closest('.og');
+  const reveal = 'reveal' in canvas.dataset
+    ? { hold: 0.7, fade: 1.2, onDone: () => { frame?.classList.add('og--done'); canvas.hidden = true; } }
+    : null;
   const fx = dithered(canvas, src, {
     px: Number(canvas.dataset.px) || 2,
     contrast: Number(canvas.dataset.contrast) || 1.25,
     fallbackSeed: hash(canvas.dataset.seed || src),
+    reveal,
   });
+  // the real image stays hidden until the dither has painted over it, so it never flashes first
+  if (reveal) fx.ready.then(() => frame?.classList.add('og--painted'));
   live.push({ fx, canvas });
   const host = canvas.closest('[data-og-host]');
   if (!host) return;

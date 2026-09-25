@@ -17,22 +17,30 @@ interface Props {
   px?: number;
   contrast?: number;
   class?: string;
+  /** The post page's cover: develop as 1-bit, then burn off to the real image underneath. */
+  reveal?: boolean;
 }
 
-const { src, seed, alt, px = 2, contrast, class: cls = '' } = Astro.props;
+const { src, seed, alt, px = 2, contrast, class: cls = '', reveal = false } = Astro.props;
 const image = src && src.trim() ? src.trim() : '';
+// only a real image has something to reveal; a sigil stays 1-bit
+const revealing = reveal && image !== '';
 ---
 
-<div class={`og ${cls}`.trim()}>
+<div class={`og ${revealing ? 'og--reveal' : ''} ${cls}`.trim()}>
+  {revealing && <img class="og__real" src={image} alt={alt ?? ''} decoding="async" fetchpriority="high" />}
   <canvas
     class="px"
     data-og={image}
     data-seed={seed}
     data-px={px}
     data-contrast={contrast}
-    role={alt ? 'img' : undefined}
-    aria-label={alt}
-    aria-hidden={alt ? undefined : 'true'}
+    data-reveal={revealing ? '' : undefined}
+    role={alt && !revealing ? 'img' : undefined}
+    aria-label={revealing ? undefined : alt}
+    aria-hidden={alt && !revealing ? undefined : 'true'}
   ></canvas>
-  <noscript><img src={image || '/images/og-image.jpg'} alt={alt ?? ''} loading="lazy" decoding="async" /></noscript>
+  {revealing
+    ? <noscript><style>{'.og--reveal .og__real { visibility: visible; }'}</style></noscript>
+    : <noscript><img src={image || '/images/og-image.jpg'} alt={alt ?? ''} loading="lazy" decoding="async" /></noscript>}
 </div>

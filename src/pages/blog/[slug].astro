@@ -94,7 +94,8 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
       )}
     </header>
 
-    <!-- The cover: the post's OG image, dithered live (a seeded sigil when it has none). -->
+    <!-- The cover: the post's OG image develops as 1-bit, then the dither burns off to the real image
+         (a seeded sigil, which stays 1-bit, when it has none). -->
     <OgCanvas
       src={post.data.image}
       seed={slug}
@@ -102,6 +103,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
       px={2}
       contrast={1.3}
       class="post__hero"
+      reveal
     />
 
     <!-- The reading column: Plex Serif at a 68ch measure. Media, code and

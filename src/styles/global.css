@@ -263,6 +263,11 @@ canvas.px {
 .og canvas,
 .og img { position: absolute; inset: 0; width: 100%; height: 100%; }
 .og img { object-fit: cover; }
+/* The post cover: the real image waits under the dither, hidden until the dither has painted over it,
+   then shows through as the dither burns off (see site.js). */
+.og--reveal .og__real { visibility: hidden; }
+.og--reveal.og--painted .og__real,
+.og--reveal.og--done .og__real { visibility: visible; }
 
 /* a file-list row: cover, date, entry, minutes */
 .ls-head,
