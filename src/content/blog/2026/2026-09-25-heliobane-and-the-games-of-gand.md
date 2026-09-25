@@ -3,8 +3,8 @@ title: "The Heliobane trilogy, and the rest of gand.games"
 date: "2026-09-25"
 excerpt: "Gand's games now live at gand.games. A quick tour of the shelf, then a longer look at the Heliobane trilogy: a shmup, a metroidvania and a tactics game, set ten years apart, about a hive that eats stars and the people who have to live next to it."
 tags: ["gamedev", "retro", "godot", "ai"]
-keywords: "heliobane, farstrand, thawline, heliobane trilogy, gand games, gand.games, amiga shmup, metroidvania, into the breach, roguelite tactics, godot 4, umbrine, aurel, ninth light, commit!!!, studs up win ugly, aldith tarot roguelike, intersection 17, the sublime engine, g-copy"
-description: "A tour of gand.games and the Heliobane trilogy: HELIOBANE (Amiga-style shmup), FARSTRAND (metroidvania) and THAWLINE (roguelite tactics), their shared lore and how they connect, plus short explainers for COMMIT!!!, Studs Up! Win Ugly, Aldith, Intersection 17, The Sublime Engine and G-COPY."
+keywords: "heliobane, farstrand, thawline, heliobane trilogy, gand games, gand.games, amiga shmup, metroidvania, into the breach, roguelite tactics, godot 4, umbrine, aurel, commit!!!, studs up win ugly, aldith tarot roguelike, intersection 17, the sublime engine, g-copy, moonwyrm, pharmakon"
+description: "A tour of gand.games and the Heliobane trilogy: HELIOBANE (Amiga-style shmup), FARSTRAND (metroidvania) and THAWLINE (roguelite tactics), their shared lore and how they connect, plus short explainers for COMMIT!!!, Studs Up! Win Ugly, Aldith, Intersection 17, The Sublime Engine, G-COPY, Moonwyrm and Pharmakon."
 author: "Arda Karaduman"
 image: "/images/og/2026-09-25-heliobane-and-the-games-of-gand.png"
 draft: false
@@ -20,8 +20,8 @@ patched instead of abandoned. Its tagline is more honest: *small games with
 unreasonable ambition*. There are seven games on the shelf: one out, one a few
 weeks away, one free in your browser, and the rest in development.
 
-Two more aren't on the shelf yet, and they are most of this post. HELIOBANE
-turned out not to be one game. It is the first third of a trilogy.
+A few more aren't on the shelf yet, and two of them are most of this post.
+HELIOBANE turned out not to be one game. It is the first third of a trilogy.
 
 ## The Heliobane trilogy
 
@@ -35,45 +35,31 @@ crystalline, half-organic hive that eats stars.
 | Hero | Wren, a pilot | Hesper Lind, a cartographer | a wave of colonists |
 | Scale | one ship | one person | one people |
 | When | Year 0 | Year 7 | Year 10 |
-| The question | can one ship kill a sun? | who am I, and what was it all for? | do we feed it? |
 | What you do with heat | burn it | freeze it | live with it |
 
-Years count from the Lance: Year 0 is the year a pilot called Wren fires a
-weapon into a star. All three share one look, the Amiga one: low resolution,
-the same 32-colour master palette, tracker music, digitised speech. All three
-are built in Godot 4, and the two sequels target the Steam Deck from day one.
+Years count from HELIOBANE. All three share one look, the Amiga one: low
+resolution, the same 32-colour master palette, tracker music, digitised
+speech. All three are built in Godot 4, and the two sequels target the Steam
+Deck from day one.
 
-The rest of this section spoils each game's starting point, which also means
-it spoils bits of the endings before it. I have kept the big twists out.
-
-### Ten thousand years before
-
-The Umbrine has done this before. About ten thousand years ago it ate a sun
-called **Ninth Light**, with its worlds and its people. It hollowed the star,
-kept the shell, and stacked the eaten worlds inside it. The people of Ninth
-Light left a beacon behind, and it says one thing: *"We fed it. Do not feed
-it."*
-
-A **Seed** thrown from Ninth Light crossed the dark to another star, **Aurel**,
-and went to sleep in the fire.
+No spoilers below. Just enough to show the shape of it.
 
 ### HELIOBANE (Year 0): burn it
 
 Aurel is an old orange star with five inhabited planets and a thousand years of
-mining, trade and small wars behind them, run by the **Concord of Aurel**, a
-parliament of guild-houses. Nobody looked at the sun. Then **Project SOLACE**
-drilled a siphon into it, and the thing asleep in its belly tasted refined
-energy for the first time.
+mining, trade and small wars behind them. Nobody looked at the sun. Then
+**Project SOLACE** drilled a siphon into it, and something asleep in its belly
+tasted refined energy for the first time.
 
-The Umbrine doesn't conquer, it grows. In ninety days it took the Tharsis
-mining belt, the ocean moon Verdigris and the entire Concord battle fleet,
-which it didn't destroy but *wore*, the way a hermit crab wears a shell.
+That something is the Umbrine. It doesn't conquer, it grows. In ninety days it
+took the Tharsis mining belt, the ocean moon Verdigris and the entire Concord
+battle fleet, which it didn't destroy but *wore*, the way a hermit crab wears a
+shell.
 
-At Solmarch Yards, one ship had spent eleven years under a tarp after
-parliament cut its funding. **HB-0 "Heliobane"**: a gunship rated to fly inside
-a star's corona and deliver exactly one weapon, the **Solar Lance**, a charge
-that can collapse a star. Chief Engineer **Oda Venn** fuelled her, loaded the
-Lance and held the dock doors open long enough for her to launch:
+At Solmarch Yards, one ship had spent eleven years under a tarp. **HB-0
+"Heliobane"**: a gunship rated to fly inside a star's corona and deliver exactly
+one weapon, the **Solar Lance**. Chief Engineer **Oda Venn** fuelled her,
+loaded the Lance and held the dock doors open long enough for her to launch:
 
 > "We built her to kill a star. We never thought we'd have to."
 
@@ -86,149 +72,86 @@ between stages whether you want him to or not, and calls her kiddo. He buys
 **Aurum**, the gold-glass residue the Umbrine leaves behind, and sells guns he
 *definitely* didn't steal from the Concord armoury.
 
-HELIOBANE is itself built in three acts, fifteen stages, each ending in a
+The game runs in three acts of five stages, each stage ending in a
 screen-filling **Herald**, the shepherd the Umbrine grows for every world it
-takes:
-
-- **Aurel, inward.** Tharsis Belt (Wren's home, already eaten), the ocean moon
-  Verdigris, the dead Concord armada of the Hollow Fleet, the cracked forge
-  world of Cinder Crown, and finally the inside of the star, where the
-  **Hungering Heart** waits: the hive-queen, a cathedral of black glass around
-  a sun-bright eye. Wren fires the Lance. Aurel begins a slow collapse into a
-  white dwarf, about a century of it, time enough to evacuate. But the dying
-  queen throws one last Seed clear.
-- **The Wake, outward.** Wren chases the Seed through the cold outer system,
-  past Cold Harbour to the Heliopause, where the light gives up. There the Seed
-  takes a **strand**: a road of hive-flesh the Umbrine grew between stars.
-  The Magpie can't keep up. *"My tug can't do that speed, kiddo. I'll catch
-  up. Somehow."*
-- **Umbra, down.** The strand ends at the hollow shell of Ninth Light, where the
-  dark was born, and at the **First Mouth**. The Heliobane translates the
-  beacon.
-
-What Wren does at the First Mouth lights a **second sun** inside that shell,
-and across the dark the Umbrine's roads go cold, one by one. That is where
-the next game picks up.
+takes. **Aurel** goes inward, through everything the hive has already eaten, to
+the heart of the star. **The Wake** goes outward, after something that gets
+away, into the cold and the dark. **Umbra** goes down, to where it all
+started. I will leave it there.
 
 [heliobane.gand.games](https://heliobane.gand.games/) has the trailer, and a
 free demo is coming to Steam.
 
 ### FARSTRAND (Year 7): freeze it
 
-Cold hive-flesh turns to glass, and a road of glass still carries a ship:
-slower than a warm one, but it crosses from one star to the next in weeks.
-Aurel has a century left, and nothing the Concord can build crosses the dark
-inside a century. So in Year 2 the Concord votes, unanimously for once, to
-evacuate by the strands.
+Seven years on, Aurel's people need a way out, and the only roads between the
+stars are ones the Umbrine grew. The Concord calls them **strands**, and sends
+survey crews down them. The crews stop reporting back.
 
-Harbourmaster **Ilka Brask**'s yards at Cold Harbour build **rootrunners**,
-small survey craft plated with the corona alloy Oda Venn designed for the
-Heliobane. Seven surveys go out, each named after a surveying instrument.
-Every beacon goes silent at the same place, a tangle of strands between stars
-the Survey calls **the Knot**. After Survey Seven, the Concord stops sending
-people.
-
-**Hesper Lind** was the cartographer on Survey Seven. She was born on Verdigris,
-the moon the Umbrine took in the war. Her craft, the *Plumbline*, came off its
-strand wrong and crashed on **Halm**, a cold world around a red dwarf. She
+**Hesper Lind** is the cartographer on Survey Seven. Her ship comes off its
+strand wrong and crashes on **Halm**, a cold world around a red dwarf. She
 wakes in a cocoon of glass in a forest of glass. Her left arm is gone. In its
 place is an arm of black glass veined with gold, and it moves when she tells it
 to. She calls it **the Graft**, after the section of the Survey manual about
 grafting fruit trees.
 
-The Graft moves heat, and that is the whole game. Umberflesh has three states:
-**sunfed** (hot: it glows, grows and eats), **flesh** (warm: it digests) and
-**glass** (cold: it keeps whatever it holds exactly as it was). Quench an enemy
-into glass and stand on it. Overfeed it and it bursts. Thaw a wall, grow a
-bridge, set it hard. Hesper has a survey drone called Bob, shaped like a plumb
-bob, whose readout occasionally says `NO.`
+The Graft moves heat, and that is the whole game. The hive's flesh has three
+states: **sunfed** (hot: it glows, grows and eats), **flesh** (warm: it
+digests) and **glass** (cold: it keeps whatever it holds exactly as it was).
+Freeze an enemy and stand on it. Overfeed it and it bursts. Thaw a wall, grow a
+bridge, set it hard. Hesper also has a survey drone called Bob, shaped like a
+plumb bob, whose readout occasionally says `NO.`
 
-Glass forgets nothing, and seven years of cold have left the strands full of
-things the hive swallowed and never finished digesting. In a few places,
-minds. Hesper calls them **the Worn**: the peoples the hive ate, awake in the
-glass. They help her exactly as far as it keeps the strands cold, because cold
-is the only reason they exist. One of them is **the Choir**, the people of
-Ninth Light. They are still saying the same thing.
-
-The antagonist is **Josef Kell**, commander of Survey One: first through, the
-best the Concord had. He died on the strands, the hive grew him back, and he
-chose to let it. His plan is not a stupid one. Cold strands are slow; warm
-strands are fast. Sink a **Taproot** into the young sun Wren lit, warm every
-road, and Aurel's people could be out in ten years instead of a century. The
-Worn say it would wake the Umbrine. Kell's answer: *"They fed it and they died.
-We'll feed it and we'll live."*
-
-And Old Mott is waiting at the Knot when Hesper gets there. *"Took your time,
+Glass forgets nothing, and the worlds on the strands are full of things the
+hive swallowed and never finished digesting. Some of them still talk. Someone
+from an earlier survey has a plan, and it is not a stupid one. And a certain
+trader is already waiting when she gets where she is going. *"Took your time,
 kiddo."* He won't say how he got there first.
 
-The echoes are my favourite detail. Glass keeps sound as well as shape, and the
-strands are all one piece of glass, so where the Heliobane and the Magpie
-passed during the chase, their radio is still in it. Put a hand on a strand
-and it plays back. And every survey wreck has the same torn recruitment poster
-on its bulkhead: Wren's face, and FLY LIKE WREN. Mott, the first time he sees
-one: *"She'd hate that poster, kiddo."*
+My favourite detail: every survey wreck has the same torn recruitment poster on
+its bulkhead. Wren's face, and FLY LIKE WREN. Mott, the first time he sees one:
+*"She'd hate that poster, kiddo."*
 
-Farstrand is in development. The first world, Halm, is playable in-house:
-22 rooms from the cocoon to the strand's anchor. No public site yet.
+Farstrand is in development. The first world, Halm, is playable in-house. No
+public site yet.
 
 ### THAWLINE (Year 10): live with it
 
-Hesper's map is what Farstrand is for: a **cold route** from Aurel to Ninth
-Light's young sun that never touches a warm strand. Slow, safe, short enough.
-Cold Harbour answers it with a fleet. Brask's yards scale the rootrunner up into
-**arks** that carry a few thousand people each, and in Year 9 the first wave
-leaves.
-
-It comes down inside Ninth Light's shell, on the stacked dead planets of the
-**Ossuary of Stars**, under the young sun, and founds a colony: **Venn's
-Landing**, named after the engineer who held the doors. The problem is in the
-title. The colony needs warmth to survive, and warmth wakes the hive.
+Three years later, the colonists go. A wave of arks comes down inside the shell
+of a dead star, under a young sun, and founds a colony called **Venn's
+Landing**. The problem is in the title. The colony needs warmth to survive, and
+warmth wakes the hive.
 
 Thawline plays like Into the Breach: small boards where every enemy shows its
 move a turn ahead, so losing is a mistake you can see, never a dice roll. On
 top of that is a base you build between fights, and when the hive raids the
 Landing, the buildings you built are the board you defend. A **Wake** meter
-tracks how awake the hive is. Every warm tile you leave burning pushes it up.
+tracks how awake the hive is, and every warm tile you leave burning pushes it
+up.
 
 Each run is one wave of arks, and three peoples fight over what temperature the
 board should be:
 
-- **The Yard**: Brask's Cold Harbour crews in rigs plated with Venn alloy. They
-  don't care about heat. They hold.
-- **The Grafted**: colonists who took Grafts like Hesper's. They tame the
-  hive's war-forms and farm its flesh. They want it warm.
-- **The Worn**: the Choir and the others, in vessels of cold glass. They want
-  everything frozen.
-
-The regions you fight through are the ones Wren flew ten years earlier: the
-Ossuary, Dead Light, the Vein, Choirnest. Hesper is there too. When a Landing
-falls, she wakes in a cocoon, remembering, in time for the next wave. And some
-old acquaintances from Farstrand are still around, making reasonable offers.
+- **The Yard**, dockworkers in armoured rigs. They don't care about heat. They
+  hold.
+- **The Grafted**, colonists with arms like Hesper's. They tame the hive and
+  farm it. They want it warm.
+- **The Worn**, who live in cold glass. They want everything frozen.
 
 Thawline is at the proof-of-concept stage: three boards and the Yard, playable
 with a mouse or a pad. No site yet either.
 
 ### How the three connect
 
-Each game plants something the next one pays off:
+Each game plants something the next one pays off. Without giving any of it
+away:
 
-- **The hull was rated for the corona.** It is the premise of the first game,
-  and it matters a lot more than it looks like it should in the other two.
-- **Mott always arrives first.** He loses the chase at the Heliopause and is
-  somehow waiting at the far end. In Farstrand you find out how. He has used a
-  cold hollow that runs down the middle of every strand since Year 0, and he
-  still won't say how he found it.
-- **"We fed it. Do not feed it."** A dead people's warning in HELIOBANE. Kell's
-  whole argument in FARSTRAND. The central decision of THAWLINE, where feeding
-  it is also how you keep your colonists warm.
-- **The second sun.** HELIOBANE lights it. FARSTRAND is a fight over whether to
-  drink from it. THAWLINE is set underneath it.
-- **Oda Venn.** She builds the ship and dies holding the doors. Her alloy
-  plates every rootrunner in FARSTRAND, and the colony in THAWLINE carries her
-  name.
-- **The Choir.** The people of Ninth Light. In HELIOBANE they are a warning in
-  a beacon, in FARSTRAND a voice you hear at the Knot and meet at Ninth Light,
-  and in THAWLINE a faction you can play, home at last.
+- A ship's hull rating that matters more than it has any right to.
+- A trader who always gets there first.
+- A warning nobody wants to hear, left by people who didn't listen to it
+  either.
+- An engineer whose name keeps turning up after she is gone.
+- A few voices that carry across all three games, if you know where to listen.
 
 Put together, the trilogy is one idea tried three ways. HELIOBANE burns the
 problem. FARSTRAND freezes it. THAWLINE has to live next to it. The scale grows
@@ -319,19 +242,41 @@ a well-timed retry. It is free and runs in your browser right now. Anyone who
 has spent time around [the retro scene](/blog/2013-05-26-enter-retrojen) will
 recognise that copier screen instantly.
 
-Two more are in the lab, **Orbound** and **Hexwarren**, with no site yet. They
-get one line each until they earn more.
+## Not on the shelf yet
+
+Two more are further along than their lack of a website suggests.
+
+**Moonwyrm**: turn-based dragon-keeping strategy with short, lethal, real-time
+arena fights, a deliberate cross of two Amiga classics from 1990 and 1991. You
+are a Keeper in a tower at the edge of the Pale, a land lit by a moon that is
+slowly going dark. In your vault sit the eggs of the Moonwyrm, the mother of
+every dragon, and every egg is a life you spend one of two ways: hatch it into
+a Moonsworn, a scaled half-human soldier you send out to loot, conquer and die
+for you, or raise it as a dragon, bred for its bloodline and milked for the
+breath that fuels your alchemy. Three rival Keepers want the same thing you do:
+breed an Heir of all four bloodlines and walk it through the Moongate under a
+full moon before the moon goes out. A run takes about an hour, and it can
+already be won and lost.
+
+**Pharmakon**: run a living apothecary where every patient is a puzzle, every
+herb changes with how you prepare it, and the back room slowly turns medicine
+into alchemy. People come in with complaints, and "something for a headache"
+is an opening statement, not an order ticket: you ask, examine, decide what is
+actually wrong, then grow, cut, grind, steep or distil the answer, and find out
+later whether it worked. The plants are named after real herbs; every effect in
+the game is fiction. It is hand-drawn and playable start to finish, as a
+fortnight or a full working month.
 
 ## One consistent bad idea
 
 gand.games describes the studio as "various genres, one consistent bad idea:
-do all of it ourselves." Seven games, one person, zero meetings. The career sim,
-the pub brawler, the tarot deck, the traffic post, the Ottoman cipher and the
-disk copier each get their turn.
+do all of it ourselves." One person, zero meetings. The career sim, the pub
+brawler, the tarot deck, the traffic post, the Ottoman cipher, the disk copier,
+the dragon tower and the apothecary each get their turn.
 
 This week, though, it is the trilogy: a pilot, a cartographer and a colony,
-ten years of one very bad idea (feeding a star to a hive), and a trader who
-calls all of them kiddo. HELIOBANE's demo is coming to Steam first, and
+ten years of living next door to a hive that eats stars, and a trader who
+calls everyone kiddo. HELIOBANE's demo is coming to Steam first, and
 [heliobane.gand.games](https://heliobane.gand.games/) has the rest. The other
 two will get their own sites when they have earned them.
 
