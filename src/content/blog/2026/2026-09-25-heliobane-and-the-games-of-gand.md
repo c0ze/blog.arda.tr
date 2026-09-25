@@ -79,8 +79,16 @@ the heart of the star. **The Wake** goes outward, after something that gets
 away, into the cold and the dark. **Umbra** goes down, to where it all
 started. I will leave it there.
 
-[heliobane.gand.games](https://heliobane.gand.games/) has the trailer, and a
-free demo is coming to Steam.
+Here is the trailer:
+
+<video controls playsinline preload="none" crossorigin="anonymous" width="1920" height="1080" poster="https://heliobane.gand.games/public/trailer-poster.jpg" aria-label="HELIOBANE trailer">
+  <source src="https://heliobane.gand.games/public/trailer.mp4" type="video/mp4" />
+  <track kind="captions" src="https://heliobane.gand.games/public/trailer.en.vtt" srclang="en" label="English" />
+  <a href="https://heliobane.gand.games/public/trailer.mp4">HELIOBANE trailer (MP4)</a>
+</video>
+
+[heliobane.gand.games](https://heliobane.gand.games/) has the rest, and a free
+demo is coming to Steam.
 
 ### FARSTRAND (Year 7): freeze it
 
