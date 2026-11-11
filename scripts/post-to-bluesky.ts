@@ -73,7 +73,7 @@ async function alreadyAnnounced(agent: AtpAgent, url: string): Promise<boolean> 
         const actor = agent.session?.did;
         if (!actor) throw new Error('no session DID after login');
         const { data } = await agent.getAuthorFeed({ actor, limit: 50 });
-        return blueskyFeedHasAnnouncement(data.feed, url);
+        return blueskyFeedHasAnnouncement(data.feed, url, actor);
     } catch (error) {
         console.warn('⚠️ Could not check for an earlier announcement; posting anyway:', error);
         return false;

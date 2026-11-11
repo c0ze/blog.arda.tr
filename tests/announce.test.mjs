@@ -157,30 +157,84 @@ test('the Mastodon idempotency key is stable per post URL', async () => {
 // not post the same entry again. Each script first looks through the
 // account's recent posts; these matchers decide whether one already links
 // the entry, whatever form the URL took.
-test('an existing Bluesky announcement is recognised by its card or link facet', async () => {
-  const { blueskyFeedHasAnnouncement } = await import('../scripts/lib/announce.ts');
+const ME = 'did:plc:me';
+const linkFacet = (uri) => ({ index: { byteStart: 0, byteEnd: 1 }, features: [{ $type: 'app.bsky.richtext.facet#link', uri }] });
+const tagFacet = (tag) => ({ index: { byteStart: 0, byteEnd: 1 }, features: [{ $type: 'app.bsky.richtext.facet#tag', tag }] });
+const feedItem = (record, extra = {}) => ({ post: { uri: 'at://x', author: { did: ME }, record, ...extra.post }, ...extra.item });
+
+// Built the way post-to-bluesky.ts builds its own posts: composed text, a
+// link facet for the URL and tag facets, and the external link card.
+test('a Bluesky announcement made by this script is recognised', async () => {
+  const { blueskyFeedHasAnnouncement, buildBlueskyRecord, buildExternalEmbed } = await import('../scripts/lib/announce.ts');
   const url = postUrl('2010-07-30-日光きらいな日本人');
+  const text = composeBlueskyText({ title: '日光きらいな日本人', excerpt: '', url, tags: ['legacy'] });
+  const record = buildBlueskyRecord({
+    text,
+    facets: [linkFacet(url), tagFacet('legacy')],
+    createdAt: '2026-11-12T00:00:00.000Z',
+    lang: 'ja',
+    embed: buildExternalEmbed({ uri: url, title: 't', description: '' }),
+  });
+  assert.equal(blueskyFeedHasAnnouncement([feedItem(record)], url, ME), true);
+  // the same, matched across the encoded/decoded and slash/no-slash forms
   const decoded = 'https://blog.arda.tr/blog/2010-07-30-日光きらいな日本人';
-  const byCard = [{ post: { record: { text: 'x', embed: { $type: 'app.bsky.embed.external', external: { uri: decoded } } } } }];
-  const byFacet = [{ post: { record: { text: 'x', facets: [{ features: [{ $type: 'app.bsky.richtext.facet#link', uri: `${url}` }] }] } } }];
-  const other = [{ post: { record: { text: 'x', embed: { external: { uri: 'https://blog.arda.tr/blog/other/' } } } } }];
-  assert.equal(blueskyFeedHasAnnouncement(byCard, url), true);
-  assert.equal(blueskyFeedHasAnnouncement(byFacet, url), true);
-  assert.equal(blueskyFeedHasAnnouncement(other, url), false);
-  assert.equal(blueskyFeedHasAnnouncement([], url), false);
-  assert.equal(blueskyFeedHasAnnouncement([{ post: {} }, {}], url), false);
+  assert.equal(blueskyFeedHasAnnouncement([feedItem({ ...record, embed: buildExternalEmbed({ uri: decoded, title: 't', description: '' }) })], url, ME), true);
+  // an announcement from before link cards: one link facet, the post's URL
+  assert.equal(blueskyFeedHasAnnouncement([feedItem({ text, facets: [linkFacet(decoded), tagFacet('legacy')] })], url, ME), true);
+  assert.equal(blueskyFeedHasAnnouncement([], url, ME), false);
+  assert.equal(blueskyFeedHasAnnouncement([{ post: {} }, {}], url, ME), false);
 });
 
-test('an existing Mastodon announcement is recognised in the status or its card', async () => {
+// Only this account's own announcement counts: a mere mention of the URL
+// must not suppress a real announcement.
+test('Bluesky reposts, replies and incidental links are not announcements', async () => {
+  const { blueskyFeedHasAnnouncement, buildExternalEmbed } = await import('../scripts/lib/announce.ts');
+  const url = postUrl('2026-10-27-dergi-coze-org');
+  const card = buildExternalEmbed({ uri: url, title: 't', description: '' });
+  // someone else's post that this account reposted (Codex's case)
+  const repost = { post: { author: { did: 'did:plc:someone' }, record: { text: url, embed: card, facets: [linkFacet(url)] } }, reason: { $type: 'app.bsky.feed.defs#reasonRepost' } };
+  assert.equal(blueskyFeedHasAnnouncement([repost], url, ME), false);
+  assert.equal(blueskyFeedHasAnnouncement([{ ...repost, post: { ...repost.post, author: { did: ME } } }], url, ME), false, 'a repost reason is enough');
+  // a reply that links the post
+  assert.equal(blueskyFeedHasAnnouncement([feedItem({ text: url, embed: card, reply: { root: {}, parent: {} } })], url, ME), false);
+  // a post carding another article that also links this one in its text
+  const otherCard = buildExternalEmbed({ uri: 'https://blog.arda.tr/blog/other/', title: 't', description: '' });
+  assert.equal(blueskyFeedHasAnnouncement([feedItem({ text: 'x', embed: otherCard, facets: [linkFacet(url)] })], url, ME), false);
+  // a post with several links, one of them this post
+  assert.equal(blueskyFeedHasAnnouncement([feedItem({ text: 'x', facets: [linkFacet('https://example.com/'), linkFacet(url)] })], url, ME), false);
+});
+
+// Mastodon renders the status this script sends: text paragraphs, the post
+// link (display text shortened), hashtag links into the instance, and later
+// a preview card for the post.
+const mastodonContent = (href) =>
+  '<p>📝 New blog post: MÜJDE!</p><p>Excerpt</p>' +
+  `<p><a href="${href}" target="_blank" rel="nofollow noopener" translate="no"><span class="invisible">https://</span><span class="ellipsis">blog.arda.tr/blog/2026-10-27-d</span><span class="invisible">ergi-coze-org/</span></a></p>` +
+  '<p><a href="https://mastodon.world/tags/retro" class="mention hashtag" rel="tag">#<span>retro</span></a></p>';
+
+test('a Mastodon announcement made by this script is recognised', async () => {
   const { mastodonStatusesHaveAnnouncement } = await import('../scripts/lib/announce.ts');
   const url = postUrl('2026-10-27-dergi-coze-org');
-  const inContent = [{ content: '<p>📝 New blog post: x</p><p><a href="https://blog.arda.tr/blog/2026-10-27-dergi-coze-org" rel="nofollow">blog.arda.tr/blog/2026-10-27-…</a></p>' }];
-  const inCard = [{ content: '<p>hi</p>', card: { url: 'https://blog.arda.tr/blog/2026-10-27-dergi-coze-org/' } }];
-  const prefixOnly = [{ content: '<a href="https://blog.arda.tr/blog/2026-10-27-dergi-coze-org-2/">x</a>' }];
-  assert.equal(mastodonStatusesHaveAnnouncement(inContent, url), true);
-  assert.equal(mastodonStatusesHaveAnnouncement(inCard, url), true);
-  assert.equal(mastodonStatusesHaveAnnouncement(prefixOnly, url), false, 'a longer slug is another post');
+  const status = { id: '1', reblog: null, in_reply_to_id: null, content: mastodonContent(url), card: { url } };
+  assert.equal(mastodonStatusesHaveAnnouncement([status], url), true);
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...status, card: null }], url), true, 'before the card is fetched');
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...status, card: null, content: mastodonContent('https://blog.arda.tr/blog/2026-10-27-dergi-coze-org') }], url), true, 'without the slash');
+  const prefixOnly = { ...status, card: null, content: mastodonContent('https://blog.arda.tr/blog/2026-10-27-dergi-coze-org-2/') };
+  assert.equal(mastodonStatusesHaveAnnouncement([prefixOnly], url), false, 'a longer slug is another post');
   assert.equal(mastodonStatusesHaveAnnouncement([{ content: null }], url), false);
+});
+
+test('Mastodon reblogs, replies and incidental links are not announcements', async () => {
+  const { mastodonStatusesHaveAnnouncement } = await import('../scripts/lib/announce.ts');
+  const url = postUrl('2026-10-27-dergi-coze-org');
+  const own = { id: '1', reblog: null, in_reply_to_id: null, content: mastodonContent(url), card: { url } };
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...own, reblog: { id: '9', content: own.content } }], url), false);
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...own, in_reply_to_id: '7' }], url), false);
+  // an older status whose card is another article but whose text links this one (Codex's case)
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...own, card: { url: 'https://blog.arda.tr/blog/other/' } }], url), false);
+  // two blog links, one of them this post
+  const two = `<p><a href="https://blog.arda.tr/blog/other/">a</a> and <a href="${url}">b</a></p>`;
+  assert.equal(mastodonStatusesHaveAnnouncement([{ ...own, card: null, content: two }], url), false);
 });
 
 // In CI a failure that would silently skip an announcement must fail the

@@ -164,39 +164,58 @@ export function comparableUrl(url: string): string {
   return u.replace(/\/+$/, '');
 }
 
-const URL_PATTERN = /https?:\/\/[^\s"'<>]+/g;
-
-function anySame(candidates: unknown[], url: string): boolean {
-  const target = comparableUrl(url);
-  return candidates.some((c) => typeof c === 'string' && comparableUrl(c) === target);
+function sameUrl(candidate: unknown, url: string): boolean {
+  return typeof candidate === 'string' && comparableUrl(candidate) === comparableUrl(url);
 }
 
 /**
- * Whether one of the account's recent Bluesky posts (getAuthorFeed items)
- * already announces `url`, by its link card or a link facet.
+ * Whether one of the account's recent Bluesky posts (getAuthorFeed items) is
+ * the announcement of `url`. Only the account's own top-level posts count
+ * (no reposts, no replies, no posts by another DID), and only when `url` is
+ * the post's primary link: its external link card, or, for announcements
+ * from before link cards, its one and only link facet. A post that merely
+ * mentions the URL does not count, so it cannot suppress a real one.
  */
-export function blueskyFeedHasAnnouncement(feed: unknown[], url: string): boolean {
+export function blueskyFeedHasAnnouncement(feed: unknown[], url: string, did: string): boolean {
   return feed.some((item: any) => {
-    const record = item?.post?.record;
+    const post = item?.post;
+    const record = post?.record;
     if (!record) return false;
-    const links = [
-      record.embed?.external?.uri,
-      item.post.embed?.external?.uri,
-      ...(record.facets ?? []).flatMap((f: any) => (f?.features ?? []).map((feature: any) => feature?.uri)),
-    ];
-    return anySame(links, url);
+    if (item.reason) return false; // a repost
+    if (post.author?.did !== did) return false;
+    if (record.reply || item.reply) return false;
+    const card = record.embed?.external?.uri ?? post.embed?.external?.uri;
+    if (card !== undefined) return sameUrl(card, url);
+    const links = (record.facets ?? []).flatMap((f: any) =>
+      (f?.features ?? []).filter((x: any) => x?.$type === 'app.bsky.richtext.facet#link').map((x: any) => x.uri));
+    return links.length === 1 && sameUrl(links[0], url);
   });
 }
 
+const HREF_PATTERN = /href="([^"]+)"/g;
+
 /**
- * Whether one of the account's recent Mastodon statuses already announces
- * `url`, in its text (the links in the HTML content) or its preview card.
+ * Whether one of the account's recent Mastodon statuses is the announcement
+ * of `url`. Reblogs and replies never count. Otherwise `url` must be the
+ * status' primary link: its preview card's URL, or, when there is no card
+ * yet, its one and only link to the blog.
  */
 export function mastodonStatusesHaveAnnouncement(statuses: unknown[], url: string): boolean {
+  const blogHost = new URL(SITE_URL).host;
   return statuses.some((status: any) => {
-    if (!status) return false;
+    if (!status || status.reblog || status.in_reply_to_id) return false;
+    if (status.card?.url) return sameUrl(status.card.url, url);
     const content = typeof status.content === 'string' ? status.content : '';
-    return anySame([...(content.match(URL_PATTERN) ?? []), status.card?.url], url);
+    const blogLinks = [...content.matchAll(HREF_PATTERN)]
+      .map((m) => m[1].replace(/&amp;/g, '&'))
+      .filter((href) => {
+        try {
+          return new URL(href).host === blogHost;
+        } catch {
+          return false;
+        }
+      });
+    return blogLinks.length === 1 && sameUrl(blogLinks[0], url);
   });
 }
 
