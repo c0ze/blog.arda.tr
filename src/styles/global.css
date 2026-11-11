@@ -599,6 +599,23 @@ html:lang(ja) .prose { font-family: var(--jp); font-size: 17px; line-height: 1.9
   overflow-x: auto;
 }
 .prose pre code { background: none; border: 0; padding: 0; color: inherit; font: inherit; }
+/* Shiki's css-variables theme (astro.config.mjs), mapped onto the rendition:
+   keywords, constants and links in signal, strings in the soft ink, comments
+   in the meta tone (italic). Every pair clears 4.5:1, 7:1 in the HC renditions
+   (tests/code-contrast.test.mjs). */
+.astro-code {
+  --astro-code-foreground: var(--fg);
+  --astro-code-background: var(--surface);
+  --astro-code-token-keyword: var(--signal);
+  --astro-code-token-constant: var(--signal);
+  --astro-code-token-link: var(--signal);
+  --astro-code-token-function: var(--fg);
+  --astro-code-token-parameter: var(--fg);
+  --astro-code-token-string: var(--fg-soft);
+  --astro-code-token-string-expression: var(--fg-soft);
+  --astro-code-token-comment: var(--fg-2);
+}
+.astro-code [style*="token-comment"] { font-style: italic; }
 .prose blockquote {
   font-style: italic;
   color: var(--fg-soft);

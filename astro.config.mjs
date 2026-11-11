@@ -23,6 +23,14 @@ export default defineConfig({
   markdown: {
     // rehype-raw first, so the steps below also see the raw HTML in posts
     // (Astro would otherwise only parse it after every user plugin).
+    // Code colours come from the rendition tokens (the --astro-code-* map in
+    // global.css), so code blocks follow all four renditions.
+    shikiConfig: {
+      theme: 'css-variables',
+      // no ReScript grammar in Shiki; the posts' snippets are mostly JSX, which
+      // the nearest grammar (OCaml) would misread, so they stay plain text
+      langAlias: { rescript: 'plaintext' },
+    },
     rehypePlugins: [rehypeRaw, rehypeDemoteHeadings, rehypeMediaLoading],
   },
   compressHTML: true,
