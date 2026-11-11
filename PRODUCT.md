@@ -65,8 +65,8 @@ generative black metal.
 - **Excerpt length is a hard product constraint.** A too-long `excerpt` once
   broke a deploy against Mastodon's 500-character limit.
 - **Build is a three-step chain**: `astro build && tsx scripts/merge-sitemap.ts
-  && pagefind --site dist --force-language en` (one index for every language,
-  so `/search` finds the `tr` and `ja` posts too). `merge-sitemap` exits 1 without `dist/sitemap-0.xml`;
+  && pagefind --site dist` (one index per language; `/search` queries all of
+  them through `public/pagefind-all/pagefind.js`). `merge-sitemap` exits 1 without `dist/sitemap-0.xml`;
   Pagefind needs `data-pagefind-body` to survive on post pages.
 - **Frontmatter schema** (`src/content.config.ts`): `title`, `date` required;
   `excerpt`, `author`, `description`, `keywords`, `image`, `lang`, `draft`

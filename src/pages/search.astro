@@ -31,7 +31,8 @@ const { total } = await getLedger();
   </div>
 </BaseLayout>
 
-<!-- Lazy-load the Pagefind UI bundle. In `astro dev` the /pagefind/ bundle
+<!-- Lazy-load the Pagefind UI bundle. It searches through
+     /pagefind-all/pagefind.js, which queries every per-language index. In `astro dev` the /pagefind/ bundle
      doesn't exist (it is generated after `astro build`), so on load failure we
      quietly swap in the explanation above instead of a broken widget. -->
 <script is:inline>
@@ -41,6 +42,9 @@ const { total } = await getLedger();
     script.onload = function () {
       new PagefindUI({
         element: '#search',
+        // Every language index at once (en, ja, tr), ranked together; see
+        // public/pagefind-all/pagefind.js.
+        bundlePath: '/pagefind-all/',
         showImages: false,
         showSubResults: true,
         autofocus: true,

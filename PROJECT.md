@@ -72,11 +72,15 @@ npm run preview  # Preview production build
 
 The Pagefind search index (`dist/pagefind/`) only exists after a build, so
 `/search` shows a quiet fallback message under `npm run dev`. Only blog post
-pages are indexed (`data-pagefind-body` on the post article). Pagefind runs
-with `--force-language en`: left to itself it builds one index per `<html lang>`
-and `/search` (an `en` page) would only ever load the English one, so the `tr`
-and `ja` posts were unfindable. The single index still segments Japanese (the
-extended binary); only stemming is English-only.
+pages are indexed (`data-pagefind-body` on the post article). Pagefind builds
+one index per `<html lang>` (`en`, `ja`, `tr`), each with its own language
+support (Japanese word segmentation, Turkish stemming), and a page normally
+searches only its own. `/search` therefore gives PagefindUI
+`bundlePath: '/pagefind-all/'`: `public/pagefind-all/pagefind.js` loads one
+copy of `pagefind.js` per language (separate copies, since copies sharing a
+worker clobber each other's language), searches all of them and returns one
+list ranked by score. Don't use `--force-language`: one forced index loses the
+Japanese segmentation, so words inside unspaced sentences (意味) go missing.
 
 ## Blog Posts
 
