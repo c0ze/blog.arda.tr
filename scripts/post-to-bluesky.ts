@@ -2,11 +2,10 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync, execFileSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
 import { AtpAgent, RichText } from '@atproto/api';
-
-const SITE_URL = 'https://blog.arda.tr/blog';
+import { changedPosts, composeBlueskyText, postSlug, postUrl } from './lib/announce.ts';
 
 // Bluesky full handle; the app password comes from the BLUESKY_PASSWORD secret.
 const BLUESKY_IDENTIFIER = 'arda-karaduman.bsky.social';
@@ -61,49 +60,15 @@ function processFile(filePath: string) {
         return;
     }
 
-    const title = parsed.data.title || 'New Blog Post';
-    const excerpt = parsed.data.excerpt || '';
-    const tags = parsed.data.tags || [];
-
-    // Extract slug - assume it's the filename without extension, matching Astro's default routing
-    let slug = path.basename(filePath);
-    // Remove markdown extension if present
-    slug = slug.replace(/\.mdx?$/, '');
-
-    const postUrl = `${SITE_URL}/${slug}`;
-
-    // Format hashtags
-    const hashtags = tags
-        .map((tag: string) => `#${tag.replace(/[^a-zA-Z0-9_]/g, '')}`)
-        .join(' ');
-
-    const baseText = `📝 New blog post: ${title}\n\n`;
-    const endText = `${postUrl}` + (hashtags ? `\n\n${hashtags}` : '');
-
-    let finalExcerpt = excerpt;
-    let statusText = '';
-
-    // We will iteratively truncate finalExcerpt if needed
-    while (true) {
-        statusText = baseText + (finalExcerpt ? `${finalExcerpt}\n\n` : '') + endText;
-        const rt = new RichText({ text: statusText });
-        // The bsky API limit is 300 graphemes
-        if (rt.graphemeLength <= 300) {
-            break;
-        }
-
-        // If we still need to truncate
-        if (finalExcerpt.length > 5 && finalExcerpt !== '...') {
-            // Remove the '...' if it's there, cut 5 chars, add '...' back
-            finalExcerpt = finalExcerpt.replace(/\.\.\.$/, '');
-            finalExcerpt = finalExcerpt.substring(0, finalExcerpt.length - 5).trim() + '...';
-        } else {
-            // If no excerpt is left or it's just '...', just drop it
-            finalExcerpt = '';
-            statusText = baseText + endText;
-            break;
-        }
-    }
+    // The URL the site serves the post at (Astro slugifies the file name).
+    // The text is kept within Bluesky's 300 graphemes: excerpt first, then title.
+    const url = postUrl(postSlug(filePath, parsed.data));
+    const statusText = composeBlueskyText({
+        title: parsed.data.title || 'New Blog Post',
+        excerpt: parsed.data.excerpt || '',
+        url,
+        tags: parsed.data.tags || [],
+    });
 
     return postToBluesky(statusText);
 }
@@ -139,52 +104,46 @@ async function main() {
         return;
     }
 
+    let diffOutput = '';
     try {
-        let diffOutput = '';
-        try {
-            const diffCmd = `git diff --name-status ${beforeSha} ${afterSha}`;
-            console.log(`Executing: ${diffCmd}`);
-            diffOutput = execSync(diffCmd, { encoding: 'utf-8' });
-        } catch (gitError: any) {
-            console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Blue Sky post. Details:', gitError.message);
-            return;
+        // Added (A) and modified (M) files between the commits. quotePath=false
+        // keeps non-ASCII file names unquoted; no shell is involved.
+        const diffArgs = ['-c', 'core.quotePath=false', 'diff', '--name-status', beforeSha, afterSha];
+        console.log(`Executing: git ${diffArgs.join(' ')}`);
+        diffOutput = execFileSync('git', diffArgs, { encoding: 'utf-8' });
+    } catch (gitError: any) {
+        console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Blue Sky post. Details:', gitError.message);
+        return;
+    }
+
+    // Announce a post when this push introduced it (status A), or when the
+    // push flipped it from draft to published (status M). Edits to posts
+    // that were already published must not re-announce. Current drafts are
+    // still filtered out by the draft check in processFile.
+    const postsToAnnounce = changedPosts(diffOutput).filter(({ status, filePath }) => {
+        if (status === 'A') return true;
+        const before = getFrontmatterAtSha(beforeSha, filePath);
+        if (before !== null && (before.draft === true || before.draft === 'true')) {
+            console.log(`📢 ${filePath} was draft before this push — announcing.`);
+            return true;
         }
+        return false;
+    });
 
-        const changedFiles = diffOutput
-            .split('\n')
-            .filter(line => /^[AM][\t ]/.test(line)) // Added or Modified files
-            .map(line => ({ status: line[0], filePath: line.split('\t')[1] || line.split(' ')[1] })) // Get file path
-            .filter(({ filePath }) => filePath?.startsWith('src/content/blog/') && filePath?.endsWith('.md'));
+    if (postsToAnnounce.length === 0) {
+        console.log('ℹ️ No blog posts to announce in this commit range.');
+        return;
+    }
 
-        // Announce a post when this push introduced it (status A), or when the
-        // push flipped it from draft to published (status M). Edits to posts
-        // that were already published must not re-announce. Current drafts are
-        // still filtered out by the draft check in processFile.
-        const postsToAnnounce = changedFiles.filter(({ status, filePath }) => {
-            if (status === 'A') return true;
-            const before = getFrontmatterAtSha(beforeSha, filePath);
-            if (before !== null && (before.draft === true || before.draft === 'true')) {
-                console.log(`📢 ${filePath} was draft before this push — announcing.`);
-                return true;
-            }
-            return false;
-        });
+    console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
 
-        if (postsToAnnounce.length === 0) {
-            console.log('ℹ️ No blog posts to announce in this commit range.');
-            return;
-        }
-
-        console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
-
-        for (const { filePath } of postsToAnnounce) {
-            const fullPath = path.join(process.cwd(), filePath);
-            await processFile(fullPath);
-        }
-    } catch (error) {
-        console.error('❌ Error finding new files via Git:', error);
-        process.exit(1);
+    for (const { filePath } of postsToAnnounce) {
+        const fullPath = path.join(process.cwd(), filePath);
+        await processFile(fullPath);
     }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error('❌ Unexpected error:', error);
+    process.exitCode = 1;
+});

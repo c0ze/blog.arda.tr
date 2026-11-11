@@ -2,12 +2,12 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { execSync, execFileSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
+import { changedPosts, composeMastodonStatus, postSlug, postUrl } from './lib/announce.ts';
 
 const MASTODON_URL = 'https://mastodon.world';
 const ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
-const SITE_URL = 'https://blog.arda.tr/blog';
 
 async function postToMastodon(status: string) {
     if (!ACCESS_TOKEN) {
@@ -60,49 +60,14 @@ function processFile(filePath: string) {
         return;
     }
 
-    const title = parsed.data.title || 'New Blog Post';
-    const excerpt = parsed.data.excerpt || '';
-    const tags = parsed.data.tags || [];
-
-    // Extract slug - assume it's the filename without extension, matching Astro's default routing
-    // Note: Astro 5 post.id might be '2026/filename' but split('/').pop() gets 'filename'
-    let slug = path.basename(filePath);
-    // Remove markdown extension if present
-    slug = slug.replace(/\.mdx?$/, '');
-
-    const postUrl = `${SITE_URL}/${slug}`;
-
-    // Format hashtags
-    const hashtags = tags
-        .map((tag: string) => `#${tag.replace(/[^a-zA-Z0-9_]/g, '')}`)
-        .join(' ');
-
-    // Create status text
-    const compose = (body: string) => {
-        let s = `📝 New blog post: ${title}\n\n`;
-        if (body) {
-            s += `${body}\n\n`;
-        }
-        s += `${postUrl}`;
-        if (hashtags) {
-            s += `\n\n${hashtags}`;
-        }
-        return s;
-    };
-
-    // Mastodon rejects statuses over 500 characters (422). Trim the excerpt to
-    // fit rather than failing the whole deploy. Mastodon counts any URL as 23
-    // characters regardless of its real length, so measure accordingly.
-    const LIMIT = 495;
-    const effectiveLength = (s: string) => s.length - postUrl.length + 23;
-    let statusText = compose(excerpt);
-    if (effectiveLength(statusText) > LIMIT) {
-        const overhead = effectiveLength(statusText) - excerpt.length;
-        const room = Math.max(LIMIT - overhead - 1, 0);
-        const trimmed = room > 0 ? `${excerpt.slice(0, room).trimEnd()}…` : '';
-        console.warn(`⚠️ Status too long (effective ${effectiveLength(statusText)}); trimming excerpt to fit.`);
-        statusText = compose(trimmed);
-    }
+    // The URL the site serves the post at (Astro slugifies the file name).
+    const url = postUrl(postSlug(filePath, parsed.data));
+    const statusText = composeMastodonStatus({
+        title: parsed.data.title || 'New Blog Post',
+        excerpt: parsed.data.excerpt || '',
+        url,
+        tags: parsed.data.tags || [],
+    });
 
     return postToMastodon(statusText);
 }
@@ -138,54 +103,46 @@ async function main() {
         return;
     }
 
+    let diffOutput = '';
     try {
-        let diffOutput = '';
-        try {
-            // Get list of added files between commits
-            // A status means added
-            const diffCmd = `git diff --name-status ${beforeSha} ${afterSha}`;
-            console.log(`Executing: ${diffCmd}`);
-            diffOutput = execSync(diffCmd, { encoding: 'utf-8' });
-        } catch (gitError: any) {
-            console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Mastodon post. Details:', gitError.message);
-            return;
+        // Added (A) and modified (M) files between the commits. quotePath=false
+        // keeps non-ASCII file names unquoted; no shell is involved.
+        const diffArgs = ['-c', 'core.quotePath=false', 'diff', '--name-status', beforeSha, afterSha];
+        console.log(`Executing: git ${diffArgs.join(' ')}`);
+        diffOutput = execFileSync('git', diffArgs, { encoding: 'utf-8' });
+    } catch (gitError: any) {
+        console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Mastodon post. Details:', gitError.message);
+        return;
+    }
+
+    // Announce a post when this push introduced it (status A), or when the
+    // push flipped it from draft to published (status M). Edits to posts
+    // that were already published must not re-announce. Current drafts are
+    // still filtered out by the draft check in processFile.
+    const postsToAnnounce = changedPosts(diffOutput).filter(({ status, filePath }) => {
+        if (status === 'A') return true;
+        const before = getFrontmatterAtSha(beforeSha, filePath);
+        if (before !== null && (before.draft === true || before.draft === 'true')) {
+            console.log(`📢 ${filePath} was draft before this push — announcing.`);
+            return true;
         }
+        return false;
+    });
 
-        const changedFiles = diffOutput
-            .split('\n')
-            .filter(line => /^[AM][\t ]/.test(line)) // Added or Modified files
-            .map(line => ({ status: line[0], filePath: line.split('\t')[1] || line.split(' ')[1] })) // Get file path
-            .filter(({ filePath }) => filePath?.startsWith('src/content/blog/') && filePath?.endsWith('.md'));
+    if (postsToAnnounce.length === 0) {
+        console.log('ℹ️ No blog posts to announce in this commit range.');
+        return;
+    }
 
-        // Announce a post when this push introduced it (status A), or when the
-        // push flipped it from draft to published (status M). Edits to posts
-        // that were already published must not re-announce. Current drafts are
-        // still filtered out by the draft check in processFile.
-        const postsToAnnounce = changedFiles.filter(({ status, filePath }) => {
-            if (status === 'A') return true;
-            const before = getFrontmatterAtSha(beforeSha, filePath);
-            if (before !== null && (before.draft === true || before.draft === 'true')) {
-                console.log(`📢 ${filePath} was draft before this push — announcing.`);
-                return true;
-            }
-            return false;
-        });
+    console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
 
-        if (postsToAnnounce.length === 0) {
-            console.log('ℹ️ No blog posts to announce in this commit range.');
-            return;
-        }
-
-        console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
-
-        for (const { filePath } of postsToAnnounce) {
-            const fullPath = path.join(process.cwd(), filePath);
-            await processFile(fullPath);
-        }
-    } catch (error) {
-        console.error('❌ Error finding new files via Git:', error);
-        process.exit(1);
+    for (const { filePath } of postsToAnnounce) {
+        const fullPath = path.join(process.cwd(), filePath);
+        await processFile(fullPath);
     }
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error('❌ Unexpected error:', error);
+    process.exitCode = 1;
+});
