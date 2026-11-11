@@ -3,6 +3,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { execSync } from 'child_process';
+import { localDate, postFrontmatter, slugify } from './lib/new-post.ts';
 
 // Get git user name for author field
 let gitAuthor = '';
@@ -21,15 +22,17 @@ if (!title) {
   process.exit(1);
 }
 
-// Generate slug from title
-const slug = title
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, '-')
-  .replace(/(^-|-$)/g, '');
+// Generate slug from title (Turkish letters transliterated)
+const slug = slugify(title);
+if (!slug) {
+  console.error(`Error: "${title}" gives an empty file name: it has no Latin letters or digits.`);
+  console.log('Pass a Latin title to name the file, then set the real title in its frontmatter.');
+  process.exit(1);
+}
 
-// Get current date and year
+// Current date and year, both from the local clock
 const now = new Date();
-const date = now.toISOString().split('T')[0];
+const date = localDate(now);
 const year = now.getFullYear().toString();
 
 // Format date for display
@@ -40,18 +43,7 @@ const displayDate = new Date().toLocaleDateString('en-US', {
 });
 
 // Create markdown content
-const content = `---
-title: "${title}"
-date: "${date}"
-excerpt: "Add a brief description of your post here"
-tags: ["dev"]
-keywords: "keyword1, keyword2, keyword3"
-description: "A brief SEO description of your post"
-author: "${gitAuthor}"
-image: ""
-draft: false
----
-
+const content = `${postFrontmatter({ title, date, author: gitAuthor })}
 Write your post content here. You can use markdown formatting.
 
 ## Section Title
