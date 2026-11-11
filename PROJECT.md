@@ -67,7 +67,11 @@ npm run preview  # Preview production build
 
 The Pagefind search index (`dist/pagefind/`) only exists after a build, so
 `/search` shows a quiet fallback message under `npm run dev`. Only blog post
-pages are indexed (`data-pagefind-body` on the post article).
+pages are indexed (`data-pagefind-body` on the post article). Pagefind runs
+with `--force-language en`: left to itself it builds one index per `<html lang>`
+and `/search` (an `en` page) would only ever load the English one, so the `tr`
+and `ja` posts were unfindable. The single index still segments Japanese (the
+extended binary); only stemming is English-only.
 
 ## Blog Posts
 
