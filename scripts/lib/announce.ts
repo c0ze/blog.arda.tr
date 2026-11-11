@@ -1,13 +1,17 @@
 /**
  * Pure building blocks of the post announcements (post-to-mastodon.ts,
  * post-to-bluesky.ts): which pushed files are posts, the URL a post is served
- * at and the status texts. No I/O and no side effects on
+ * at, the status texts, and the Bluesky record. No I/O and no side effects on
  * import, so tests/announce.test.mjs can cover them without posting anything.
  */
 import path from 'node:path';
 import { slug as githubSlug } from 'github-slugger';
+import type { AppBskyEmbedExternal, AppBskyFeedPost, AppBskyRichtextFacet, BlobRef } from '@atproto/api';
 
 export const SITE_URL = 'https://blog.arda.tr';
+export const DEFAULT_OG_IMAGE = '/images/og-image.jpg';
+/** app.bsky.embed.external#external thumb: maxSize 1,000,000 bytes. */
+export const BLUESKY_BLOB_LIMIT = 1_000_000;
 export const BLUESKY_LIMIT = 300;
 export const MASTODON_LIMIT = 495; // 500 minus a little slack
 
@@ -111,4 +115,57 @@ export function composeBlueskyText({ title, excerpt, url, tags }: Announcement, 
     if (titleRoom > 0) return compose(clip(title, titleRoom), '', url, t);
   }
   return url;
+}
+
+/** The post's OG image under public/ (its own, else the site default), or null if it escapes public/. */
+export function ogImageFile(image: unknown, publicDir: string): string | null {
+  const src = typeof image === 'string' && image.trim() ? image.trim() : DEFAULT_OG_IMAGE;
+  if (!src.startsWith('/') || src.startsWith('//')) return null;
+  const file = path.join(publicDir, src);
+  return file.startsWith(publicDir + path.sep) ? file : null;
+}
+
+const IMAGE_TYPES: Record<string, string> = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+};
+
+/** The MIME type for a card thumbnail, or null when Bluesky won't take it. */
+export function thumbMimeType(file: string): string | null {
+  return IMAGE_TYPES[path.extname(file).toLowerCase()] ?? null;
+}
+
+type ExternalEmbed = AppBskyEmbedExternal.Main & { $type: 'app.bsky.embed.external' };
+
+/** A link card. Bluesky never builds one server-side: the post has to carry it. */
+export function buildExternalEmbed({ uri, title, description, thumb }: {
+  uri: string;
+  title: string;
+  description: string;
+  thumb?: BlobRef;
+}): ExternalEmbed {
+  return {
+    $type: 'app.bsky.embed.external',
+    external: { uri, title, description, ...(thumb ? { thumb } : {}) },
+  };
+}
+
+/** The app.bsky.feed.post record handed to agent.post(). */
+export function buildBlueskyRecord({ text, facets, createdAt, lang, embed }: {
+  text: string;
+  facets?: AppBskyRichtextFacet.Main[];
+  createdAt: string;
+  lang?: unknown;
+  embed?: ExternalEmbed;
+}): Partial<AppBskyFeedPost.Record> & Omit<AppBskyFeedPost.Record, 'createdAt'> {
+  return {
+    text,
+    ...(facets && facets.length ? { facets } : {}),
+    createdAt,
+    langs: [typeof lang === 'string' && lang ? lang : 'en'],
+    ...(embed ? { embed } : {}),
+  };
 }

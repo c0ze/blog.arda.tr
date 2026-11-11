@@ -97,3 +97,39 @@ test('an over-long title is shortened rather than failing the post', () => {
   assert.match(text, /^📝 New blog post: başlık0 .*…\n\nhttps/s);
   assert.doesNotMatch(text, /excerpt/);
 });
+
+// Bluesky never builds link cards server-side: a post without an embed shows
+// a bare URL. The record must carry the card (and the post's language).
+test('the Bluesky record carries a link card and the post language', async () => {
+  const { buildBlueskyRecord, buildExternalEmbed } = await import('../scripts/lib/announce.ts');
+  const thumb = { $type: 'blob', ref: { $link: 'bafk' }, mimeType: 'image/png', size: 1234 };
+  const embed = buildExternalEmbed({ uri: 'https://blog.arda.tr/blog/x/', title: 'T', description: 'D', thumb });
+  assert.deepEqual(embed, {
+    $type: 'app.bsky.embed.external',
+    external: { uri: 'https://blog.arda.tr/blog/x/', title: 'T', description: 'D', thumb },
+  });
+  const facets = [{ index: { byteStart: 0, byteEnd: 1 }, features: [] }];
+  assert.deepEqual(
+    buildBlueskyRecord({ text: 'hi', facets, createdAt: '2026-11-12T00:00:00.000Z', lang: 'tr', embed }),
+    { text: 'hi', facets, createdAt: '2026-11-12T00:00:00.000Z', langs: ['tr'], embed },
+  );
+});
+
+// A card without a thumbnail is still a card; a post without a card (the
+// embed could not be built) is still a post, in the default language.
+test('the record degrades to no thumb, then to a plain post', async () => {
+  const { buildBlueskyRecord, buildExternalEmbed } = await import('../scripts/lib/announce.ts');
+  assert.deepEqual(buildExternalEmbed({ uri: 'u', title: 't', description: '' }).external, { uri: 'u', title: 't', description: '' });
+  assert.deepEqual(buildBlueskyRecord({ text: 'hi', createdAt: 'c' }), { text: 'hi', createdAt: 'c', langs: ['en'] });
+});
+
+test('the card thumbnail is the post OG image under public/, else the default', async () => {
+  const { ogImageFile, thumbMimeType } = await import('../scripts/lib/announce.ts');
+  assert.equal(ogImageFile('/images/og/a.webp', '/repo/public'), '/repo/public/images/og/a.webp');
+  assert.equal(ogImageFile('', '/repo/public'), '/repo/public/images/og-image.jpg');
+  assert.equal(ogImageFile(undefined, '/repo/public'), '/repo/public/images/og-image.jpg');
+  assert.equal(ogImageFile('/../../etc/passwd', '/repo/public'), null);
+  assert.equal(ogImageFile('https://example.com/a.png', '/repo/public'), null);
+  assert.equal(thumbMimeType('/x/a.JPG'), 'image/jpeg');
+  assert.equal(thumbMimeType('/x/a.svg'), null);
+});

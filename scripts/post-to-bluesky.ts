@@ -4,18 +4,68 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
-import { AtpAgent, RichText } from '@atproto/api';
-import { changedPosts, composeBlueskyText, postSlug, postUrl } from './lib/announce.ts';
+import { AtpAgent, RichText, type BlobRef } from '@atproto/api';
+import {
+    BLUESKY_BLOB_LIMIT,
+    buildBlueskyRecord,
+    buildExternalEmbed,
+    changedPosts,
+    composeBlueskyText,
+    ogImageFile,
+    postSlug,
+    postUrl,
+    thumbMimeType,
+} from './lib/announce.ts';
 
 // Bluesky full handle; the app password comes from the BLUESKY_PASSWORD secret.
 const BLUESKY_IDENTIFIER = 'arda-karaduman.bsky.social';
 const BLUESKY_PASSWORD = process.env.BLUESKY_PASSWORD;
 
-async function postToBluesky(status: string) {
+interface Card {
+    uri: string;
+    title: string;
+    description: string;
+    lang: unknown;
+    /** The OG image file under public/, uploaded as the card thumbnail. */
+    imageFile: string | null;
+}
+
+/**
+ * The link card. A thumbnail that is missing, of an unknown type, over
+ * Bluesky's blob limit or fails to upload is skipped (the card still goes
+ * out); any other failure returns undefined and the post goes out plain.
+ */
+async function buildEmbed(agent: AtpAgent, card: Card) {
+    try {
+        let thumb: BlobRef | undefined;
+        const file = card.imageFile;
+        const mimeType = file ? thumbMimeType(file) : null;
+        if (file && mimeType && fs.existsSync(file)) {
+            const size = fs.statSync(file).size;
+            if (size <= BLUESKY_BLOB_LIMIT) {
+                try {
+                    const { data } = await agent.uploadBlob(fs.readFileSync(file), { encoding: mimeType });
+                    thumb = data.blob;
+                } catch (error) {
+                    console.warn('⚠️ Thumbnail upload failed; posting the card without it:', error);
+                }
+            } else {
+                console.warn(`⚠️ ${file} is ${size} bytes, over the ${BLUESKY_BLOB_LIMIT}-byte blob limit; card without thumbnail.`);
+            }
+        }
+        return buildExternalEmbed({ uri: card.uri, title: card.title, description: card.description, thumb });
+    } catch (error) {
+        console.warn('⚠️ Could not build the link card; posting without it:', error);
+        return undefined;
+    }
+}
+
+async function postToBluesky(status: string, card: Card) {
     if (!BLUESKY_PASSWORD) {
         console.warn('⚠️ BLUESKY_PASSWORD is not set.');
         console.log('Dry run mode. Would have posted:\n-------------------');
         console.log(status);
+        console.log(`(link card: ${card.uri}, thumbnail ${card.imageFile ?? 'none'}, lang ${String(card.lang)})`);
         console.log('-------------------');
         return;
     }
@@ -31,11 +81,14 @@ async function postToBluesky(status: string) {
         const rt = new RichText({ text: status });
         await rt.detectFacets(agent); // automatically detects links and mentions
 
-        const { uri } = await agent.post({
+        const embed = await buildEmbed(agent, card);
+        const { uri } = await agent.post(buildBlueskyRecord({
             text: rt.text,
             facets: rt.facets,
             createdAt: new Date().toISOString(),
-        });
+            lang: card.lang,
+            embed,
+        }));
 
         console.log(`✅ Successfully posted to Blue Sky! URI: ${uri}`);
 
@@ -63,14 +116,17 @@ function processFile(filePath: string) {
     // The URL the site serves the post at (Astro slugifies the file name).
     // The text is kept within Bluesky's 300 graphemes: excerpt first, then title.
     const url = postUrl(postSlug(filePath, parsed.data));
-    const statusText = composeBlueskyText({
-        title: parsed.data.title || 'New Blog Post',
-        excerpt: parsed.data.excerpt || '',
-        url,
-        tags: parsed.data.tags || [],
-    });
+    const title = parsed.data.title || 'New Blog Post';
+    const excerpt = parsed.data.excerpt || '';
+    const statusText = composeBlueskyText({ title, excerpt, url, tags: parsed.data.tags || [] });
 
-    return postToBluesky(statusText);
+    return postToBluesky(statusText, {
+        uri: url,
+        title,
+        description: excerpt || parsed.data.description || '',
+        lang: parsed.data.lang,
+        imageFile: ogImageFile(parsed.data.image, path.join(process.cwd(), 'public')),
+    });
 }
 
 function getFrontmatterAtSha(sha: string, filePath: string): Record<string, any> | null {
