@@ -20,7 +20,8 @@ surface. No conversion funnel belongs here.
 
 ## Product Purpose
 
-A personal blog, published since 2010, holding 86 posts. It is where the work
+A personal blog, published since 2010; the site counts its own entries (the
+masthead and the status bar), so no number is kept here. It is where the work
 on `arda.tr` gets explained: how a thing was built, why it was abandoned, what
 the interesting part was.
 
@@ -29,7 +30,7 @@ Success: a peer reads to the end of a post and comes back for the next one.
 ## Positioning
 
 Sixteen years of one person's writing, with a visible seven-year silence in the
-middle (2019–2024) and a heavy recent burst — 52 of 86 posts are from 2025–2026.
+middle (2019–2024) and a heavy recent burst — most posts are from 2025–2026.
 
 The archive is not uniform and should not pretend to be: 2010–2011 is a Turkish
 and Japanese personal scrapbook (music links, diary entries, one post titled
@@ -42,12 +43,13 @@ generative black metal.
 - Astro 5 static site on GitHub Pages, `blog.arda.tr`.
 - Sibling to `arda.tr` (index), `resume.arda.tr` (dossier), `ai.arda.tr`.
 - Every push to `main` auto-announces new posts to **Mastodon and Bluesky**
-  via `post-mastodon` / `post-bluesky` in the deploy job.
+  via `post-mastodon` / `post-bluesky` in a separate `announce` job that runs
+  after the deploy job, so the post is live when the networks fetch it.
 - Inbound is social, RSS and referral. Search is Pagefind, built at deploy time.
 
 ## Capabilities and Constraints
 
-- **Astro 5.16 static**, `@astrojs/tailwind` + `@astrojs/sitemap` only.
+- **Astro 5 static**, `@astrojs/tailwind` + `@astrojs/sitemap` only.
   Tailwind 3.4 with `@tailwindcss/typography`. No MDX integration, and the
   content glob is `**/*.md` — posts cannot embed components today.
 - **Minimal JS, no framework.** No hydration. Chrome behaviour is small
@@ -56,9 +58,10 @@ generative black metal.
   plus the shared 1-bit engine `onebit.js` (One Bit Forest, 2026-09-23): the
   dithered OG images, treeline and clock. Every page reads fully without it.
   A redesign that needs a JS framework is the wrong redesign.
-- **Post bodies contain raw HTML** — 66 markdown images plus 15 `<img>`,
-  11 `<iframe>` (youtube-nocookie, SoundCloud), 2 `<video>`. These must keep
-  rendering inside the prose column.
+- **Post bodies contain raw HTML** — markdown images alongside raw `<img>`,
+  `<iframe>` (youtube-nocookie, SoundCloud) and `<video>`. These must keep
+  rendering inside the prose column (rehype steps in `src/lib/rehype.mjs`
+  lazy-load them and size local images).
 - **Excerpt length is a hard product constraint.** A too-long `excerpt` once
   broke a deploy against Mastodon's 500-character limit.
 - **Build is a three-step chain**: `astro build && tsx scripts/merge-sitemap.ts
@@ -69,12 +72,15 @@ generative black metal.
   `excerpt`, `author`, `description`, `keywords`, `image`, `lang`, `draft`
   optional. `image` does double duty as OG image and card art. No `heroImage`,
   no `series`, no `updated`.
-- **49 tags, long-tail** — `dev` 42, `legacy` 23, `ai` 22, `geek` 13, `music` 9,
-  and 32 tags used exactly once. `legacy` marks the 2010–2011 posts.
-- **No tag pages and no pagination.** `/blog` renders all 86 posts at once and
+- **Tags are a long tail** — a few heavy ones (`dev`, `ai`, `legacy`, `geek`)
+  and most used exactly once; the index prints the live counts. `legacy`
+  marks the 2010–2011 posts.
+- **No tag pages and no pagination.** `/blog` renders every post at once and
   filters client-side via `?tag=`.
 - **Automated gates:** `npm test` (node:test — OG images exist in `public/`,
-  and the rendition scripts under a fake DOM), `astro check`, the build, and
+  the rendition and tag-filter scripts under a fake DOM, code-token contrast,
+  and the pure helpers: post order, links, descriptions, feed, rehype steps,
+  the announce and new-post builders), `astro check`, the build, and
   the theme-contract script. There is no lint and no `verify` script.
 - Node 24.14.0 pinned via `.mise.toml`.
 - **Visual system:** the family's One Bit Forest (2026-09-23), see DESIGN.md
@@ -93,7 +99,7 @@ generative black metal.
 
 ## Evidence on Hand
 
-Real and usable: 86 dated posts with real titles, tags and reading times; a
+Real and usable: every dated post with its real title, tags and reading times; a
 genuine 2010 start date; real embedded media; a real RSS feed with enclosures;
 Mastodon and Bluesky presences.
 

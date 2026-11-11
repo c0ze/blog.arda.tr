@@ -12,7 +12,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const OUTPUT_DIR = "public/images/og";
 
 // Run ImageMagick's `magick` CLI (replaces the previous sharp pipeline so the
-// project relies on a single image tool — see src/magick-service.ts).
+// project relies on a single image tool).
 function runMagick(args) {
     const result = spawnSync("magick", args, { maxBuffer: 1024 * 1024 * 100 });
     if (result.error) throw result.error;

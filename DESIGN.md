@@ -53,7 +53,7 @@ status bar (`ThemeToggle.astro`).
 | `--fg-soft` (serif excerpts) | `#b9ae98` | `#e8e4da` | `#34332f` | `#1a1a1a` |
 | `--rule` | `#2a241b` | `#8a8a8a` | `#cfccc2` | `#1a1a1a` |
 | `--rule-2` (row separators) | `#1c1812` | `#5a5a5a` | `#dfdcd3` | `#8a8a8a` |
-| `--signal` | `#ffb224` 11:1 | `#ffc34d` 12.6:1 | `#8a4f00` 5.6:1 | `#6b3c00` 9.3:1 |
+| `--signal` | `#ffb224` 11:1 | `#ffc34d` 13.2:1 | `#8a4f00` 5.6:1 | `#6b3c00` 9.3:1 |
 | `--on-signal` | = `--bg` | = `--bg` | = `--bg` | = `--bg` |
 
 **Canvas palette** (read by `onebit.js` every frame, always hex): `--ob-ink` =
@@ -99,7 +99,9 @@ meta lines) carries `lang="en"` so uppercase never becomes `İ` on a `tr` post.
   1040px; then `.prose`; then related rows (≤3, with covers) and prev/next.
 - **Prose**: `## ` / `### ` markers in mono signal before h2/h3, h2 over a 1px
   rule; inline code in signal on `--surface`; code blocks on `--surface` with a
-  2px signal left edge; blockquotes italic with a 1px signal rule; tables with
+  2px signal left edge, highlighted from the rendition tokens (Shiki's
+  css-variables theme: keywords in signal, strings in `--fg-soft`, comments
+  in `--fg-2`); blockquotes italic with a 1px signal rule; tables with
   mono uppercase heads. Raw-HTML embeds keep their Tailwind sizing
   (`aspect-video`, `my-8`), but radius and shadows are neutralised.
 - **Chips**: 1px ruled mono cells; pressed = solid signal with `--on-signal`.

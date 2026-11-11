@@ -4,7 +4,7 @@
  * the markup:
  *
  *   canvas[data-og]        a post's OG image, dithered live. Created lazily as it
- *                          nears the viewport, so /blog never decodes 92 images on
+ *                          nears the viewport, so /blog never decodes every image on
  *                          load. data-og = image URL ("" → seeded sigil),
  *                          data-seed = the post slug, data-px, data-contrast.
  *                          With data-reveal (the post page's cover) it develops, then

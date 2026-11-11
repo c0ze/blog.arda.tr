@@ -1,6 +1,7 @@
-# CLAUDE.md
+# PROJECT.md — blog.arda.tr
 
-This file provides guidance to Claude Code when working with this repository.
+The handoff document for this repository: architecture, constraints, key files,
+how to run and validate. The generic working rules are in CLAUDE.md.
 
 ## Project Overview
 
@@ -33,8 +34,11 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   └── BaseLayout.astro    # Base HTML layout with SEO + theme boot script
 │   ├── lib/
 │   │   ├── posts.ts            # getPublishedPosts()/getSlug() helpers (pages + RSS)
+│   │   ├── order.ts            # byNewestFirst(): date, then post id (stable № and prev/next)
+│   │   ├── feed.ts             # RSS item HTML (escaped excerpt + cover)
+│   │   ├── rehype.mjs          # Post-body steps: demote body h1s, lazy media + image sizes
 │   │   ├── ledger.ts           # getLedger(): numbering, month tiers, year spine, the silence, tag counts
-│   │   └── display.ts          # Date, reading-time, ▮ bar and label helpers
+│   │   └── display.ts          # Date, reading-time, ▮ bar, label, postHref, description, JSON-LD helpers
 │   ├── pages/
 │   │   ├── index.astro         # Home page
 │   │   ├── blog/
@@ -52,7 +56,8 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │       └── global.css          # Rendition tokens and every component style, Tailwind
 ├── public/
 │   └── images/                 # Static images, OG images
-├── astro.config.mjs            # Astro configuration
+├── scripts/                    # new-post, post-to-mastodon/-bluesky (pure parts in scripts/lib/), sitemap merge, theme contract
+├── astro.config.mjs            # Astro configuration (rehype steps, Shiki css-variables theme)
 └── tailwind.config.mjs         # Tailwind with CSS variables
 ```
 
@@ -127,8 +132,9 @@ DOM.
 compares this repo against the catalogue published by `c0ze/arda.tr`
 (`config/themes.json`). Contract v3 checks shape only — the id set, each id's
 role, and that every `requiredTokens` entry is declared per rendition — never
-values (each site has its own tint and signal). While arda.tr's published main
-is still on v2 (different ids), it reports the divergence and soft-passes. Run it
+values (each site has its own tint and signal). arda.tr publishes contract v3
+and the check passes for real; it only soft-passes when the contract cannot be
+fetched or an older contract shares no ids. Run it
 locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/check-theme-contract.mjs`.
 
 
@@ -136,10 +142,11 @@ locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/ch
 
 - **Per-page meta tags** - Title, description, keywords set in BaseLayout
 - **Open Graph** - og:title, og:description, og:image, og:url
-- **Twitter Cards** - summary_large_image format
+- **Twitter Cards** - summary_large_image for posts with their own image; summary for the square default image
 - **Custom OG images** - Add `image` field to frontmatter for per-post images
 - **JSON-LD** - BlogPosting schema on blog posts
-- **Canonical URLs** - Automatically generated
+- **Canonical URLs** - Automatically generated; the 404 gets `noindex` instead (BaseLayout `noindex` prop)
+- **Descriptions** - `description`, else `excerpt`, else ~155 characters of the body
 
 ## Path Aliases
 

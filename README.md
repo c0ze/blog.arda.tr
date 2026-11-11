@@ -43,81 +43,18 @@ index only exists after a build, so `/search` shows a quiet fallback note under
 This repo already ships with [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml).
 Push to `main` or trigger the workflow manually and GitHub Pages will build and publish `dist/`.
 
-If you need to recreate the workflow, the shape is:
+The workflow has three jobs:
 
-```yaml
-name: Deploy to GitHub Pages
+- **build**: `npm ci`, `npm test`, `npm run check`, `npm run build`, then
+  uploads `dist/` as the Pages artifact (read-only token);
+- **deploy**: publishes the artifact to GitHub Pages (the only job with
+  `pages: write` / `id-token: write`);
+- **announce** (pushes only, after deploy so the post is live): runs
+  `npm run post-mastodon` and `npm run post-bluesky` for posts the push added
+  or flipped from draft to published.
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node
-        uses: actions/setup-node@v5
-        with:
-          node-version: 24
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Type check
-        run: npm run check
-
-      - name: Build Astro site
-        run: npm run build
-
-      - name: Post to Mastodon
-        if: github.event_name == 'push'
-        env:
-          MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
-        run: npm run post-mastodon
-
-      - name: Post to Blue Sky
-        if: github.event_name == 'push'
-        env:
-          BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          BEFORE_SHA: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
-        run: npm run post-bluesky
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
-```
+Runs queue in the `pages` concurrency group instead of cancelling each other,
+so no push loses its announcement.
 
 ### Manual Deploy
 
@@ -170,7 +107,7 @@ dist/                 # Build output (git-ignored)
 - **Small JS** - One bundled module (`site.js` + the `onebit.js` engine) dithers the post images; covers are created lazily as they scroll near, so `/blog` never decodes every image on load. Everything else is four `is:inline` scripts: the rendition boot, the rendition switch, the `/blog` tag filter, and the `/search` Pagefind loader
 - **No-JS fallback** - Each dithered canvas carries a `<noscript>` plain image
 - **Static HTML** - Every page is pre-rendered at build time
-- **Fonts** - Big Shoulders Display and IBM Plex Sans / Mono / Serif / Sans JP from Google Fonts, with preconnect
+- **Fonts** - Big Shoulders Display and IBM Plex Sans / Mono / Serif / Sans JP from Google Fonts, with preconnect; the Plex Sans JP stylesheet only blocks rendering on Japanese pages
 - **CSS purging** - Unused Tailwind classes removed automatically
 
 ## License
