@@ -1,4 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
+import { byNewestFirst } from './order';
 
 type Post = CollectionEntry<'blog'>;
 
@@ -8,11 +9,6 @@ type Post = CollectionEntry<'blog'>;
  */
 function isVisible({ data }: Post): boolean {
   return import.meta.env.PROD ? data.draft !== true : true;
-}
-
-/** Comparator ordering posts newest-first by `data.date`. */
-function byNewestFirst(a: Post, b: Post): number {
-  return b.data.date.getTime() - a.data.date.getTime();
 }
 
 /**
