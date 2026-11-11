@@ -12,10 +12,12 @@ permissions:
 
 # Queue runs instead of cancelling them: a cancelled run loses its announce
 # job, and the next run only diffs its own before/after, so the post in the
-# cancelled push would never be announced.
+# cancelled push would never be announced. `queue: max` keeps up to 100 runs
+# pending (the default keeps one and cancels it when another arrives).
 concurrency:
   group: pages
   cancel-in-progress: false
+  queue: max
 
 jobs:
   build:

@@ -53,8 +53,10 @@ The workflow has three jobs:
   `npm run post-mastodon` and `npm run post-bluesky` for posts the push added
   or flipped from draft to published.
 
-Runs queue in the `pages` concurrency group instead of cancelling each other,
-so no push loses its announcement.
+Runs queue in the `pages` concurrency group (`queue: max`, up to 100 waiting)
+instead of cancelling each other, so a quick series of pushes doesn't lose an
+announcement. actionlint 1.7.12 doesn't know the `queue` key yet and flags it;
+GitHub documents it.
 
 ### Manual Deploy
 
