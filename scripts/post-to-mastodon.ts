@@ -6,6 +6,7 @@ import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
 import {
     changedPosts,
+    diffArgs,
     composeMastodonStatus,
     idempotencyKey,
     mastodonStatusesHaveAnnouncement,
@@ -141,11 +142,11 @@ async function main() {
 
     let diffOutput = '';
     try {
-        // Added (A) and modified (M) files between the commits. quotePath=false
-        // keeps non-ASCII file names unquoted; no shell is involved.
-        const diffArgs = ['-c', 'core.quotePath=false', 'diff', '--name-status', beforeSha, afterSha];
-        console.log(`Executing: git ${diffArgs.join(' ')}`);
-        diffOutput = execFileSync('git', diffArgs, { encoding: 'utf-8' });
+        // Added (A) and modified (M) files between the commits, NUL-separated
+        // (-z) so no file name is ever quoted; no shell is involved.
+        const args = diffArgs(beforeSha, afterSha);
+        console.log(`Executing: git ${args.join(' ')}`);
+        diffOutput = execFileSync('git', args, { encoding: 'utf-8' });
     } catch (gitError: any) {
         console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Mastodon post. Details:', gitError.message);
         return;

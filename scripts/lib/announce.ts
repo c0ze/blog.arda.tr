@@ -21,18 +21,31 @@ export interface ChangedPost {
   filePath: string;
 }
 
+/** The git arguments whose output changedPosts() reads. */
+export function diffArgs(before: string, after: string): string[] {
+  return ['diff', '--name-status', '-z', before, after];
+}
+
 /**
- * Added or modified posts from `git -c core.quotePath=false diff
- * --name-status`. (Without quotePath=false git quotes non-ASCII paths, and
- * those posts were never announced.)
+ * Added or modified posts from `git diff --name-status -z`: NUL-separated
+ * records, so no path is ever quoted (plain output quotes non-ASCII names,
+ * and even core.quotePath=false quotes tabs, quotes and backslashes; a
+ * quoted path never matched and the post was never announced). Rename and
+ * copy records (R…, C…) carry two paths; both are consumed and ignored.
  */
-export function changedPosts(nameStatus: string): ChangedPost[] {
-  return nameStatus
-    .split('\n')
-    .map((line) => line.split('\t'))
-    .filter(([status, filePath]) => (status === 'A' || status === 'M') && filePath !== undefined)
-    .map(([status, filePath]) => ({ status: status as 'A' | 'M', filePath }))
-    .filter(({ filePath }) => filePath.startsWith('src/content/blog/') && filePath.endsWith('.md'));
+export function changedPosts(nameStatusZ: string): ChangedPost[] {
+  const fields = nameStatusZ.split('\0');
+  const out: ChangedPost[] = [];
+  for (let i = 0; i < fields.length; ) {
+    const status = fields[i++];
+    if (!status) continue;
+    const paths = /^[RC]/.test(status) ? [fields[i++], fields[i++]] : [fields[i++]];
+    const filePath = paths[0];
+    if ((status === 'A' || status === 'M') && filePath?.startsWith('src/content/blog/') && filePath.endsWith('.md')) {
+      out.push({ status, filePath });
+    }
+  }
+  return out;
 }
 
 /**

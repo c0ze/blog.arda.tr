@@ -27,21 +27,29 @@ async function postFiles(dir = join(repo, 'src/content/blog')) {
   return out;
 }
 
-// git quotes non-ASCII paths unless core.quotePath=false, and a quoted path
-// never matched src/content/blog/, so those posts were never announced.
-test('pushed posts are read from name-status output, non-ASCII names included', () => {
+// `git diff --name-status -z` gives NUL-separated records, so no path is ever
+// quoted (quotePath=false still quoted tabs, quotes and backslashes, and a
+// quoted path never matched src/content/blog/). Renames and copies carry two
+// paths; both are consumed so the next record still lines up, and they stay
+// ignored (a moved post is not a new post).
+test('pushed posts are read from NUL-separated name-status output', () => {
   const out = [
-    'A\tsrc/content/blog/2011/2011-02-19-日本いろいろ.md',
-    'M\tsrc/content/blog/2026/2026-10-27-dergi-coze-org.md',
-    'D\tsrc/content/blog/2010/2010-05-10-les-claypool.md',
-    'A\tpublic/images/x.png',
-    'R100\tsrc/content/blog/a.md\tsrc/content/blog/b.md',
+    'A', 'src/content/blog/2011/2011-02-19-日本いろいろ.md',
+    'R100', 'src/content/blog/2026/old.md', 'src/content/blog/2026/new-name.md',
+    'M', 'src/content/blog/2026/2026-10-27-dergi-coze-org.md',
+    'C075', 'src/content/blog/2026/a.md', 'src/content/blog/2026/copy.md',
+    'D', 'src/content/blog/2010/2010-05-10-les-claypool.md',
+    'A', 'src/content/blog/2026/tab\there "quoted" back\\slash.md',
+    'A', 'public/images/x.png',
+    'M', 'src/content/blog/2026/notes.txt',
     '',
-  ].join('\n');
+  ].join('\0');
   assert.deepEqual(changedPosts(out), [
     { status: 'A', filePath: 'src/content/blog/2011/2011-02-19-日本いろいろ.md' },
     { status: 'M', filePath: 'src/content/blog/2026/2026-10-27-dergi-coze-org.md' },
+    { status: 'A', filePath: 'src/content/blog/2026/tab\there "quoted" back\\slash.md' },
   ]);
+  assert.deepEqual(changedPosts(''), []);
 });
 
 // The announced link must be the URL the site serves. Astro slugifies the
