@@ -10,9 +10,12 @@ permissions:
   pages: write
   id-token: write
 
+# Queue runs instead of cancelling them: a cancelled run loses its announce
+# job, and the next run only diffs its own before/after, so the post in the
+# cancelled push would never be announced.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -86,7 +89,9 @@ jobs:
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-mastodon
 
+      # Runs even when the Mastodon step failed; each network is independent.
       - name: Post to Blue Sky
+        if: ${{ !cancelled() }}
         env:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           BEFORE_SHA: ${{ github.event.before }}

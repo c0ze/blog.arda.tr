@@ -133,3 +133,14 @@ test('the card thumbnail is the post OG image under public/, else the default', 
   assert.equal(thumbMimeType('/x/a.JPG'), 'image/jpeg');
   assert.equal(thumbMimeType('/x/a.svg'), null);
 });
+
+// A re-run of the announce job (or a retried request) must not double-post:
+// Mastodon drops a status whose Idempotency-Key it has seen, so the key has
+// to be the same for the same post and differ between posts.
+test('the Mastodon idempotency key is stable per post URL', async () => {
+  const { idempotencyKey } = await import('../scripts/lib/announce.ts');
+  const a = postUrl('2026-10-27-dergi-coze-org');
+  assert.equal(idempotencyKey(a), idempotencyKey(a));
+  assert.match(idempotencyKey(a), /^[0-9a-f]{64}$/);
+  assert.notEqual(idempotencyKey(a), idempotencyKey(postUrl('2026-11-01-a-year-of-green-squares')));
+});

@@ -4,6 +4,7 @@
  * at, the status texts, and the Bluesky record. No I/O and no side effects on
  * import, so tests/announce.test.mjs can cover them without posting anything.
  */
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { slug as githubSlug } from 'github-slugger';
 import type { AppBskyEmbedExternal, AppBskyFeedPost, AppBskyRichtextFacet, BlobRef } from '@atproto/api';
@@ -48,6 +49,14 @@ export function postSlug(filePath: string, data: { slug?: unknown } = {}): strin
 /** The post's canonical URL, trailing slash included, safe to paste anywhere. */
 export function postUrl(slug: string): string {
   return encodeURI(`${SITE_URL}/blog/${slug}/`);
+}
+
+/**
+ * Mastodon's Idempotency-Key for a post: the same post URL always gives the
+ * same key, so a re-run of the announce job does not post it twice.
+ */
+export function idempotencyKey(url: string): string {
+  return createHash('sha256').update(url).digest('hex');
 }
 
 export function hashtags(tags: unknown): string {

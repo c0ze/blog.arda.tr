@@ -4,12 +4,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
-import { changedPosts, composeMastodonStatus, postSlug, postUrl } from './lib/announce.ts';
+import { changedPosts, composeMastodonStatus, idempotencyKey, postSlug, postUrl } from './lib/announce.ts';
 
 const MASTODON_URL = 'https://mastodon.world';
 const ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
 
-async function postToMastodon(status: string) {
+async function postToMastodon(status: string, url: string) {
     if (!ACCESS_TOKEN) {
         console.warn('⚠️ MASTODON_ACCESS_TOKEN is not set.');
         console.log('Dry run mode. Would have posted:\n-------------------');
@@ -24,6 +24,9 @@ async function postToMastodon(status: string) {
             headers: {
                 'Authorization': `Bearer ${ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
+                // Mastodon drops a repeat with the same key, so a re-run of
+                // the announce job does not post the same entry twice.
+                'Idempotency-Key': idempotencyKey(url),
             },
             body: JSON.stringify({
                 status: status,
@@ -69,7 +72,7 @@ function processFile(filePath: string) {
         tags: parsed.data.tags || [],
     });
 
-    return postToMastodon(statusText);
+    return postToMastodon(statusText, url);
 }
 
 function getFrontmatterAtSha(sha: string, filePath: string): Record<string, any> | null {
