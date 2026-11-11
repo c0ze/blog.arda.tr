@@ -11,11 +11,16 @@ interface Props {
   type?: 'website' | 'article';
   publishedTime?: string;
   lang?: string;
+  /** Keep the page out of search indexes (the 404): adds robots noindex, drops the canonical. */
+  noindex?: boolean;
 }
 
-const { title, description = "Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, and generative music. Posts since 2010.", image, keywords, type = 'website', publishedTime, lang = 'en' } = Astro.props;
+const { title, description = "Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, and generative music. Posts since 2010.", image, keywords, type = 'website', publishedTime, lang = 'en', noindex = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImage = image ? new URL(image, Astro.site).href : new URL('/images/og-image.jpg', Astro.site).href;
+const DEFAULT_OG_IMAGE = '/images/og-image.jpg';
+const ogImage = new URL(image || DEFAULT_OG_IMAGE, Astro.site).href;
+// The default image is square (1024×1024): a large-image card would crop it.
+const twitterCard = !image || image === DEFAULT_OG_IMAGE ? 'summary' : 'summary_large_image';
 const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 ---
 
@@ -27,7 +32,7 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#0a0908" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="canonical" href={canonicalURL} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonicalURL} />}
     <link rel="alternate" type="application/rss+xml" title="Coze Blog" href={new URL("rss.xml", Astro.site)} />
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="me" href="https://mastodon.world/@arda" />
@@ -57,15 +62,15 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     {type === 'article' && publishedTime && (
       <meta property="article:published_time" content={publishedTime} />
     )}
-    <meta property="og:url" content={canonicalURL} />
+    {!noindex && <meta property="og:url" content={canonicalURL} />}
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content={twitterCard} />
     <meta name="twitter:site" content="@ardakaraduman" />
-    <meta name="twitter:url" content={canonicalURL} />
+    {!noindex && <meta name="twitter:url" content={canonicalURL} />}
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
