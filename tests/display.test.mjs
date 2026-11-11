@@ -44,3 +44,14 @@ test('a long body is cut near 155 characters at a word boundary', async () => {
   const ja = 'あ'.repeat(400);
   assert.equal(bodyDescription(ja), `${'あ'.repeat(155)}…`);
 });
+
+// JSON-LD is printed raw inside <script>. A title or description holding
+// "</script>" would end the script early, so "<" is written as <,
+// which JSON parsers read back as the same character.
+test('JSON-LD never contains a raw "<"', async () => {
+  const { jsonLd } = await import('../src/lib/display.ts');
+  const data = { headline: 'Escaping </script><b>tags</b>' };
+  const out = jsonLd(data);
+  assert.doesNotMatch(out, /</);
+  assert.deepEqual(JSON.parse(out), data);
+});

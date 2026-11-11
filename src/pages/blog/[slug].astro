@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { render } from 'astro:content';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
-import { bodyDescription, ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
+import { bodyDescription, jsonLd, ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
 import TagChip from '@/components/TagChip.astro';
 import FileRow from '@/components/FileRow.astro';
 import OgCanvas from '@/components/OgCanvas.astro';
@@ -157,7 +157,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
   </article>
 
   <!-- JSON-LD Schema -->
-  <script type="application/ld+json" set:html={JSON.stringify({
+  <script type="application/ld+json" is:inline set:html={jsonLd({
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": post.data.title,

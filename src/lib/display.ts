@@ -1,3 +1,9 @@
+/** JSON for a <script type="application/ld+json">: "<" escaped as \u003c so
+ * no string in it can close the script element. */
+export function jsonLd(data: unknown): string {
+  return JSON.stringify(data).replace(/</g, '\\u003c');
+}
+
 /** Link target for a post: /blog/<slug>/, the URL it is served (and canonical) at. */
 export function postHref(slug: string): string {
   return `/blog/${slug}/`;
@@ -43,10 +49,6 @@ export function readingTimeMinutes(body: string | undefined): number {
  * formatted like "№042". `index` is the position in a newest-first list. */
 export function ledgerNo(index: number, total: number): string {
   return `№${String(total - index).padStart(3, '0')}`;
-}
-
-export function formatDate(date: Date): string {
-  return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
 export function formatDateShort(date: Date): string {

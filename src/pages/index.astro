@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import FileRow from '@/components/FileRow.astro';
 import OgCanvas from '@/components/OgCanvas.astro';
 import { getLedger, spell } from '@/lib/ledger';
-import { formatDateShort, postHref, tagHref, tallyBar } from '@/lib/display';
+import { formatDateShort, jsonLd, postHref, tagHref, tallyBar } from '@/lib/display';
 
 const ledger = await getLedger();
 const { total, entries, tiers, years, gaps, tags, tagsUsedOnce, firstYear, lastYear, latest } = ledger;
@@ -46,7 +46,7 @@ const spine = [...years].reverse();
   title="Coze - Arda Karaduman's tech blog"
   description="Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, generative music, and other side quests. Posts since 2010."
 >
-  <script type="application/ld+json" set:html={JSON.stringify({
+  <script type="application/ld+json" is:inline set:html={jsonLd({
     "@context": "https://schema.org",
     "@type": "Blog",
     "name": "Coze",
