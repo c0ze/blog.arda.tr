@@ -144,3 +144,33 @@ test('the Mastodon idempotency key is stable per post URL', async () => {
   assert.match(idempotencyKey(a), /^[0-9a-f]{64}$/);
   assert.notEqual(idempotencyKey(a), idempotencyKey(postUrl('2026-11-01-a-year-of-green-squares')));
 });
+
+// Re-running the announce job (say Mastodon failed, Bluesky succeeded) must
+// not post the same entry again. Each script first looks through the
+// account's recent posts; these matchers decide whether one already links
+// the entry, whatever form the URL took.
+test('an existing Bluesky announcement is recognised by its card or link facet', async () => {
+  const { blueskyFeedHasAnnouncement } = await import('../scripts/lib/announce.ts');
+  const url = postUrl('2010-07-30-日光きらいな日本人');
+  const decoded = 'https://blog.arda.tr/blog/2010-07-30-日光きらいな日本人';
+  const byCard = [{ post: { record: { text: 'x', embed: { $type: 'app.bsky.embed.external', external: { uri: decoded } } } } }];
+  const byFacet = [{ post: { record: { text: 'x', facets: [{ features: [{ $type: 'app.bsky.richtext.facet#link', uri: `${url}` }] }] } } }];
+  const other = [{ post: { record: { text: 'x', embed: { external: { uri: 'https://blog.arda.tr/blog/other/' } } } } }];
+  assert.equal(blueskyFeedHasAnnouncement(byCard, url), true);
+  assert.equal(blueskyFeedHasAnnouncement(byFacet, url), true);
+  assert.equal(blueskyFeedHasAnnouncement(other, url), false);
+  assert.equal(blueskyFeedHasAnnouncement([], url), false);
+  assert.equal(blueskyFeedHasAnnouncement([{ post: {} }, {}], url), false);
+});
+
+test('an existing Mastodon announcement is recognised in the status or its card', async () => {
+  const { mastodonStatusesHaveAnnouncement } = await import('../scripts/lib/announce.ts');
+  const url = postUrl('2026-10-27-dergi-coze-org');
+  const inContent = [{ content: '<p>📝 New blog post: x</p><p><a href="https://blog.arda.tr/blog/2026-10-27-dergi-coze-org" rel="nofollow">blog.arda.tr/blog/2026-10-27-…</a></p>' }];
+  const inCard = [{ content: '<p>hi</p>', card: { url: 'https://blog.arda.tr/blog/2026-10-27-dergi-coze-org/' } }];
+  const prefixOnly = [{ content: '<a href="https://blog.arda.tr/blog/2026-10-27-dergi-coze-org-2/">x</a>' }];
+  assert.equal(mastodonStatusesHaveAnnouncement(inContent, url), true);
+  assert.equal(mastodonStatusesHaveAnnouncement(inCard, url), true);
+  assert.equal(mastodonStatusesHaveAnnouncement(prefixOnly, url), false, 'a longer slug is another post');
+  assert.equal(mastodonStatusesHaveAnnouncement([{ content: null }], url), false);
+});

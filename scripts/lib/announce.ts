@@ -53,10 +53,62 @@ export function postUrl(slug: string): string {
 
 /**
  * Mastodon's Idempotency-Key for a post: the same post URL always gives the
- * same key, so a re-run of the announce job does not post it twice.
+ * same key, so Mastodon drops a repeat of the request within about an hour
+ * (a retry). Later re-runs are caught by mastodonStatusesHaveAnnouncement().
  */
 export function idempotencyKey(url: string): string {
   return createHash('sha256').update(url).digest('hex');
+}
+
+/**
+ * A URL in comparable form: percent-decoded, `&amp;` unescaped, without a
+ * trailing slash, so the encoded/decoded and slash/no-slash forms of one post
+ * URL compare equal (and a longer slug does not).
+ */
+export function comparableUrl(url: string): string {
+  let u = url.trim().replace(/&amp;/g, '&');
+  try {
+    u = decodeURI(u);
+  } catch {
+    // keep it as written
+  }
+  return u.replace(/\/+$/, '');
+}
+
+const URL_PATTERN = /https?:\/\/[^\s"'<>]+/g;
+
+function anySame(candidates: unknown[], url: string): boolean {
+  const target = comparableUrl(url);
+  return candidates.some((c) => typeof c === 'string' && comparableUrl(c) === target);
+}
+
+/**
+ * Whether one of the account's recent Bluesky posts (getAuthorFeed items)
+ * already announces `url`, by its link card or a link facet.
+ */
+export function blueskyFeedHasAnnouncement(feed: unknown[], url: string): boolean {
+  return feed.some((item: any) => {
+    const record = item?.post?.record;
+    if (!record) return false;
+    const links = [
+      record.embed?.external?.uri,
+      item.post.embed?.external?.uri,
+      ...(record.facets ?? []).flatMap((f: any) => (f?.features ?? []).map((feature: any) => feature?.uri)),
+    ];
+    return anySame(links, url);
+  });
+}
+
+/**
+ * Whether one of the account's recent Mastodon statuses already announces
+ * `url`, in its text (the links in the HTML content) or its preview card.
+ */
+export function mastodonStatusesHaveAnnouncement(statuses: unknown[], url: string): boolean {
+  return statuses.some((status: any) => {
+    if (!status) return false;
+    const content = typeof status.content === 'string' ? status.content : '';
+    return anySame([...(content.match(URL_PATTERN) ?? []), status.card?.url], url);
+  });
 }
 
 export function hashtags(tags: unknown): string {

@@ -9,6 +9,7 @@ import {
     BLUESKY_BLOB_LIMIT,
     buildBlueskyRecord,
     buildExternalEmbed,
+    blueskyFeedHasAnnouncement,
     changedPosts,
     composeBlueskyText,
     ogImageFile,
@@ -60,6 +61,23 @@ async function buildEmbed(agent: AtpAgent, card: Card) {
     }
 }
 
+/**
+ * Whether the account's last 50 posts already link this post (a re-run of
+ * the announce job after a partial failure). If the lookup fails it answers
+ * false: a rare duplicate is better than a missed announcement.
+ */
+async function alreadyAnnounced(agent: AtpAgent, url: string): Promise<boolean> {
+    try {
+        const actor = agent.session?.did;
+        if (!actor) throw new Error('no session DID after login');
+        const { data } = await agent.getAuthorFeed({ actor, limit: 50 });
+        return blueskyFeedHasAnnouncement(data.feed, url);
+    } catch (error) {
+        console.warn('⚠️ Could not check for an earlier announcement; posting anyway:', error);
+        return false;
+    }
+}
+
 async function postToBluesky(status: string, card: Card) {
     if (!BLUESKY_PASSWORD) {
         console.warn('⚠️ BLUESKY_PASSWORD is not set.');
@@ -77,6 +95,11 @@ async function postToBluesky(status: string, card: Card) {
             identifier: BLUESKY_IDENTIFIER,
             password: BLUESKY_PASSWORD,
         });
+
+        if (await alreadyAnnounced(agent, card.uri)) {
+            console.log(`⏭️ ${card.uri} is already announced on Bluesky; skipping.`);
+            return;
+        }
 
         const rt = new RichText({ text: status });
         await rt.detectFacets(agent); // automatically detects links and mentions

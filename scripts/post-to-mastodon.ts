@@ -4,10 +4,37 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
-import { changedPosts, composeMastodonStatus, idempotencyKey, postSlug, postUrl } from './lib/announce.ts';
+import {
+    changedPosts,
+    composeMastodonStatus,
+    idempotencyKey,
+    mastodonStatusesHaveAnnouncement,
+    postSlug,
+    postUrl,
+} from './lib/announce.ts';
 
 const MASTODON_URL = 'https://mastodon.world';
 const ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
+
+/**
+ * Whether the account's recent statuses already link this post (a re-run of
+ * the announce job after a partial failure). If the lookup fails it answers
+ * false: a rare duplicate is better than a missed announcement.
+ */
+async function alreadyAnnounced(url: string): Promise<boolean> {
+    try {
+        const headers = { 'Authorization': `Bearer ${ACCESS_TOKEN}` };
+        const me = await fetch(`${MASTODON_URL}/api/v1/accounts/verify_credentials`, { headers });
+        if (!me.ok) throw new Error(`verify_credentials: HTTP ${me.status}`);
+        const { id } = await me.json();
+        const recent = await fetch(`${MASTODON_URL}/api/v1/accounts/${encodeURIComponent(id)}/statuses?limit=40`, { headers });
+        if (!recent.ok) throw new Error(`statuses: HTTP ${recent.status}`);
+        return mastodonStatusesHaveAnnouncement(await recent.json(), url);
+    } catch (error) {
+        console.warn('⚠️ Could not check for an earlier announcement; posting anyway:', error);
+        return false;
+    }
+}
 
 async function postToMastodon(status: string, url: string) {
     if (!ACCESS_TOKEN) {
@@ -18,14 +45,20 @@ async function postToMastodon(status: string, url: string) {
         return;
     }
 
+    if (await alreadyAnnounced(url)) {
+        console.log(`⏭️ ${url} is already announced on Mastodon; skipping.`);
+        return;
+    }
+
     try {
         const response = await fetch(`${MASTODON_URL}/api/v1/statuses`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${ACCESS_TOKEN}`,
                 'Content-Type': 'application/json',
-                // Mastodon drops a repeat with the same key, so a re-run of
-                // the announce job does not post the same entry twice.
+                // Mastodon drops a repeat with the same key for about an
+                // hour (a retried request); later re-runs of the job are
+                // caught by alreadyAnnounced().
                 'Idempotency-Key': idempotencyKey(url),
             },
             body: JSON.stringify({
