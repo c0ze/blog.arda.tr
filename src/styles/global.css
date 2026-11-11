@@ -203,7 +203,7 @@ canvas.px {
   gap: 12px;
 }
 .corner__btn + .corner__btn { border-top: 1px solid var(--rule-2); }
-.corner__btn em { font-style: normal; opacity: 0.8; }
+.corner__btn em { font-style: normal; }
 .corner__btn:hover { color: var(--fg); background: var(--surface); }
 .corner__btn[aria-pressed="true"] { background: var(--signal); color: var(--on-signal); }
 
@@ -364,7 +364,7 @@ canvas.px {
 .tally__n { text-align: right; font-variant-numeric: tabular-nums; }
 a.tally:hover { color: var(--fg); }
 a.tally:hover .tally__l { color: var(--signal); }
-.tally--void { color: var(--fg-2); opacity: 0.7; }
+.tally--void { color: var(--fg-2); }
 .tally--void .bars { color: var(--rule); }
 .tally--now .tally__l { color: var(--signal); }
 
@@ -420,12 +420,11 @@ a.tally:hover .tally__l { color: var(--signal); }
   gap: 8px;
   white-space: nowrap;
 }
-.chip em { font-style: normal; opacity: 0.7; }
+.chip em { font-style: normal; }
 a.chip:hover,
 button.chip:hover { color: var(--fg); border-color: var(--fg-2); }
 .chip[aria-pressed="true"],
 .chip--on { background: var(--signal); border-color: var(--signal); color: var(--on-signal); }
-.chip[aria-pressed="true"] em { opacity: 0.85; }
 .chips--filter { margin-bottom: 26px; }
 /* /blog on phones: a toggle collapses the filter chips to the active one */
 .tag-toggle { margin-bottom: 8px; }

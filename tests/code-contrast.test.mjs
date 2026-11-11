@@ -56,3 +56,11 @@ test('every Shiki token colour follows the rendition at its contrast floor', () 
     }
   }
 });
+
+// Dimming text with opacity drops it below the floor (the chip and tally
+// counts fell to 3.1:1 on xerox). --fg-2 already is the dim tone, and a
+// pressed control sets plain --on-signal, so no rule should fade text.
+test('no rule fades text with opacity', () => {
+  const faded = [...css.matchAll(/([^{}]+)\{[^}]*\bopacity:\s*0?\.\d+/g)].map((m) => m[1].trim());
+  assert.deepEqual(faded, []);
+});
