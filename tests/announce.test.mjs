@@ -182,3 +182,59 @@ test('an existing Mastodon announcement is recognised in the status or its card'
   assert.equal(mastodonStatusesHaveAnnouncement(prefixOnly, url), false, 'a longer slug is another post');
   assert.equal(mastodonStatusesHaveAnnouncement([{ content: null }], url), false);
 });
+
+// In CI a failure that would silently skip an announcement must fail the
+// step instead (a green run that announced nothing hides the problem);
+// local runs keep their forgiving dry-run behaviour.
+test('missing credentials fail in CI and dry-run locally', async () => {
+  const { credentialMode } = await import('../scripts/lib/announce.ts');
+  assert.equal(credentialMode('MASTODON_ACCESS_TOKEN', { MASTODON_ACCESS_TOKEN: 't', CI: 'true' }), 'post');
+  assert.equal(credentialMode('MASTODON_ACCESS_TOKEN', { CI: 'true' }), 'fail');
+  assert.equal(credentialMode('MASTODON_ACCESS_TOKEN', {}), 'dry-run');
+  assert.equal(credentialMode('MASTODON_ACCESS_TOKEN', { CI: 'false' }), 'dry-run');
+});
+
+const quiet = { warn() {}, log() {} };
+const gitFake = (files) => (args) => {
+  if (args.includes('diff')) {
+    if (files.diffError) throw new Error('bad revision');
+    return files.diff;
+  }
+  const spec = args[args.length - 1];
+  if (!(spec in files)) throw new Error(`fatal: path '${spec}' does not exist`);
+  return files[spec];
+};
+
+test('posts to announce: added, or flipped from draft; already published edits are not', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({
+    diff: 'A\0src/content/blog/2026/new.md\0M\0src/content/blog/2026/undrafted.md\0M\0src/content/blog/2026/edited.md\0',
+    'b1:src/content/blog/2026/undrafted.md': '---\ntitle: x\ndraft: true\n---\n',
+    'b1:src/content/blog/2026/edited.md': '---\ntitle: y\n---\n',
+  });
+  const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
+  assert.deepEqual(posts.map((p) => p.filePath), ['src/content/blog/2026/new.md', 'src/content/blog/2026/undrafted.md']);
+});
+
+test('in CI a failed git diff or an unreadable earlier version fails; locally it skips', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const broken = gitFake({ diffError: true });
+  assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git: broken, log: quiet }), /git diff/);
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git: broken, log: quiet }), []);
+
+  const missingBefore = gitFake({ diff: 'M\0src/content/blog/2026/x.md\0' });
+  assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git: missingBefore, log: quiet }), /x\.md/);
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git: missingBefore, log: quiet }), []);
+
+  assert.throws(() => postsToAnnounce({ before: undefined, after: 'a1', ci: true, git: missingBefore, log: quiet }), /BEFORE_SHA/);
+  assert.deepEqual(postsToAnnounce({ before: undefined, after: 'a1', ci: false, git: missingBefore, log: quiet }), []);
+});
+
+// An added file has no earlier version to read, and a branch's first push
+// has no "before" commit: neither is an error.
+test('a new file or a first push is not an error', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({ diff: 'A\0src/content/blog/2026/new.md\0' });
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }).map((p) => p.status), ['A']);
+  assert.deepEqual(postsToAnnounce({ before: '0000000000000000000000000000000000000000', after: 'a1', ci: true, git, log: quiet }), []);
+});

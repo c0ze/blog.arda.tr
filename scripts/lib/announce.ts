@@ -7,6 +7,7 @@
 import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { slug as githubSlug } from 'github-slugger';
+import matter from 'gray-matter';
 import type { AppBskyEmbedExternal, AppBskyFeedPost, AppBskyRichtextFacet, BlobRef } from '@atproto/api';
 
 export const SITE_URL = 'https://blog.arda.tr';
@@ -46,6 +47,81 @@ export function changedPosts(nameStatusZ: string): ChangedPost[] {
     }
   }
   return out;
+}
+
+/** Whether this is a CI run (GitHub Actions sets CI=true). */
+export function isCI(env: Record<string, string | undefined>): boolean {
+  const v = env.CI;
+  return !!v && v !== 'false' && v !== '0';
+}
+
+/**
+ * What to do about a network's credential: post with it; without it, dry-run
+ * locally, but fail in CI, where a dry run would be a green step that
+ * announced nothing.
+ */
+export function credentialMode(name: string, env: Record<string, string | undefined>): 'post' | 'dry-run' | 'fail' {
+  if (env[name]) return 'post';
+  return isCI(env) ? 'fail' : 'dry-run';
+}
+
+type Log = { warn: (...args: unknown[]) => void; log: (...args: unknown[]) => void };
+
+/**
+ * The posts a push should announce: added (A), or modified (M) from a draft
+ * to published; edits to posts that were already published are not. `git`
+ * runs git with the given arguments and returns stdout (or throws). In CI
+ * anything that would silently drop an announcement throws: missing SHAs, a
+ * failed diff, an unreadable earlier version of a modified post. Locally
+ * those are warnings. A branch's first push (all-zero BEFORE_SHA) has
+ * nothing to diff against and is skipped either way; an added file has no
+ * earlier version to read and needs none.
+ */
+export function postsToAnnounce({ before, after, ci, git, log = console }: {
+  before?: string;
+  after?: string;
+  ci: boolean;
+  git: (args: string[]) => string;
+  log?: Log;
+}): ChangedPost[] {
+  const problem = (message: string): ChangedPost[] => {
+    if (ci) throw new Error(message);
+    log.warn(`⚠️ ${message}; skipping.`);
+    return [];
+  };
+  if (!before || !after) return problem('BEFORE_SHA or AFTER_SHA is not set, so the pushed posts are unknown');
+  if (/^0+$/.test(before)) {
+    log.warn('⚠️ BEFORE_SHA is all zeros (first push of a branch): nothing to diff against; skipping.');
+    return [];
+  }
+
+  let diff: string;
+  try {
+    diff = git(diffArgs(before, after));
+  } catch (error) {
+    return problem(`git diff ${before} ${after} failed: ${(error as Error).message}`);
+  }
+
+  const posts: ChangedPost[] = [];
+  for (const post of changedPosts(diff)) {
+    if (post.status === 'A') {
+      posts.push(post);
+      continue;
+    }
+    let data: Record<string, unknown>;
+    try {
+      data = matter(git(['show', `${before}:${post.filePath}`])).data;
+    } catch (error) {
+      if (ci) throw new Error(`could not read ${post.filePath} at ${before}: ${(error as Error).message}`);
+      log.warn(`⚠️ Could not read ${post.filePath} at ${before}; not announcing it.`, error);
+      continue;
+    }
+    if (data.draft === true || data.draft === 'true') {
+      log.log(`📢 ${post.filePath} was a draft before this push — announcing.`);
+      posts.push(post);
+    }
+  }
+  return posts;
 }
 
 /**

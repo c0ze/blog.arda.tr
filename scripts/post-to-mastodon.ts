@@ -5,8 +5,9 @@ import * as path from 'path';
 import { execFileSync } from 'child_process';
 import matter from 'gray-matter';
 import {
-    changedPosts,
-    diffArgs,
+    credentialMode,
+    isCI,
+    postsToAnnounce,
     composeMastodonStatus,
     idempotencyKey,
     mastodonStatusesHaveAnnouncement,
@@ -85,6 +86,7 @@ async function postToMastodon(status: string, url: string) {
 function processFile(filePath: string) {
     console.log(`Processing file: ${filePath}`);
     if (!fs.existsSync(filePath)) {
+        if (CI) throw new Error(`File not found: ${filePath}`);
         console.error(`❌ File not found: ${filePath}`);
         return;
     }
@@ -109,16 +111,15 @@ function processFile(filePath: string) {
     return postToMastodon(statusText, url);
 }
 
-function getFrontmatterAtSha(sha: string, filePath: string): Record<string, any> | null {
-    try {
-        const content = execFileSync('git', ['show', `${sha}:${filePath}`], { encoding: 'utf-8' });
-        return matter(content).data;
-    } catch {
-        return null;
-    }
-}
+const CI = isCI(process.env);
 
 async function main() {
+    // In CI a missing secret fails the step: a dry run there would be a green
+    // run that announced nothing. Locally it stays a dry run.
+    if (credentialMode('MASTODON_ACCESS_TOKEN', process.env) === 'fail') {
+        throw new Error('MASTODON_ACCESS_TOKEN is not set; in CI that is an error, not a dry run.');
+    }
+
     const args = process.argv.slice(2);
 
     // Local testing mode: specific file path provided
@@ -129,53 +130,28 @@ async function main() {
         return;
     }
 
-    // GitHub Actions mode
+    // GitHub Actions mode: posts this push added, or flipped from draft to
+    // published. In CI a failed git call throws instead of skipping quietly.
     console.log('🚀 Running in GitHub Actions mode...');
-    const beforeSha = process.env.BEFORE_SHA;
-    const afterSha = process.env.AFTER_SHA;
-
-    if (!beforeSha || !afterSha) {
-        console.warn('⚠️ BEFORE_SHA or AFTER_SHA are not set. Cannot determine new files.');
-        console.log('Skipping Mastodon post step.');
-        return;
-    }
-
-    let diffOutput = '';
-    try {
-        // Added (A) and modified (M) files between the commits, NUL-separated
-        // (-z) so no file name is ever quoted; no shell is involved.
-        const args = diffArgs(beforeSha, afterSha);
-        console.log(`Executing: git ${args.join(' ')}`);
-        diffOutput = execFileSync('git', args, { encoding: 'utf-8' });
-    } catch (gitError: any) {
-        console.warn('⚠️ Git diff failed. This can happen on new branches or shallow clones. Skipping Mastodon post. Details:', gitError.message);
-        return;
-    }
-
-    // Announce a post when this push introduced it (status A), or when the
-    // push flipped it from draft to published (status M). Edits to posts
-    // that were already published must not re-announce. Current drafts are
-    // still filtered out by the draft check in processFile.
-    const postsToAnnounce = changedPosts(diffOutput).filter(({ status, filePath }) => {
-        if (status === 'A') return true;
-        const before = getFrontmatterAtSha(beforeSha, filePath);
-        if (before !== null && (before.draft === true || before.draft === 'true')) {
-            console.log(`📢 ${filePath} was draft before this push — announcing.`);
-            return true;
-        }
-        return false;
+    const posts = postsToAnnounce({
+        before: process.env.BEFORE_SHA,
+        after: process.env.AFTER_SHA,
+        ci: CI,
+        git: (gitArgs) => {
+            console.log(`Executing: git ${gitArgs.join(' ')}`);
+            return execFileSync('git', gitArgs, { encoding: 'utf-8' });
+        },
     });
 
-    if (postsToAnnounce.length === 0) {
+    if (posts.length === 0) {
         console.log('ℹ️ No blog posts to announce in this commit range.');
         return;
     }
 
-    console.log(`Found ${postsToAnnounce.length} blog post(s) to announce.`);
+    console.log(`Found ${posts.length} blog post(s) to announce.`);
 
-    for (const { filePath } of postsToAnnounce) {
-        const fullPath = path.join(process.cwd(), filePath);
-        await processFile(fullPath);
+    for (const { filePath } of posts) {
+        await processFile(path.join(process.cwd(), filePath));
     }
 }
 
