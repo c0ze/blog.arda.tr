@@ -1,6 +1,8 @@
 import { defineConfig, passthroughImageService } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
+import rehypeRaw from 'rehype-raw';
+import { rehypeDemoteHeadings } from './src/lib/rehype.mjs';
 
 export default defineConfig({
   site: 'https://blog.arda.tr',
@@ -17,6 +19,11 @@ export default defineConfig({
     // referenced directly, so nothing uses <Image>/getImage. Passthrough avoids
     // falling back to Astro's sharp-based default service (sharp was removed).
     service: passthroughImageService(),
+  },
+  markdown: {
+    // rehype-raw first, so the steps below also see the raw HTML in posts
+    // (Astro would otherwise only parse it after every user plugin).
+    rehypePlugins: [rehypeRaw, rehypeDemoteHeadings],
   },
   compressHTML: true,
   vite: {

@@ -499,13 +499,13 @@ button.chip:hover { color: var(--fg); border-color: var(--fg-2); }
 .post__meta .sig { font-weight: 500; }
 .post__meta .bars { display: inline; font-size: 9px; margin: 0 0 0 6px; }
 .post__meta .post__author { margin-left: auto; }
-.post h1 {
+.post > header > h1 {
   font: 600 clamp(32px, 4.6vw, 54px)/1.06 var(--sans);
   letter-spacing: -0.02em;
   margin-top: 14px;
   overflow-wrap: anywhere;
 }
-html:lang(ja) .post h1 { font-family: var(--jp); letter-spacing: 0; line-height: 1.25; }
+html:lang(ja) .post > header > h1 { font-family: var(--jp); letter-spacing: 0; line-height: 1.25; }
 .post .chips { margin-top: 20px; }
 .excerpt {
   margin-top: 26px;
