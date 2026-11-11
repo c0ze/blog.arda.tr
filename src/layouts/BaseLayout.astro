@@ -21,6 +21,7 @@ const DEFAULT_OG_IMAGE = '/images/og-image.jpg';
 const ogImage = new URL(image || DEFAULT_OG_IMAGE, Astro.site).href;
 // The default image is square (1024×1024): a large-image card would crop it.
 const twitterCard = !image || image === DEFAULT_OG_IMAGE ? 'summary' : 'summary_large_image';
+const JP_FONT = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap';
 const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 ---
 
@@ -41,10 +42,21 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
          Plex Sans / Mono / Serif for UI, meta and long-form reading, Plex
          Sans JP for the Japanese posts (Google serves it in unicode-range
          slices, so English pages download no CJK glyphs). Plex covers
-         Latin Extended-A, so the Turkish posts' ğ ş İ stay in-face. -->
+         Latin Extended-A, so the Turkish posts' ğ ş İ stay in-face.
+         The Plex Sans JP stylesheet is most of the CSS (its @font-face
+         slices), so it has its own <link>: render-blocking only on `ja`
+         pages, loaded without blocking everywhere else. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+    {lang === 'ja' ? (
+      <link href={JP_FONT} rel="stylesheet" />
+    ) : (
+      <>
+        <link href={JP_FONT} rel="stylesheet" media="print" onload="this.media='all'" />
+        <noscript><link href={JP_FONT} rel="stylesheet" /></noscript>
+      </>
+    )}
 
     <!-- SEO -->
     <title>{title}</title>
