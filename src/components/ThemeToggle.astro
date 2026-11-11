@@ -4,6 +4,11 @@
  * without script; the summary names the current rendition through CSS
  * (.rend__cur in global.css), so it is right before any script runs.
  *
+ * The summary's accessible name is "Rendition" plus the current rendition
+ * (the .rend__cur text), so assistive tech hears which one is active. Choosing
+ * one, Escape and a click outside close the menu; the first two return focus
+ * to the summary.
+ *
  * Four renditions, in menu order — the family ids (DESIGN-SYSTEM.md):
  * Night (default), Night HC, Xerox, Xerox HC. The two HC renditions target
  * WCAG AAA. The id list is duplicated in the boot script in BaseLayout.astro
@@ -18,7 +23,7 @@ const renditions = [
 ---
 
 <details class="rend">
-  <summary aria-label="Rendition"><span class="rend__cur"></span> ▾</summary>
+  <summary><span class="sr-only">Rendition: </span><span class="rend__cur"></span><span aria-hidden="true"> ▾</span></summary>
   <div class="corner" role="group" aria-label="Rendition">
     {renditions.map((r) => (
       <button
@@ -72,6 +77,15 @@ const renditions = [
     });
   }
 
+  function close(menu, refocus) {
+    if (!menu || !menu.open) return;
+    menu.open = false;
+    if (refocus) {
+      var summary = menu.querySelector('summary');
+      if (summary) summary.focus();
+    }
+  }
+
   function init() {
     sync(current());
     document.querySelectorAll('.corner').forEach(function (group) {
@@ -80,9 +94,17 @@ const renditions = [
       group.querySelectorAll('[data-rendition]').forEach(function (btn) {
         btn.addEventListener('click', function () {
           apply(btn.getAttribute('data-rendition'));
-          var menu = btn.closest ? btn.closest('details') : null;
-          if (menu) menu.open = false;
+          close(btn.closest ? btn.closest('details') : null, true);
         });
+      });
+    });
+    document.addEventListener('keydown', function (event) {
+      if (event.key !== 'Escape') return;
+      document.querySelectorAll('details.rend').forEach(function (menu) { close(menu, true); });
+    });
+    document.addEventListener('click', function (event) {
+      document.querySelectorAll('details.rend').forEach(function (menu) {
+        if (!menu.contains(event.target)) close(menu, false);
       });
     });
   }

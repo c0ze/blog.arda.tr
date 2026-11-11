@@ -10,6 +10,13 @@ assert.match(script, /var RENDITIONS =/, 'expected the theme controls script');
 function theme({ blocked = false, stored = null } = {}) {
   const classes = new Set(['night']);
   let metaColor;
+  const docListeners = {};
+  const summary = { focused: false, focus() { summary.focused = true; } };
+  const menu = {
+    open: true,
+    querySelector: (selector) => (selector === 'summary' ? summary : null),
+    contains: (node) => node === menu || node === summary || buttons.includes(node),
+  };
   const buttons = ['night', 'night-hc', 'xerox', 'xerox-hc'].map((id) => {
     const attrs = { 'data-rendition': id };
     return {
@@ -17,6 +24,7 @@ function theme({ blocked = false, stored = null } = {}) {
       getAttribute: (name) => attrs[name],
       setAttribute: (name, value) => { attrs[name] = value; },
       addEventListener(_name, callback) { this.click = callback; },
+      closest: (selector) => (selector === 'details' ? menu : null),
     };
   });
   const group = {
@@ -32,11 +40,17 @@ function theme({ blocked = false, stored = null } = {}) {
     document: {
       readyState: 'complete',
       documentElement: { classList: { contains: (id) => classes.has(id), add: (id) => classes.add(id), remove: (id) => classes.delete(id) } },
-      querySelectorAll: (selector) => selector === '.corner' ? [group] : buttons,
+      querySelectorAll: (selector) => {
+        if (selector === '.corner') return [group];
+        if (selector === 'details.rend') return [menu];
+        return buttons;
+      },
       querySelector: () => ({ setAttribute: (_name, value) => { metaColor = value; } }),
+      addEventListener: (name, callback) => { docListeners[name] = callback; },
     },
   });
-  return { buttons, classes, stored: () => stored, metaColor: () => metaColor };
+  const fire = (name, event) => docListeners[name]?.(event);
+  return { buttons, classes, menu, summary, fire, stored: () => stored, metaColor: () => metaColor };
 }
 
 test('theme changes persist and update the selected control', () => {
@@ -62,6 +76,37 @@ test('theme controls remain usable when browser storage is blocked', () => {
   assert.deepEqual([...t.classes], ['night-hc']);
   assert.equal(t.buttons[1].attrs['aria-pressed'], 'true');
   assert.equal(t.metaColor(), '#000000');
+});
+
+// The summary must announce the current rendition, not a fixed label that
+// hides it; the name comes from .rend__cur (CSS), so no aria-label override.
+test('the rendition switch exposes the current rendition name', () => {
+  const summary = source.match(/<summary[^>]*>/)[0];
+  assert.doesNotMatch(summary, /aria-label/);
+  assert.match(source, /<summary[^>]*>[\s\S]*?class="rend__cur"[\s\S]*?<\/summary>/);
+});
+
+// Choosing a rendition closes the menu; keyboard focus must not be left on a
+// button inside the closed panel, so it goes back to the summary.
+test('choosing a rendition closes the menu and returns focus to its summary', () => {
+  const t = theme();
+  t.buttons[2].click();
+  assert.equal(t.menu.open, false);
+  assert.equal(t.summary.focused, true);
+});
+
+test('Escape closes the open menu and returns focus; an outside click closes it', () => {
+  const t = theme();
+  t.fire('keydown', { key: 'Escape' });
+  assert.equal(t.menu.open, false);
+  assert.equal(t.summary.focused, true);
+
+  const u = theme();
+  u.fire('click', { target: u.buttons[0] });
+  assert.equal(u.menu.open, true, 'a click inside the menu leaves it to the buttons');
+  u.fire('click', { target: {} });
+  assert.equal(u.menu.open, false);
+  assert.equal(u.summary.focused, false, 'an outside click does not steal focus');
 });
 
 const layout = await readFile(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
