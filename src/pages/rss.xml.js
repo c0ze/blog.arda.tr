@@ -2,6 +2,7 @@ import rss from '@astrojs/rss';
 import { statSync } from 'node:fs';
 import path from 'node:path';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
+import { postHref } from '@/lib/display';
 
 const MIME_TYPES = {
     '.png': 'image/png',
@@ -62,7 +63,7 @@ export async function GET(context) {
                     title: post.data.title,
                     pubDate: post.data.date,
                     description: content,
-                    link: `/blog/${getSlug(post)}/`,
+                    link: postHref(getSlug(post)),
                     // Add enclosure for better compatibility with some readers
                     ...(enclosure && { enclosure }),
                 };

@@ -1,6 +1,6 @@
 ---
 import OgCanvas from '@/components/OgCanvas.astro';
-import { formatDateShort, minuteBars } from '@/lib/display';
+import { formatDateShort, minuteBars, postHref } from '@/lib/display';
 
 /**
  * One row of the BBS-style file list: cover (the dithered OG image), №, date,
@@ -32,7 +32,7 @@ const foreign = lang && lang !== 'en' ? lang : undefined;
   {showNo && <span class="file__no">{no}</span>}
   <time class="file__d" datetime={date.toISOString()}>{formatDateShort(date)}</time>
   <span class="file__t">
-    <a href={`/blog/${slug}`} lang={foreign}>{title}</a>
+    <a href={postHref(slug)} lang={foreign}>{title}</a>
     {tags.length > 0 && <small>{tags.slice(0, 5).join(' · ')}</small>}
   </span>
   <span class="file__m">{minutes}<span class="sr-only"> min</span><span class="bars" aria-hidden="true">{minuteBars(minutes)}</span></span>

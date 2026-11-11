@@ -1,3 +1,8 @@
+/** Link target for a post: /blog/<slug>/, the URL it is served (and canonical) at. */
+export function postHref(slug: string): string {
+  return `/blog/${slug}/`;
+}
+
 /** Link target for a tag: the blog listing deep-linked to that tag's filter. */
 export function tagHref(tag: string): string {
   return `/blog?tag=${encodeURIComponent(tag)}`;

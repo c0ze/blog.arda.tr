@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { render } from 'astro:content';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
-import { ledgerNo, readingTimeMinutes, formatDateShort, minuteBars } from '@/lib/display';
+import { ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
 import TagChip from '@/components/TagChip.astro';
 import FileRow from '@/components/FileRow.astro';
 import OgCanvas from '@/components/OgCanvas.astro';
@@ -138,13 +138,13 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
       <!-- Prev / next. -->
       <nav class="postnav" aria-label="Adjacent posts" data-pagefind-ignore>
         {prevPost && (
-          <a href={`/blog/${getSlug(prevPost)}`}>
+          <a href={postHref(getSlug(prevPost))}>
             <span>◂ previous entry</span>
             <strong lang={prevPost.data.lang ?? 'en'}>{prevPost.data.title}</strong>
           </a>
         )}
         {nextPost && (
-          <a class="postnav__next" href={`/blog/${getSlug(nextPost)}`}>
+          <a class="postnav__next" href={postHref(getSlug(nextPost))}>
             <span>next entry ▸</span>
             <strong lang={nextPost.data.lang ?? 'en'}>{nextPost.data.title}</strong>
           </a>
@@ -173,7 +173,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
     },
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": `https://blog.arda.tr/blog/${slug}`
+      "@id": new URL(postHref(slug), Astro.site).href
     },
     "keywords": post.data.keywords
   })} />

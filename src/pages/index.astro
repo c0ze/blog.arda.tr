@@ -3,7 +3,7 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import FileRow from '@/components/FileRow.astro';
 import OgCanvas from '@/components/OgCanvas.astro';
 import { getLedger, spell } from '@/lib/ledger';
-import { formatDateShort, tagHref, tallyBar } from '@/lib/display';
+import { formatDateShort, postHref, tagHref, tallyBar } from '@/lib/display';
 
 const ledger = await getLedger();
 const { total, entries, tiers, years, gaps, tags, tagsUsedOnce, firstYear, lastYear, latest } = ledger;
@@ -77,7 +77,7 @@ const spine = [...years].reverse();
   <div class="front">
     {lead && (
       <article class="lead" data-og-host>
-        <a href={`/blog/${lead.slug}`} tabindex="-1" aria-hidden="true">
+        <a href={postHref(lead.slug)} tabindex="-1" aria-hidden="true">
           <OgCanvas
             src={lead.post.data.image}
             seed={lead.slug}
@@ -93,12 +93,12 @@ const spine = [...years].reverse();
           {lead.post.data.tags.length > 0 && <span>{lead.post.data.tags.slice(0, 4).join(' · ')}</span>}
         </div>
         <h2 lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>
-          <a href={`/blog/${lead.slug}`}>{lead.post.data.title}</a>
+          <a href={postHref(lead.slug)}>{lead.post.data.title}</a>
         </h2>
         {lead.post.data.excerpt && (
           <p lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>{lead.post.data.excerpt}</p>
         )}
-        <a class="btn" href={`/blog/${lead.slug}`} lang="en">read ▸<span class="sr-only"> {lead.post.data.title}</span></a>
+        <a class="btn" href={postHref(lead.slug)} lang="en">read ▸<span class="sr-only"> {lead.post.data.title}</span></a>
       </article>
     )}
 
