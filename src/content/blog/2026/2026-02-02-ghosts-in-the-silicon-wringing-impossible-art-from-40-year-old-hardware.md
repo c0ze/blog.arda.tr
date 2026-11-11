@@ -17,7 +17,7 @@ I have deep respect for the demoscene, specifically the Amiga chapter. It is the
 
 ## The Visual Impossible: Steffest's "The Vision"
 
-<video src="/images/vision.mp4" autoplay loop muted playsinline class="rounded-lg my-8" aria-label="The Vision"></video>
+<video src="/images/vision.mp4" autoplay loop muted playsinline controls class="rounded-lg my-8" aria-label="The Vision"></video>
 
 
 The Amiga 500's OCS (Original Chip Set) is brutally limited. In standard modes, you are restricted to displaying **32 colors** on screen simultaneously, chosen from a palette of 4096. If you want animation, you usually have to redraw pixels, which eats precious CPU cycles.
@@ -38,7 +38,7 @@ If you want a complex chord, a bassline, drums, and a lead melody, you have alre
 
 How? By abandoning the hardware's comfort zone. Virgill utilizes software mixing routines (likely derived from tools like *AmigaKlang*). Instead of letting Paula simply play four samples, the CPU is forced to furiously mix dozens of virtual channels down into the four hardware streams in real-time. It requires immense CPU resources, leaving almost nothing left for graphics, but the result is audio that shouldn't exist on 1985 silicon.
 
-<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/virgill/amiga-r4acpc&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
+<iframe title="SoundCloud player: Virgill, R4aCPC" width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" src="https://w.soundcloud.com/player/?url=https%3A//soundcloud.com/virgill/amiga-r4acpc&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true"></iframe>
 
 ## The Reference Stake
 
