@@ -2,7 +2,7 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { render } from 'astro:content';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
-import { ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
+import { bodyDescription, ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
 import TagChip from '@/components/TagChip.astro';
 import FileRow from '@/components/FileRow.astro';
 import OgCanvas from '@/components/OgCanvas.astro';
@@ -50,6 +50,9 @@ const { Content } = await render(post);
 
 const minutes = readingTimeMinutes(post.body);
 const slug = getSlug(post);
+// Legacy posts have neither description nor excerpt: summarise the body, else
+// the layout's default description.
+const description = post.data.description || post.data.excerpt || bodyDescription(post.body) || undefined;
 
 // Determine OG image - use post image if available, otherwise default
 const ogImage = post.data.image || '/images/og-image.jpg';
@@ -58,7 +61,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
 
 <BaseLayout
   title={`${post.data.title} - Coze`}
-  description={post.data.description || post.data.excerpt}
+  description={description}
   image={ogImage}
   keywords={post.data.keywords}
   type="article"
@@ -158,7 +161,7 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": post.data.title,
-    "description": post.data.description || post.data.excerpt,
+    "description": description,
     "datePublished": post.data.date.toISOString(),
     "dateModified": post.data.date.toISOString(),
     "image": ogImageAbsolute,

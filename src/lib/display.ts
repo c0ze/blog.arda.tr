@@ -8,6 +8,31 @@ export function tagHref(tag: string): string {
   return `/blog?tag=${encodeURIComponent(tag)}`;
 }
 
+/**
+ * A meta description derived from a post body, for posts with neither
+ * `description` nor `excerpt`: markdown and HTML stripped, whitespace
+ * collapsed, cut near `max` characters at a word boundary ("" when the body
+ * has no text, e.g. a lone embed).
+ */
+export function bodyDescription(body: string | undefined, max = 155): string {
+  const text = (body ?? '')
+    .replace(/^(```|~~~)[^\n]*\n[\s\S]*?^\1[^\n]*$/gm, ' ') // fenced code
+    .replace(/<(script|style|iframe|video|audio)\b[\s\S]*?<\/\1>/gi, ' ') // embeds
+    .replace(/<[^>]+>/g, ' ') // other tags
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ') // images
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1') // links keep their text
+    .replace(/^\s{0,3}(#{1,6}|>+|[-*+]|\d+[.)])\s+/gm, '') // heading, quote, list markers
+    .replace(/[*~`|]+/g, '') // emphasis, code, table pipes
+    .replace(/(^|\W)_+|_+(?=\W|$)/g, '$1') // _emphasis_, not snake_case
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const space = cut.lastIndexOf(' ');
+  return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
+}
+
 /** Estimated reading time in whole minutes (~220 wpm, min 1). */
 export function readingTimeMinutes(body: string | undefined): number {
   const words = (body ?? '').split(/\s+/).filter(Boolean).length;
