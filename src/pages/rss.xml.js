@@ -3,6 +3,7 @@ import { statSync } from 'node:fs';
 import path from 'node:path';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
 import { postHref } from '@/lib/display';
+import { feedItemDescription } from '@/lib/feed';
 
 const MIME_TYPES = {
     '.png': 'image/png',
@@ -48,14 +49,14 @@ export async function GET(context) {
         items: blog
             .map((post) => {
                 const image = post.data.image;
-                const description = post.data.excerpt || post.data.description;
                 // Generate absolute URL for the image if it exists
                 const imageURL = image ? new URL(image, context.site).href : undefined;
 
-                // Create HTML content for description with image prepended
-                const content = imageURL
-                    ? `<img src="${imageURL}" style="max-width: 100%; border-radius: 8px; margin-bottom: 16px;" /><p>${description}</p>`
-                    : description;
+                // HTML description: the cover image, then the excerpt as escaped text
+                const content = feedItemDescription({
+                    text: post.data.excerpt || post.data.description,
+                    imageURL,
+                });
 
                 const enclosure = image && imageURL ? imageEnclosure(image, imageURL) : undefined;
 
@@ -68,6 +69,7 @@ export async function GET(context) {
                     ...(enclosure && { enclosure }),
                 };
             }),
-        customData: `<language>en-us</language>`,
+        xmlns: { atom: 'http://www.w3.org/2005/Atom' },
+        customData: `<language>en-us</language><atom:link href="${new URL('rss.xml', context.site).href}" rel="self" type="application/rss+xml" />`,
     });
 }
