@@ -105,3 +105,47 @@ test('a failing index is skipped, the others still answer', async () => {
     console.warn = warn;
   }
 });
+
+// A language whose module fails to load or initialise must not take the
+// other languages down: before, one rejected import rejected the cached
+// start-up promise, and every later search failed too.
+test('a language that fails to load or start is skipped; the rest keep working', async () => {
+  const doc = fakeDoc();
+  const byLang = { en: [result('en', 1)], ja: [result('ja', 2)], tr: [result('tr', 3)] };
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    const combined = createCombined({
+      load: async (lang) => {
+        if (lang === 'tr') throw new Error('import failed');
+        const copy = fakeCopy(doc, byLang);
+        if (lang === 'ja') copy.init = () => Promise.reject(new Error('init failed'));
+        return copy;
+      },
+      fetchEntry: async () => ({ languages: { en: {}, ja: {}, tr: {} } }),
+      doc,
+    });
+    assert.deepEqual((await combined.search('x')).results.map((r) => r.id), ['en']);
+    assert.deepEqual((await combined.search('y')).results.map((r) => r.id), ['en'], 'later searches still work');
+    assert.equal(doc.attrs.lang, 'en');
+  } finally {
+    console.warn = warn;
+  }
+});
+
+// With nothing loaded there is nothing to search: the error reaches
+// PagefindUI, which shows its normal failure instead of "no results".
+test('when no language loads, search fails visibly', async () => {
+  const warn = console.warn;
+  console.warn = () => {};
+  try {
+    const combined = createCombined({
+      load: async () => { throw new Error('offline'); },
+      fetchEntry: async () => ({ languages: { en: {}, ja: {} } }),
+      doc: fakeDoc(),
+    });
+    await assert.rejects(combined.search('x'), /no Pagefind index/);
+  } finally {
+    console.warn = warn;
+  }
+});

@@ -70,7 +70,8 @@ export function createCombined({
   let pending = {};
 
   function instances() {
-    ready ??= (async () => {
+    if (ready) return ready;
+    const starting = (async () => {
       let languages = [];
       try {
         languages = Object.keys((await fetchEntry()).languages ?? {});
@@ -78,12 +79,42 @@ export function createCombined({
         console.warn('Pagefind entry unreadable; searching the page language only.', error);
       }
       if (!languages.length) languages = [doc.documentElement.getAttribute('lang') || 'unknown'];
-      const copies = await Promise.all(languages.map((lang) => load(lang)));
-      await Promise.all(copies.map((copy) => copy.options({ ...pending, basePath: BUNDLE })));
-      await Promise.all(copies.map((copy, i) => startForLanguage(copy, languages[i], doc)));
-      return copies;
+      // Each language loads and starts on its own: one that fails is
+      // skipped, the others still search.
+      const loaded = await Promise.allSettled(languages.map(async (lang) => {
+        const copy = await load(lang);
+        await copy.options({ ...pending, basePath: BUNDLE });
+        return copy;
+      }));
+      const copies = [];
+      const copyLangs = [];
+      loaded.forEach((r, i) => {
+        if (r.status === 'fulfilled') {
+          copies.push(r.value);
+          copyLangs.push(languages[i]);
+        } else {
+          console.warn(`Pagefind index "${languages[i]}" failed to load; searching without it.`, r.reason);
+        }
+      });
+      const started = await Promise.allSettled(copies.map((copy, i) => {
+        try {
+          return startForLanguage(copy, copyLangs[i], doc);
+        } catch (error) {
+          return Promise.reject(error);
+        }
+      }));
+      const working = copies.filter((_, i) => {
+        if (started[i].status === 'fulfilled') return true;
+        console.warn(`Pagefind index "${copyLangs[i]}" failed to start; searching without it.`, started[i].reason);
+        return false;
+      });
+      if (!working.length) throw new Error('no Pagefind index could be loaded');
+      return working;
     })();
-    return ready;
+    ready = starting;
+    // Nothing loaded: forget the failure, so a later search tries again.
+    starting.catch(() => { if (ready === starting) ready = null; });
+    return starting;
   }
 
   const each = async (fn) => {
