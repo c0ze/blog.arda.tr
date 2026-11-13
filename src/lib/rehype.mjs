@@ -22,19 +22,29 @@ function contains(node, target) {
 }
 
 /**
- * The page title is the post's only h1. A post that uses `# ` in its body
- * gets every body heading moved down one level (h1→h2 … h5→h6), so the
- * outline keeps its order under the title instead of competing with it.
- * Posts without a body h1 are left exactly as written.
+ * The page title is the post's only h1. A post whose body opens its outline
+ * with `# ` gets every body heading moved down one level (h1→h2 … h5→h6), so
+ * the outline keeps its order under the title instead of competing with it.
+ * A post whose outline starts lower and only later uses `# ` keeps its other
+ * headings; just its h1s become h2s (shifting everything would push its
+ * opening h2s to h3). Posts without a body h1 are left exactly as written.
  */
 export function rehypeDemoteHeadings() {
   return (tree) => {
+    let first;
     let hasH1 = false;
-    walk(tree, (el) => { if (el.tagName === 'h1') hasH1 = true; });
+    walk(tree, (el) => {
+      if (!/^h[1-6]$/.test(el.tagName)) return;
+      first ??= el.tagName;
+      if (el.tagName === 'h1') hasH1 = true;
+    });
     if (!hasH1) return;
+    const shiftAll = first === 'h1';
     walk(tree, (el) => {
       const m = /^h([1-5])$/.exec(el.tagName);
-      if (m) el.tagName = `h${Number(m[1]) + 1}`;
+      if (!m) return;
+      if (shiftAll) el.tagName = `h${Number(m[1]) + 1}`;
+      else if (el.tagName === 'h1') el.tagName = 'h2';
     });
   };
 }

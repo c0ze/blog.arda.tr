@@ -16,10 +16,19 @@ const tags = (tree) => {
 
 // The post title is the page's h1. A body that uses `# ` must not add more
 // page-title-sized h1s, and its outline must keep its order under the title.
-test('a body with an h1 moves every heading down one level', () => {
+test('a body that opens with an h1 moves every heading down one level', () => {
   const tree = root(h('h1'), h('p'), h('h2'), h('div', {}, [h('h1'), h('h3')]), h('h6'));
   rehypeDemoteHeadings()(tree);
   assert.deepEqual(tags(tree), ['h2', 'p', 'h3', 'div', 'h2', 'h4', 'h6']);
+});
+
+// A body whose outline starts at h2 and only later uses one `# ` (the
+// digital-necromancy post: twelve ##/### headings, then # THE END GAME)
+// must keep its h2 start; shifting everything would open it at h3.
+test('a body whose first heading is not an h1 only demotes its h1s', () => {
+  const tree = root(h('h2'), h('p'), h('h3'), h('div', {}, [h('h3')]), h('h1'), h('h2'));
+  rehypeDemoteHeadings()(tree);
+  assert.deepEqual(tags(tree), ['h2', 'p', 'h3', 'div', 'h3', 'h2', 'h2']);
 });
 
 test('a body without an h1 is left exactly as written', () => {
