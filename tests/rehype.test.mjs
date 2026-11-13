@@ -53,8 +53,26 @@ test('body images and iframes load lazily; local images get their size', async (
   assert.equal(local.properties.height, 1024);
   assert.equal(remote.properties.loading, 'lazy');
   assert.equal(remote.properties.width, undefined);
-  assert.equal(sized.properties.height, undefined, 'an author-set size is left alone');
+  assert.equal(sized.properties.width, 300, 'an author-set size is kept');
   assert.equal(frame.properties.loading, 'lazy');
+});
+
+// The book covers in digital-necromancy set only width="100": the missing
+// side has to come from the file's ratio, or the box reserves no height and
+// the column jumps when the lazy cover lands.
+test('an image with one author-set side gets the other from the file ratio', async () => {
+  const widthOnly = h('img', { src: '/images/og-image.jpg', width: 300 });
+  const heightOnly = h('img', { src: '/images/og-image.jpg', height: '50' });
+  const both = h('img', { src: '/images/og-image.jpg', width: 10, height: 20 });
+  const relative = h('img', { src: '/images/og-image.jpg', width: '50%' });
+  const remote = h('img', { src: 'https://example.com/x.png', width: 100 });
+  const tree = root(h('p'), h('p', {}, [widthOnly, heightOnly, both, relative, remote]));
+  await rehypeMediaLoading({ publicDir })(tree);
+  assert.deepEqual([widthOnly.properties.width, widthOnly.properties.height], [300, 300]);
+  assert.deepEqual([heightOnly.properties.width, heightOnly.properties.height], [50, '50']);
+  assert.deepEqual([both.properties.width, both.properties.height], [10, 20], 'both sides set: left alone');
+  assert.equal(relative.properties.height, undefined, 'a relative size has no pixel ratio to apply');
+  assert.equal(remote.properties.height, undefined);
 });
 
 // An image that opens the body may be the largest paint on a phone; lazy

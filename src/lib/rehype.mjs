@@ -65,7 +65,8 @@ export async function localImageSize(src, publicDir) {
 /**
  * Body media load lazily: `loading="lazy" decoding="async"` on images and
  * `loading="lazy"` on iframes. A local image (under public/) also gets its
- * width/height from the file, so the column reserves its space. The one
+ * width/height from the file, or, when the author set only one of them, the
+ * other from the file's ratio, so the column reserves its space. The one
  * exception is an image that opens the post body: it may be the largest
  * paint above the fold on a phone, so it stays eager.
  */
@@ -84,9 +85,19 @@ export function rehypeMediaLoading({ publicDir = path.join(process.cwd(), 'publi
       first = false;
       if (!eager) el.properties.loading ??= 'lazy';
       el.properties.decoding ??= 'async';
-      if (el.properties.width == null && el.properties.height == null) {
+      const { width, height } = el.properties;
+      if (width == null && height == null) {
         pending.push(localImageSize(el.properties.src, publicDir).then((size) => {
           if (size) Object.assign(el.properties, size);
+        }));
+      } else if (width == null || height == null) {
+        // One side set by the author (in pixels): the other from the file's ratio.
+        const given = Number(width ?? height);
+        if (!(given > 0)) return;
+        pending.push(localImageSize(el.properties.src, publicDir).then((size) => {
+          if (!size?.width || !size.height) return;
+          if (width == null) el.properties.width = Math.round((given * size.width) / size.height);
+          else el.properties.height = Math.round((given * size.height) / size.width);
         }));
       }
     });
