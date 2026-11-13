@@ -17,6 +17,15 @@ test('the build keeps one index per language', async () => {
   assert.match(page, /bundlePath: '\/pagefind-all\/'/);
 });
 
+// Every post's meta line (№, date, minutes, author) sat inside the indexed
+// article: "karaduman" matched all posts, and excerpts opened with
+// "№010 2011-02-19 1 min Arda Karaduman". Only the title and body count.
+test('the post meta line is kept out of the search index', async () => {
+  const page = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
+  assert.match(page, /data-pagefind-body/);
+  assert.match(page, /<div class="post__meta"[^>]*\sdata-pagefind-ignore[\s>]/);
+});
+
 function fakeDoc(lang = 'en') {
   const attrs = { lang };
   return {
