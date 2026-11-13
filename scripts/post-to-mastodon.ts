@@ -19,8 +19,10 @@ const MASTODON_URL = 'https://mastodon.world';
 const ACCESS_TOKEN = process.env.MASTODON_ACCESS_TOKEN;
 
 /**
- * Whether the account's recent statuses already link this post (a re-run of
- * the announce job after a partial failure). If the lookup fails it answers
+ * Whether the account's 40 latest own top-level statuses already link this
+ * post (a re-run of the announce job after a partial failure). Boosts and
+ * replies are excluded server-side, since the matcher discards them anyway
+ * and they would only use up the window. If the lookup fails it answers
  * false: a rare duplicate is better than a missed announcement.
  */
 async function alreadyAnnounced(url: string): Promise<boolean> {
@@ -29,7 +31,7 @@ async function alreadyAnnounced(url: string): Promise<boolean> {
         const me = await fetch(`${MASTODON_URL}/api/v1/accounts/verify_credentials`, { headers });
         if (!me.ok) throw new Error(`verify_credentials: HTTP ${me.status}`);
         const { id } = await me.json();
-        const recent = await fetch(`${MASTODON_URL}/api/v1/accounts/${encodeURIComponent(id)}/statuses?limit=40`, { headers });
+        const recent = await fetch(`${MASTODON_URL}/api/v1/accounts/${encodeURIComponent(id)}/statuses?limit=40&exclude_reblogs=true&exclude_replies=true`, { headers });
         if (!recent.ok) throw new Error(`statuses: HTTP ${recent.status}`);
         return mastodonStatusesHaveAnnouncement(await recent.json(), url);
     } catch (error) {

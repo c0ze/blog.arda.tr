@@ -64,15 +64,17 @@ async function buildEmbed(agent: AtpAgent, card: Card) {
 }
 
 /**
- * Whether the account's last 50 posts already link this post (a re-run of
- * the announce job after a partial failure). If the lookup fails it answers
- * false: a rare duplicate is better than a missed announcement.
+ * Whether the account's last 100 feed items (the API maximum) already link
+ * this post (a re-run of the announce job after a partial failure). Replies
+ * are filtered out server-side, since the matcher discards them anyway and
+ * they would only use up the window. If the lookup fails it answers false:
+ * a rare duplicate is better than a missed announcement.
  */
 async function alreadyAnnounced(agent: AtpAgent, url: string): Promise<boolean> {
     try {
         const actor = agent.session?.did;
         if (!actor) throw new Error('no session DID after login');
-        const { data } = await agent.getAuthorFeed({ actor, limit: 50 });
+        const { data } = await agent.getAuthorFeed({ actor, limit: 100, filter: 'posts_no_replies' });
         return blueskyFeedHasAnnouncement(data.feed, url, actor);
     } catch (error) {
         console.warn('⚠️ Could not check for an earlier announcement; posting anyway:', error);
