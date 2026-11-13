@@ -100,6 +100,8 @@ test('in-body links to a post get the trailing slash', () => {
     asset: h('a', { href: '/images/x.png' }),
     external: h('a', { href: 'https://example.com/blog/x' }),
     deeper: h('a', { href: '/blog/x/y' }),
+    pdf: h('a', { href: '/blog/file.pdf' }),
+    xml: h('a', { href: '/blog/rss.xml?x=1' }),
     none: h('a', {}),
   };
   rehypeSlashPostLinks()(root(h('p', {}, Object.values(links))));
@@ -113,6 +115,9 @@ test('in-body links to a post get the trailing slash', () => {
     asset: '/images/x.png',
     external: 'https://example.com/blog/x',
     deeper: '/blog/x/y',
+    // a file, not a post route (post slugs never contain a dot: github-slugger drops it)
+    pdf: '/blog/file.pdf',
+    xml: '/blog/rss.xml?x=1',
     none: undefined,
   });
 });

@@ -105,12 +105,15 @@ export function rehypeMediaLoading({ publicDir = path.join(process.cwd(), 'publi
   };
 }
 
-const POST_LINK = /^(\/blog\/[^/?#]+)([?#].*)?$/;
+// A post route: /blog/<slug> with no dot in the slug (github-slugger drops
+// dots, so a dotted last segment is a file such as /blog/file.pdf).
+const POST_LINK = /^(\/blog\/[^/?#.]+)([?#].*)?$/;
 
 /**
  * Body links to a post as `/blog/<slug>` get the trailing slash the post is
- * served (and canonical) at, so they land without a 301. The posts keep
- * their links as written; only the output changes.
+ * served (and canonical) at, so they land without a 301. Links to files
+ * (a dot in the last segment) are left alone. The posts keep their links as
+ * written; only the output changes.
  */
 export function rehypeSlashPostLinks() {
   return (tree) => {
