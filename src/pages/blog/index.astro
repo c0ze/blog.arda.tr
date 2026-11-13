@@ -104,6 +104,9 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
         var tag = button.getAttribute('data-tag');
         if (tag !== null) applyFilter(tag, true);
         setOpen(false);
+        // On phones the collapsed chips hide "*": keep focus on the page
+        // instead of letting it fall to <body> with the vanished chip.
+        if (toggle && !button.getClientRects().length) toggle.focus();
       });
     });
 

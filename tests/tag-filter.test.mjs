@@ -20,10 +20,15 @@ function el(attrs = {}) {
     setAttribute: (name, value) => { attrs[name] = value; },
     addEventListener: (name, callback) => { listeners[name] = callback; },
     click() { listeners.click?.(); },
+    focus() { focused.push(this); },
+    // displayed unless a phone-width rule hides it (set per test)
+    getClientRects() { return this.displayed?.() === false ? [] : [{}]; },
   };
 }
+let focused = [];
 
-function page(search = '') {
+function page(search = '', { phone = false } = {}) {
+  focused = [];
   const chips = ['all', 'ai', 'dev'].map((tag) => el({ 'data-tag': tag, 'aria-pressed': String(tag === 'all') }));
   const rows = [el({ 'data-tags': 'ai,dev' }), el({ 'data-tags': 'dev' }), el({ 'data-tags': 'music' })];
   const list = { querySelectorAll: () => rows };
@@ -40,6 +45,13 @@ function page(search = '') {
     'tag-toggle-arrow': el(),
     'tag-toggle-now': toggleNow,
   };
+  // global.css at ≤640px: a collapsed filter shows only the pressed chip, never "*"
+  if (phone) {
+    for (const c of chips) {
+      c.displayed = () => ids['tag-filters'].attrs['data-collapsed'] !== 'true'
+        || (c.attrs['aria-pressed'] === 'true' && c.attrs['data-tag'] !== 'all');
+    }
+  }
   const replaced = [];
   const href = `https://blog.arda.tr/blog/${search}`;
   vm.runInNewContext(script, {
@@ -90,4 +102,26 @@ test('the toggle opens the chips; picking one filters, updates the URL and colla
   chip('all').click();
   assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog/');
   assert.equal(ids['tag-toggle-now'].hidden, true);
+});
+
+// On a phone, "*" is hidden once the chips collapse, so the chip that was
+// just activated vanished under the keyboard and focus fell to <body>.
+test('on a phone, picking "*" moves focus to the toggle; a shown chip keeps it', () => {
+  const { chip, ids } = page('?tag=ai', { phone: true });
+  ids['tag-toggle'].click();
+  chip('all').click();
+  assert.equal(ids['tag-filters'].attrs['data-collapsed'], 'true');
+  assert.deepEqual(focused, [ids['tag-toggle']]);
+
+  focused.length = 0;
+  ids['tag-toggle'].click();
+  chip('dev').click();
+  assert.deepEqual(focused, [], 'the picked chip stays on screen, and focused');
+});
+
+test('on a wide screen every chip stays shown, so focus is left alone', () => {
+  const { chip, ids } = page('?tag=ai');
+  chip('all').click();
+  assert.deepEqual(focused, []);
+  assert.equal(ids['tag-toggle'].attrs['aria-expanded'], 'false');
 });
