@@ -1,5 +1,5 @@
 ---
-title: "cdak by Quite &amp; orange"
+title: "cdak by Quite & orange"
 date: "2011-02-21"
 excerpt: ""
 tags: ["legacy"]
