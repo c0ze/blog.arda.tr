@@ -197,6 +197,47 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
 }
 
 /**
+ * The commit range a run announces. A push announces its own
+ * `before..after`. A manual run (workflow_dispatch) announces from its
+ * `announce_since` input to the checked-out commit (GITHUB_SHA): the
+ * recovery for a post whose first push failed its build or deploy, which
+ * the fixing push does not announce. The input must be a commit SHA (4-40
+ * hex digits, so nothing option-like or symbolic reaches git) that resolves
+ * to an ancestor of that commit; anything else throws before posting. Posts
+ * in the range that were announced already are caught by the scripts'
+ * check of the accounts' recent posts.
+ */
+export function announceRange({ eventName, eventBefore, eventAfter, head, since, git }: {
+  eventName?: string;
+  eventBefore?: string;
+  eventAfter?: string;
+  head?: string;
+  since?: string;
+  git: (args: string[]) => string;
+}): { before?: string; after?: string } {
+  if (eventName !== 'workflow_dispatch') {
+    if (eventName && eventName !== 'push') throw new Error(`announcing is not set up for ${eventName} events`);
+    return { before: eventBefore, after: eventAfter };
+  }
+  const input = (since ?? '').trim();
+  if (!input) throw new Error('a manual run announces only with announce_since set (a commit SHA)');
+  if (!/^[0-9a-f]{4,40}$/i.test(input)) throw new Error(`announce_since must be a commit SHA (hex), got "${input}"`);
+  if (!head) throw new Error('GITHUB_SHA is not set, so the checked-out commit is unknown');
+  let commit: string;
+  try {
+    commit = git(['rev-parse', '--verify', '--quiet', `${input}^{commit}`]).trim();
+  } catch {
+    throw new Error(`announce_since ${input} is not a commit in this repository`);
+  }
+  try {
+    git(['merge-base', '--is-ancestor', commit, head]);
+  } catch {
+    throw new Error(`announce_since ${input} is not an ancestor of ${head}; nothing is announced`);
+  }
+  return { before: commit, after: head };
+}
+
+/**
  * The URL slug Astro gives a post: the glob loader slugifies each path segment
  * with github-slugger (or takes a frontmatter `slug`), and the site keeps the
  * last segment (src/lib/posts.ts getSlug). `2011-07-05-new-nook-！.md` is

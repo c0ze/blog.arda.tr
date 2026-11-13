@@ -12,6 +12,7 @@ import {
     blueskyFeedHasAnnouncement,
     credentialMode,
     isCI,
+    announceRange,
     postsToAnnounce,
     composeBlueskyText,
     ogImageFile,
@@ -177,17 +178,23 @@ async function main() {
     }
 
     // GitHub Actions mode: posts this push added, or flipped from draft to
-    // published. In CI a failed git call throws instead of skipping quietly.
+    // published; on a manual run, posts since its announce_since input (an
+    // invalid input throws before anything is posted). In CI a failed git
+    // call throws instead of skipping quietly.
     console.log('🚀 Running in GitHub Actions mode...');
-    const posts = postsToAnnounce({
-        before: process.env.BEFORE_SHA,
-        after: process.env.AFTER_SHA,
-        ci: CI,
-        git: (gitArgs) => {
-            console.log(`Executing: git ${gitArgs.join(' ')}`);
-            return execFileSync('git', gitArgs, { encoding: 'utf-8' });
-        },
+    const git = (gitArgs: string[]) => {
+        console.log(`Executing: git ${gitArgs.join(' ')}`);
+        return execFileSync('git', gitArgs, { encoding: 'utf-8' });
+    };
+    const { before, after } = announceRange({
+        eventName: process.env.GITHUB_EVENT_NAME,
+        eventBefore: process.env.BEFORE_SHA,
+        eventAfter: process.env.AFTER_SHA,
+        head: process.env.GITHUB_SHA,
+        since: process.env.ANNOUNCE_SINCE,
+        git,
     });
+    const posts = postsToAnnounce({ before, after, ci: CI, git });
 
     if (posts.length === 0) {
         console.log('ℹ️ No blog posts to announce in this commit range.');

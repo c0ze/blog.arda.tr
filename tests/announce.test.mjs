@@ -392,3 +392,71 @@ test('a renamed post whose earlier version cannot be read fails in CI, skips loc
   assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git: unpaired, log: quiet }), /x\.md/);
   assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git: unpaired, log: quiet }), []);
 });
+
+// A post whose first push failed its build or deploy is not announced by the
+// push that fixes it (that push's diff has no A for it). The manual lever: run
+// the workflow by hand with `announce_since`, and the range starts there and
+// ends at the checked-out commit. A push keeps its own before..after.
+const SINCE = 'a'.repeat(40);
+const HEAD = 'f'.repeat(40);
+const rangeGit = ({ ancestor = true, resolves = true } = {}) => {
+  const calls = [];
+  const git = (args) => {
+    calls.push(args.join(' '));
+    if (args[0] === 'rev-parse') {
+      if (!resolves) throw new Error(`fatal: Needed a single revision`);
+      return `${SINCE}\n`;
+    }
+    if (args[0] === 'merge-base') {
+      if (!ancestor) throw new Error('exit 1');
+      return '';
+    }
+    throw new Error(`unexpected git ${args.join(' ')}`);
+  };
+  return { git, calls };
+};
+
+test('a push announces its own before..after, whatever the input', async () => {
+  const { announceRange } = await import('../scripts/lib/announce.ts');
+  const { git, calls } = rangeGit();
+  assert.deepEqual(
+    announceRange({ eventName: 'push', eventBefore: 'b1', eventAfter: 'a1', head: HEAD, since: '', git }),
+    { before: 'b1', after: 'a1' },
+  );
+  assert.deepEqual(
+    announceRange({ eventName: 'push', eventBefore: 'b1', eventAfter: 'a1', head: HEAD, since: SINCE, git }),
+    { before: 'b1', after: 'a1' },
+  );
+  assert.deepEqual(calls, []);
+});
+
+test('a manual run announces announce_since..the checked-out commit', async () => {
+  const { announceRange } = await import('../scripts/lib/announce.ts');
+  const { git, calls } = rangeGit();
+  assert.deepEqual(
+    announceRange({ eventName: 'workflow_dispatch', eventBefore: undefined, eventAfter: undefined, head: HEAD, since: ` ${SINCE.slice(0, 7)} `, git }),
+    { before: SINCE, after: HEAD },
+  );
+  assert.deepEqual(calls, [`rev-parse --verify --quiet ${SINCE.slice(0, 7)}^{commit}`, `merge-base --is-ancestor ${SINCE} ${HEAD}`]);
+});
+
+// Anything that is not a commit in AFTER's history fails before posting, with
+// a message that says what to fix; an option-like or symbolic input never
+// reaches git.
+test('a manual run rejects a missing, malformed, unknown or non-ancestor announce_since', async () => {
+  const { announceRange } = await import('../scripts/lib/announce.ts');
+  const manual = (since, opts) => {
+    const { git, calls } = rangeGit(opts);
+    const run = () => announceRange({ eventName: 'workflow_dispatch', head: HEAD, since, git });
+    return { run, calls };
+  };
+  for (const bad of ['', '   ', undefined, '--output=/tmp/x', 'main', 'HEAD~3', 'abc', `${SINCE}0`]) {
+    const { run, calls } = manual(bad);
+    assert.throws(run, /announce_since/, String(bad));
+    assert.deepEqual(calls, [], `${bad} reached git`);
+  }
+  assert.throws(manual(SINCE, { resolves: false }).run, /not a commit/);
+  assert.throws(manual(SINCE, { ancestor: false }).run, /not an ancestor/);
+  assert.throws(() => announceRange({ eventName: 'workflow_dispatch', head: '', since: SINCE, git: rangeGit().git }), /GITHUB_SHA/);
+  assert.throws(() => announceRange({ eventName: 'schedule', head: HEAD, since: SINCE, git: rangeGit().git }), /schedule/);
+});

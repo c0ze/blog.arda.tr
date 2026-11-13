@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      # Recovery for a post whose first push failed its build or deploy (the
+      # push that fixed it does not announce it): the commit before the post
+      # was added. Empty: the manual run only builds and deploys.
+      announce_since:
+        description: "Announce posts added since this commit SHA (empty: deploy only)"
+        required: false
+        type: string
+        default: ""
 
 # Read-only by default: build and announce (which runs `npm ci` and then
 # handles the social secrets) get no write scopes. Only deploy can publish.
@@ -71,7 +80,11 @@ jobs:
   announce:
     needs: deploy
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # A push announces its own before..after; a manual run on main only when
+    # announce_since is set (scripts/lib/announce.ts announceRange checks it).
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' && inputs.announce_since != '')
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -92,6 +105,7 @@ jobs:
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
+          ANNOUNCE_SINCE: ${{ inputs.announce_since }}
         run: npm run post-mastodon
 
       # Runs even when the Mastodon step failed; each network is independent.
@@ -101,4 +115,5 @@ jobs:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
           BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
+          ANNOUNCE_SINCE: ${{ inputs.announce_since }}
         run: npm run post-bluesky
