@@ -201,11 +201,12 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
  * `before..after`. A manual run (workflow_dispatch) announces from its
  * `announce_since` input to the checked-out commit (GITHUB_SHA): the
  * recovery for a post whose first push failed its build or deploy, which
- * the fixing push does not announce. The input must be a commit SHA (4-40
- * hex digits, so nothing option-like or symbolic reaches git) that resolves
- * to an ancestor of that commit; anything else throws before posting. Posts
- * in the range that were announced already are caught by the scripts'
- * check of the accounts' recent posts.
+ * the fixing push does not announce. The input is resolved strictly as an
+ * object-name prefix, never through refs (a branch or tag named like hex
+ * must not stand in for a SHA): 4-40 hex digits, exactly one object
+ * (`rev-parse --disambiguate`), of type commit (`cat-file -t`; an annotated
+ * tag is not peeled), and an ancestor of the checked-out commit. Anything
+ * else throws before posting.
  */
 export function announceRange({ eventName, eventBefore, eventAfter, head, since, git }: {
   eventName?: string;
@@ -219,16 +220,16 @@ export function announceRange({ eventName, eventBefore, eventAfter, head, since,
     if (eventName && eventName !== 'push') throw new Error(`announcing is not set up for ${eventName} events`);
     return { before: eventBefore, after: eventAfter };
   }
-  const input = (since ?? '').trim();
+  const input = (since ?? '').trim().toLowerCase();
   if (!input) throw new Error('a manual run announces only with announce_since set (a commit SHA)');
-  if (!/^[0-9a-f]{4,40}$/i.test(input)) throw new Error(`announce_since must be a commit SHA (hex), got "${input}"`);
+  if (!/^[0-9a-f]{4,40}$/.test(input)) throw new Error(`announce_since must be a commit SHA (hex), got "${input}"`);
   if (!head) throw new Error('GITHUB_SHA is not set, so the checked-out commit is unknown');
-  let commit: string;
-  try {
-    commit = git(['rev-parse', '--verify', '--quiet', `${input}^{commit}`]).trim();
-  } catch {
-    throw new Error(`announce_since ${input} is not a commit in this repository`);
-  }
+  const matches = git(['rev-parse', `--disambiguate=${input}`]).split('\n').map((l) => l.trim()).filter(Boolean);
+  if (matches.length === 0) throw new Error(`announce_since ${input}: no object in this repository has that SHA`);
+  if (matches.length > 1) throw new Error(`announce_since ${input} is ambiguous (${matches.length} objects); give more digits`);
+  const commit = matches[0];
+  const type = git(['cat-file', '-t', commit]).trim();
+  if (type !== 'commit') throw new Error(`announce_since ${input} is a ${type}, not a commit`);
   try {
     git(['merge-base', '--is-ancestor', commit, head]);
   } catch {

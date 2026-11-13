@@ -399,14 +399,14 @@ test('a renamed post whose earlier version cannot be read fails in CI, skips loc
 // ends at the checked-out commit. A push keeps its own before..after.
 const SINCE = 'a'.repeat(40);
 const HEAD = 'f'.repeat(40);
-const rangeGit = ({ ancestor = true, resolves = true } = {}) => {
+// `matches`: what `git rev-parse --disambiguate=<prefix>` prints (it exits 0
+// with no output when nothing matches); `type`: what `git cat-file -t` says.
+const rangeGit = ({ ancestor = true, matches = [SINCE], type = 'commit' } = {}) => {
   const calls = [];
   const git = (args) => {
     calls.push(args.join(' '));
-    if (args[0] === 'rev-parse') {
-      if (!resolves) throw new Error(`fatal: Needed a single revision`);
-      return `${SINCE}\n`;
-    }
+    if (args[0] === 'rev-parse' && args[1].startsWith('--disambiguate=')) return matches.map((m) => `${m}\n`).join('');
+    if (args[0] === 'cat-file' && args[1] === '-t') return `${type}\n`;
     if (args[0] === 'merge-base') {
       if (!ancestor) throw new Error('exit 1');
       return '';
@@ -437,7 +437,11 @@ test('a manual run announces announce_since..the checked-out commit', async () =
     announceRange({ eventName: 'workflow_dispatch', eventBefore: undefined, eventAfter: undefined, head: HEAD, since: ` ${SINCE.slice(0, 7)} `, git }),
     { before: SINCE, after: HEAD },
   );
-  assert.deepEqual(calls, [`rev-parse --verify --quiet ${SINCE.slice(0, 7)}^{commit}`, `merge-base --is-ancestor ${SINCE} ${HEAD}`]);
+  assert.deepEqual(calls, [
+    `rev-parse --disambiguate=${SINCE.slice(0, 7)}`,
+    `cat-file -t ${SINCE}`,
+    `merge-base --is-ancestor ${SINCE} ${HEAD}`,
+  ]);
 });
 
 // Anything that is not a commit in AFTER's history fails before posting, with
@@ -455,7 +459,13 @@ test('a manual run rejects a missing, malformed, unknown or non-ancestor announc
     assert.throws(run, /announce_since/, String(bad));
     assert.deepEqual(calls, [], `${bad} reached git`);
   }
-  assert.throws(manual(SINCE, { resolves: false }).run, /not a commit/);
+  assert.throws(manual(SINCE, { matches: [] }).run, /no object/);
+  // a hex-shaped branch or tag must not stand in for a SHA: the input is
+  // resolved only as an object-name prefix, never through refs
+  assert.throws(manual('deadbeef', { matches: [] }).run, /no object/);
+  assert.throws(manual(SINCE.slice(0, 4), { matches: [SINCE, `${SINCE.slice(0, 4)}${'b'.repeat(36)}`] }).run, /ambiguous/);
+  assert.throws(manual(SINCE, { type: 'tag' }).run, /not a commit/, 'an annotated tag is not peeled');
+  assert.throws(manual(SINCE, { type: 'tree' }).run, /not a commit/);
   assert.throws(manual(SINCE, { ancestor: false }).run, /not an ancestor/);
   assert.throws(() => announceRange({ eventName: 'workflow_dispatch', head: '', since: SINCE, git: rangeGit().git }), /GITHUB_SHA/);
   assert.throws(() => announceRange({ eventName: 'schedule', head: HEAD, since: SINCE, git: rangeGit().git }), /schedule/);
