@@ -56,7 +56,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │       └── global.css          # Rendition tokens and every component style, Tailwind
 ├── public/
 │   └── images/                 # Static images, OG images
-├── scripts/                    # new-post, announce-base + post-to-mastodon/-bluesky (pure parts in scripts/lib/), sitemap merge, theme contract
+├── scripts/                    # new-post, post-to-mastodon/-bluesky (pure parts in scripts/lib/), sitemap merge, theme contract
 ├── astro.config.mjs            # Astro configuration (rehype steps, Shiki css-variables theme)
 └── tailwind.config.mjs         # Tailwind with CSS variables
 ```

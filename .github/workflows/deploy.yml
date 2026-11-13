@@ -10,11 +10,10 @@ on:
 permissions:
   contents: read
 
-# Queue runs instead of cancelling them: each push gets built, deployed and
-# announced in order. (A run that never reached its posting steps still has
-# its posts announced by the next run that does; see the announce job.)
-# `queue: max` keeps up to 100 runs pending (the default keeps one and
-# cancels it when another arrives).
+# Queue runs instead of cancelling them: a cancelled run loses its announce
+# job, and the next run only diffs its own before/after, so the post in the
+# cancelled push would never be announced. `queue: max` keeps up to 100 runs
+# pending (the default keeps one and cancels it when another arrives).
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -73,11 +72,6 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
-    # actions: read lets the diff-base step list this workflow's earlier runs
-    # and read their jobs.
-    permissions:
-      contents: read
-      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -93,36 +87,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # A push whose build or deploy failed was never announced, and the push
-      # that fixed it only diffs its own before..after. So diff from the head
-      # of the newest earlier push run whose posting steps ran (the step names
-      # are POSTING_STEPS in scripts/lib/announce.ts; a test keeps them in
-      # sync). Runs that never reached them are covered again, runs that did
-      # are not. With no such run (the first run) it uses the push's before.
-      # A failed lookup fails this step, which skips both posting steps, so
-      # this run does not count and the next push retries the whole range.
-      - name: Choose the diff base
-        id: base
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EVENT_BEFORE: ${{ github.event.before }}
-          AFTER_SHA: ${{ github.event.after }}
-          RUN_ID: ${{ github.run_id }}
-        run: npx tsx scripts/announce-base.ts
-
       - name: Post to Mastodon
         env:
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BEFORE_SHA: ${{ steps.base.outputs.before }}
+          BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-mastodon
 
       # Runs even when the Mastodon step failed; each network is independent.
-      # Never without a diff base: then neither posting step runs.
       - name: Post to Blue Sky
-        if: ${{ !cancelled() && steps.base.outcome == 'success' }}
+        if: ${{ !cancelled() }}
         env:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          BEFORE_SHA: ${{ steps.base.outputs.before }}
+          BEFORE_SHA: ${{ github.event.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-bluesky

@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join, relative } from 'node:path';
 import test from 'node:test';
@@ -392,83 +392,4 @@ test('a renamed post whose earlier version cannot be read fails in CI, skips loc
   const unpaired = gitFake({ diff: 'D\0src/content/blog/2025/x.md\0A\0src/content/blog/2026/y.md\0', 'a1:src/content/blog/2026/y.md': fm('Y') });
   assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git: unpaired, log: quiet }), /x\.md/);
   assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git: unpaired, log: quiet }), []);
-});
-
-// The announce job only runs after build and deploy succeed. When a push that
-// adds a post fails to build, the push that fixes it must still announce that
-// post, so the diff starts at the newest earlier push whose announce job
-// actually attempted to post, not at the event's own `before`. A run that
-// attempted to post is never re-processed (even if a posting step failed):
-// re-processing it could announce a post again under a new URL.
-const ran = { name: 'Post to Mastodon', conclusion: 'success' };
-const announceJob = (...steps) => ({ name: 'announce', conclusion: 'success', steps: [{ name: 'Checkout', conclusion: 'success' }, ...steps] });
-const attempted = [{ name: 'build', steps: [] }, { name: 'deploy', steps: [] }, announceJob(ran, { name: 'Post to Blue Sky', conclusion: 'failure' })];
-const buildFailed = [{ name: 'build', conclusion: 'failure', steps: [{ name: 'Build Astro site', conclusion: 'failure' }] }, { name: 'deploy', conclusion: 'skipped', steps: [] }, { name: 'announce', conclusion: 'skipped', steps: [] }];
-const baseFailed = [announceJob({ name: 'Choose the diff base', conclusion: 'failure' }, { name: 'Post to Mastodon', conclusion: 'skipped' }, { name: 'Post to Blue Sky', conclusion: 'skipped' })];
-const run = (databaseId, headSha) => ({ databaseId, headSha, createdAt: `2026-11-${String(databaseId).padStart(2, '0')}T00:00:00Z` });
-const jobsFrom = (byId) => (id) => {
-  if (!(id in byId)) throw new Error(`HTTP 502 for run ${id}`);
-  return byId[id];
-};
-const ancestorsOf = (...shas) => (sha) => shas.includes(sha);
-
-test('the step names the base selection reads are the ones deploy.yml runs', async () => {
-  const { POSTING_STEPS } = await import('../scripts/lib/announce.ts');
-  const workflow = await readFile(new URL('../.github/workflows/deploy.yml', import.meta.url), 'utf8');
-  const announce = workflow.slice(workflow.indexOf('\n  announce:'));
-  assert.ok(announce.length > 1, 'expected the announce job');
-  for (const name of POSTING_STEPS) assert.match(announce, new RegExp(`\\n      - name: ${name}\\n`), name);
-});
-
-test('the diff base is the newest earlier run that attempted to post', async () => {
-  const { announceBase } = await import('../scripts/lib/announce.ts');
-  const runs = JSON.stringify([run(10, 'c10'), run(9, 'c9'), run(8, 'c8'), run(7, 'c7'), run(5, 'c5')]);
-  const seen = [];
-  const jobsOf = (id) => { seen.push(id); return jobsFrom({ 9: buildFailed, 8: baseFailed, 7: attempted, 5: attempted })(id); };
-  // run 10 is this run; 9 failed to build and 8 never reached the posting
-  // steps, so their posts are still pending; 7 attempted to post (Bluesky
-  // failed) and is not re-processed
-  assert.equal(announceBase({ runsJson: runs, currentRunId: 10, eventBefore: 'c9', isAncestor: ancestorsOf('c7', 'c5'), jobsOf, log: quiet }), 'c7');
-  assert.deepEqual(seen, [9, 8, 7], 'newest first, stopping at the first match');
-  // a later run than this one never counts, whatever order the list came in
-  const shuffled = JSON.stringify([run(5, 'c5'), run(12, 'c12'), run(7, 'c7')]);
-  assert.equal(announceBase({ runsJson: shuffled, currentRunId: 10, eventBefore: 'c9', isAncestor: () => true, jobsOf: jobsFrom({ 12: attempted, 7: attempted }), log: quiet }), 'c7');
-});
-
-// A verified "nothing earlier attempted to post" is not an error: it is the
-// workflow's first run (or every run in reach failed early), and the push's
-// own before is the right base. A force-push that dropped the base commit
-// falls back the same way.
-test('the diff base falls back to the event before when no earlier run posted', async () => {
-  const { announceBase } = await import('../scripts/lib/announce.ts');
-  const args = { currentRunId: 30, eventBefore: 'e1', isAncestor: () => true, log: quiet };
-  assert.equal(announceBase({ ...args, runsJson: '[]', jobsOf: jobsFrom({}) }), 'e1', 'the first run of the workflow');
-  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(30, 'c30')]), jobsOf: jobsFrom({}) }), 'e1', 'only this run');
-  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(4, 'c4')]), jobsOf: jobsFrom({ 4: buildFailed }) }), 'e1', 'none attempted');
-  // at most 20 earlier runs are looked at
-  const many = Array.from({ length: 25 }, (_, i) => run(i + 1, `c${i + 1}`));
-  const byId = Object.fromEntries(many.map((r) => [r.databaseId, r.databaseId === 1 ? attempted : buildFailed]));
-  const seen = [];
-  assert.equal(announceBase({ ...args, runsJson: JSON.stringify(many), jobsOf: (id) => { seen.push(id); return byId[id]; } }), 'e1');
-  assert.equal(seen.length, 20);
-  // a force-push: the newest attempted head is no longer in AFTER's history
-  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(7, 'gone')]), jobsOf: jobsFrom({ 7: attempted }), isAncestor: () => false }), 'e1');
-  const throwing = () => { throw new Error('fatal: bad object gone'); };
-  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(7, 'gone')]), jobsOf: jobsFrom({ 7: attempted }), isAncestor: throwing }), 'e1');
-});
-
-// A failed lookup must not quietly shrink the range to the push's own
-// before: that run would post, count as attempted, and the posts of an
-// earlier failed push would be skipped for good. The base step fails
-// instead, the posting steps are skipped, and the next push retries the
-// whole range.
-test('a failed lookup fails the base selection instead of falling back', async () => {
-  const { announceBase } = await import('../scripts/lib/announce.ts');
-  const args = { currentRunId: 30, eventBefore: 'e1', isAncestor: () => true, log: quiet };
-  assert.throws(() => announceBase({ ...args, runsJson: '', jobsOf: jobsFrom({}) }), /run list/);
-  assert.throws(() => announceBase({ ...args, runsJson: 'gh: HTTP 403', jobsOf: jobsFrom({}) }), /run list/);
-  assert.throws(() => announceBase({ ...args, runsJson: '{"runs":[]}', jobsOf: jobsFrom({}) }), /run list/);
-  assert.throws(() => announceBase({ ...args, runsJson: JSON.stringify([run(7, 'c7')]), jobsOf: jobsFrom({}) }), /run 7/);
-  assert.throws(() => announceBase({ ...args, runsJson: JSON.stringify([run(7, 'c7')]), jobsOf: () => ({ message: 'Not Found' }) }), /run 7/);
-  assert.throws(() => announceBase({ ...args, runsJson: JSON.stringify([{ databaseId: 7 }]), jobsOf: jobsFrom({ 7: attempted }) }), /run 7/);
 });
