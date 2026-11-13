@@ -87,18 +87,17 @@ export function titleKey(title: unknown): string {
 }
 
 /**
- * The posts a push should announce. Git pairs files by content, which is not
- * post identity, so the frontmatter title decides on top of git's pairing:
+ * The posts a push should announce:
  * - added (A): announced, unless the same push deletes a published post with
- *   the same title (a rename git did not pair, say after heavy edits);
- * - modified (M): announced when it was a draft at BEFORE and is not now;
+ *   the same title (a rename git did not pair, say after heavy edits;
+ *   titles compare trimmed, whitespace-collapsed and case-insensitive, and
+ *   an empty title never matches);
+ * - modified (M): announced when it was a draft at BEFORE;
  * - renamed or copied (R, C): announced when the old path was not a post
  *   (moved in from outside the content tree) or was a draft at BEFORE (a
- *   draft renamed to its publish date and un-drafted); a published post is
- *   skipped only when its title is unchanged, since a new title means git
- *   paired a deleted post with a new one.
- * Titles compare trimmed, whitespace-collapsed and case-insensitive; an
- * empty title never matches. `git` runs git with the given arguments and
+ *   draft renamed to its publish date and un-drafted). A published post
+ *   that moved is never announced again, whatever its title.
+ * Re-announcing a published post is the failure this avoids first. `git` runs git with the given arguments and
  * returns stdout (or throws). In CI anything that would silently drop an
  * announcement throws: missing SHAs, a failed diff, a version of a post that
  * cannot be read. Locally those are warnings and the post is not announced.
@@ -190,15 +189,9 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
       posts.push(post);
       continue;
     }
-    if (post.status === 'M') continue; // an edit to a published post
-    const now = frontmatter(after, post.filePath, post.filePath);
-    if (!now) continue;
-    if (titleKey(was.title) && titleKey(was.title) === titleKey(now.title)) {
-      log.log(`⏭️ ${post.filePath} is ${earlier} moved, title unchanged — not announcing.`);
-      continue;
-    }
-    log.log(`📢 ${post.filePath} has a different title from ${earlier}: a new post git paired with a deleted one — announcing.`);
-    posts.push(post);
+    // An edit to a published post (M), or a published post moved (R, C):
+    // never announced again, whatever its title.
+    if (post.status !== 'M') log.log(`⏭️ ${post.filePath} is the published ${earlier} moved — not announcing.`);
   }
   return posts;
 }

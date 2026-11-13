@@ -329,28 +329,27 @@ test('posts to announce: renamed posts count unless they were already published'
   ]);
 });
 
-// Git pairs files by content similarity, which is not post identity. The
-// frontmatter title is: a published post renamed with its title kept is the
-// same post; a "rename" whose title changed is git pairing a deleted post
-// with a new one; and an added post that takes the title of a published post
-// the same push deletes is a rename git did not pair (heavy edits).
-test('post identity: a rename keeps its title, a new title is a new post', async () => {
+// A published post that git reports as renamed is never announced, whatever
+// its title (as before renames were handled at all): re-announcing an
+// existing post is worse than missing one. Git can pair a deleted post with
+// a genuinely new one; that rare case is left to a manual announcement.
+test('post identity: a renamed published post is never announced, even with a new title', async () => {
   const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
   const git = gitFake({
     diff: [
       'R092', 'src/content/blog/2025/old.md', 'src/content/blog/2026/same-title.md',
-      'R061', 'src/content/blog/2025/retired.md', 'src/content/blog/2026/brand-new.md',
+      'R061', 'src/content/blog/2025/retired.md', 'src/content/blog/2026/retitled.md',
       '',
     ].join('\0'),
-    'b1:src/content/blog/2025/old.md': fm('  The  Same Title '),
-    'a1:src/content/blog/2026/same-title.md': fm('the same title'),
+    'b1:src/content/blog/2025/old.md': fm('The Same Title'),
     'b1:src/content/blog/2025/retired.md': fm('Retired post'),
-    'a1:src/content/blog/2026/brand-new.md': fm('A genuinely new post'),
+    // the versions at AFTER are never read: a throwing read would fail in CI
   });
-  const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
-  assert.deepEqual(posts.map((p) => p.filePath), ['src/content/blog/2026/brand-new.md']);
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }), []);
 });
 
+// An added post that takes the title of a published post the same push
+// deletes is a rename git did not pair (say after heavy edits).
 test('post identity: an add that takes a deleted published title is a rename', async () => {
   const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
   const git = gitFake({
