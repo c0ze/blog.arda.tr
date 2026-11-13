@@ -34,3 +34,14 @@ test('an item without excerpt or description is summarised from its body', async
     'Tom &amp; Jerry',
   );
 });
+
+// A body that writes a character reference (`Tom &amp; Jerry`) must read as
+// the character in the summary; escaping the raw reference again showed a
+// literal "&amp;" in the feed reader and in the page's meta description.
+test('character references in a body are decoded before escaping', async () => {
+  const { feedItemText } = await import('../src/lib/feed.ts');
+  const { bodyDescription } = await import('../src/lib/display.ts');
+  assert.equal(bodyDescription('Tom &amp; Jerry &lt;3 &quot;cats&quot; &#39;n&#x27; mice&nbsp;&hellip;'), 'Tom & Jerry <3 "cats" \'n\' mice …');
+  assert.equal(feedItemDescription({ text: feedItemText({}, 'Tom &amp; Jerry &lt;b&gt;') }), 'Tom &amp; Jerry &lt;b&gt;');
+  assert.equal(bodyDescription('&unknownref; stays'), '&unknownref; stays');
+});

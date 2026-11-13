@@ -14,9 +14,28 @@ export function tagHref(tag: string): string {
   return `/blog/?tag=${encodeURIComponent(tag)}`;
 }
 
+const NAMED_REFERENCES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  hellip: '…', mdash: '—', ndash: '–', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”',
+};
+
+/** One character reference as its character; an unknown one stays as written. */
+function decodeReference(ref: string, name: string): string {
+  if (name[0] === '#') {
+    const code = name[1] === 'x' || name[1] === 'X' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
+    try {
+      return String.fromCodePoint(code);
+    } catch {
+      return ref;
+    }
+  }
+  return NAMED_REFERENCES[name] ?? NAMED_REFERENCES[name.toLowerCase()] ?? ref;
+}
+
 /**
  * A meta description derived from a post body, for posts with neither
- * `description` nor `excerpt`: markdown and HTML stripped, whitespace
+ * `description` nor `excerpt`: markdown and HTML stripped, character
+ * references decoded (callers escape the result once), whitespace
  * collapsed, cut near `max` characters at a word boundary ("" when the body
  * has no text, e.g. a lone embed).
  */
@@ -30,7 +49,7 @@ export function bodyDescription(body: string | undefined, max = 155): string {
     .replace(/^\s{0,3}(#{1,6}|>+|[-*+]|\d+[.)])\s+/gm, '') // heading, quote, list markers
     .replace(/[*~`|]+/g, '') // emphasis, code, table pipes
     .replace(/(^|\W)_+|_+(?=\W|$)/g, '$1') // _emphasis_, not snake_case
-    .replace(/&nbsp;/g, ' ')
+    .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, decodeReference)
     .replace(/\s+/g, ' ')
     .trim();
   if (text.length <= max) return text;
