@@ -10,10 +10,11 @@ on:
 permissions:
   contents: read
 
-# Queue runs instead of cancelling them: a cancelled run loses its announce
-# job, and the next run only diffs its own before/after, so the post in the
-# cancelled push would never be announced. `queue: max` keeps up to 100 runs
-# pending (the default keeps one and cancels it when another arrives).
+# Queue runs instead of cancelling them: each push gets built, deployed and
+# announced in order. (A cancelled or failed run's posts are still announced
+# by the next successful run, which diffs from the last successful run's
+# head; see the announce job.) `queue: max` keeps up to 100 runs pending (the
+# default keeps one and cancels it when another arrives).
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -72,6 +73,10 @@ jobs:
     needs: deploy
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    # actions: read lets `gh run list` see this workflow's earlier runs.
+    permissions:
+      contents: read
+      actions: read
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -87,10 +92,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # A push whose build or deploy failed was never announced, and the push
+      # that fixed it only diffs its own before..after. So diff from the head
+      # of the last successful run for a push to main instead; the scripts
+      # skip what the accounts already announced. scripts/announce-base.ts
+      # falls back to the event's before when the lookup fails, finds no run,
+      # or that head is not an ancestor of this push (a force-push).
+      - name: Choose the diff base
+        id: base
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_BEFORE: ${{ github.event.before }}
+          AFTER_SHA: ${{ github.event.after }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          RUNS_FILE="$RUNNER_TEMP/deploy-runs.json"
+          gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --branch main --event push \
+            --status success --limit 50 --json headSha,databaseId,createdAt > "$RUNS_FILE" \
+            || echo "⚠️ gh run list failed; falling back to the push's before." >&2
+          RUNS_FILE="$RUNS_FILE" npx tsx scripts/announce-base.ts
+
       - name: Post to Mastodon
         env:
           MASTODON_ACCESS_TOKEN: ${{ secrets.MASTODON_ACCESS_TOKEN }}
-          BEFORE_SHA: ${{ github.event.before }}
+          BEFORE_SHA: ${{ steps.base.outputs.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-mastodon
 
@@ -99,6 +124,6 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           BLUESKY_PASSWORD: ${{ secrets.BLUESKY_PASSWORD }}
-          BEFORE_SHA: ${{ github.event.before }}
+          BEFORE_SHA: ${{ steps.base.outputs.before }}
           AFTER_SHA: ${{ github.event.after }}
         run: npm run post-bluesky

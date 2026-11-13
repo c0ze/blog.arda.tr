@@ -148,6 +148,55 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
 }
 
 /**
+ * The commit to diff from (BEFORE_SHA). The announce job runs only after
+ * build and deploy succeed, so a push whose build failed never announced its
+ * posts, and the push that fixed it only diffed its own `before`. The base
+ * is therefore the head of the last successful earlier run of the deploy
+ * workflow for a push to main (`runsJson`: `gh run list --json
+ * headSha,databaseId,createdAt`; run ids grow, so "earlier" is a smaller
+ * id than `currentRunId`). It falls back to the event's own `before` when
+ * the list is empty or unreadable (the lookup failed) and when that head is
+ * not an ancestor of AFTER (a force-push rewrote it). The wider range can
+ * re-cover posts that were announced already; the scripts' check of the
+ * accounts' recent posts skips those.
+ */
+export function announceBase({ runsJson, currentRunId, eventBefore, isAncestor, log = console }: {
+  runsJson: string;
+  currentRunId: number;
+  eventBefore: string;
+  isAncestor: (sha: string) => boolean;
+  log?: Log;
+}): string {
+  let runs: unknown;
+  try {
+    runs = JSON.parse(runsJson);
+  } catch {
+    log.warn('⚠️ Could not read the earlier deploy runs; diffing from the push\'s own before.');
+    return eventBefore;
+  }
+  const last = (Array.isArray(runs) ? runs : [])
+    .filter((r: any) => Number.isInteger(r?.databaseId) && r.databaseId < currentRunId
+      && typeof r.headSha === 'string' && r.headSha)
+    .sort((a: any, b: any) => b.databaseId - a.databaseId)[0] as { headSha: string; databaseId: number } | undefined;
+  if (!last) {
+    log.log('ℹ️ No earlier successful deploy run; diffing from the push\'s own before.');
+    return eventBefore;
+  }
+  let ancestor = false;
+  try {
+    ancestor = isAncestor(last.headSha);
+  } catch {
+    ancestor = false;
+  }
+  if (!ancestor) {
+    log.warn(`⚠️ ${last.headSha} (run ${last.databaseId}) is not in this push's history; diffing from the push's own before.`);
+    return eventBefore;
+  }
+  log.log(`ℹ️ Diffing from ${last.headSha}, the head of the last successful deploy run (${last.databaseId}).`);
+  return last.headSha;
+}
+
+/**
  * The URL slug Astro gives a post: the glob loader slugifies each path segment
  * with github-slugger (or takes a frontmatter `slug`), and the site keeps the
  * last segment (src/lib/posts.ts getSlug). `2011-07-05-new-nook-！.md` is

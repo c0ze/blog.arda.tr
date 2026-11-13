@@ -330,3 +330,38 @@ test('a renamed post whose earlier version cannot be read fails in CI, skips loc
   assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }), /a\.md/);
   assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git, log: quiet }), []);
 });
+
+// The announce job only runs after build and deploy succeed. When a push that
+// adds a post fails, the push that fixes it must still announce that post, so
+// the diff starts at the last successfully deployed push rather than at the
+// event's own `before`; whatever that range re-covers is caught by the
+// accounts' recent-posts dedupe.
+const run = (databaseId, headSha, createdAt = `2026-11-${String(databaseId).padStart(2, '0')}T00:00:00Z`) => ({ databaseId, headSha, createdAt });
+const ancestorsOf = (...shas) => (sha) => shas.includes(sha);
+
+test('the diff base is the head of the last successful earlier run', async () => {
+  const { announceBase } = await import('../scripts/lib/announce.ts');
+  const runs = JSON.stringify([run(9, 'c9'), run(7, 'c7'), run(5, 'c5')]);
+  // run 9 is this run itself (a re-run); run 7 is the last earlier success,
+  // older than the failed push whose `before` is c8
+  assert.equal(announceBase({ runsJson: runs, currentRunId: 9, eventBefore: 'c8', isAncestor: ancestorsOf('c7', 'c5', 'c8'), log: quiet }), 'c7');
+  // a later run than this one never counts
+  assert.equal(announceBase({ runsJson: runs, currentRunId: 8, eventBefore: 'c8', isAncestor: ancestorsOf('c9', 'c7', 'c8'), log: quiet }), 'c7');
+  // ordered by run, whatever order the list came in
+  const shuffled = JSON.stringify([run(5, 'c5'), run(7, 'c7')]);
+  assert.equal(announceBase({ runsJson: shuffled, currentRunId: 10, eventBefore: 'c8', isAncestor: ancestorsOf('c7', 'c5'), log: quiet }), 'c7');
+});
+
+test('the diff base falls back to the event before', async () => {
+  const { announceBase } = await import('../scripts/lib/announce.ts');
+  const args = { currentRunId: 10, eventBefore: 'e1', isAncestor: () => true, log: quiet };
+  assert.equal(announceBase({ ...args, runsJson: '[]' }), 'e1', 'no successful run yet');
+  assert.equal(announceBase({ ...args, runsJson: '' }), 'e1', 'the lookup failed');
+  assert.equal(announceBase({ ...args, runsJson: 'gh: HTTP 403' }), 'e1', 'the lookup printed an error');
+  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(10, 'c10')]) }), 'e1', 'only this run');
+  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([{ databaseId: 3 }]) }), 'e1', 'a run without a head');
+  // a force-push: the last deployed head is no longer in AFTER's history
+  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(7, 'gone')]), isAncestor: () => false }), 'e1');
+  const throwing = () => { throw new Error('fatal: bad object gone'); };
+  assert.equal(announceBase({ ...args, runsJson: JSON.stringify([run(7, 'gone')]), isAncestor: throwing }), 'e1');
+});
