@@ -9,9 +9,9 @@ export function postHref(slug: string): string {
   return `/blog/${slug}/`;
 }
 
-/** Link target for a tag: the blog listing deep-linked to that tag's filter. */
+/** Link target for a tag: the blog listing (/blog/, its served URL) deep-linked to that tag's filter. */
 export function tagHref(tag: string): string {
-  return `/blog?tag=${encodeURIComponent(tag)}`;
+  return `/blog/?tag=${encodeURIComponent(tag)}`;
 }
 
 /**

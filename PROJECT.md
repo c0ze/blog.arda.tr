@@ -28,7 +28,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   ├── Footer.astro        # Treeline strip + colophon (keeps the "Human-driven" disclosure)
 │   │   ├── OgCanvas.astro      # A post's OG image as a live dithered canvas (+ <noscript> <img>)
 │   │   ├── FileRow.astro       # BBS file-list row: cover, №, date, title + tags, minutes ▮ bars
-│   │   ├── TagChip.astro       # Ruled mono tag chip (links to /blog?tag=)
+│   │   ├── TagChip.astro       # Ruled mono tag chip (links to /blog/?tag=)
 │   │   └── ThemeToggle.astro   # Rendition switch (4 renditions, a <details> menu)
 │   ├── layouts/
 │   │   └── BaseLayout.astro    # Base HTML layout with SEO + theme boot script
@@ -36,7 +36,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   ├── posts.ts            # getPublishedPosts()/getSlug() helpers (pages + RSS)
 │   │   ├── order.ts            # byNewestFirst(): date, then post id (stable № and prev/next)
 │   │   ├── feed.ts             # RSS item HTML (escaped excerpt + cover)
-│   │   ├── rehype.mjs          # Post-body steps: demote body h1s, lazy media + image sizes
+│   │   ├── rehype.mjs          # Post-body steps: demote body h1s, lazy media + image sizes, slash post links
 │   │   ├── ledger.ts           # getLedger(): numbering, month tiers, year spine, the silence, tag counts
 │   │   └── display.ts          # Date, reading-time, ▮ bar, label, postHref, description, JSON-LD helpers
 │   ├── pages/

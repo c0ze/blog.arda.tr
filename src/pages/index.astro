@@ -117,11 +117,11 @@ const spine = [...years].reverse();
         />
       ))}
       <nav class="keys" aria-label="More">
-        <a href="/archive" data-key="a"><b>[a]</b>rchive</a>
-        <a href="/search" data-key="/"><b>[/]</b>search</a>
+        <a href="/archive/" data-key="a"><b>[a]</b>rchive</a>
+        <a href="/search/" data-key="/"><b>[/]</b>search</a>
         <a href="#tags" data-key="t"><b>[t]</b>ags</a>
         <a href="/rss.xml" data-key="r"><b>[r]</b>ss</a>
-        <a class="keys__all" href="/blog" data-key="l">[l]ist all {total} ▸</a>
+        <a class="keys__all" href="/blog/" data-key="l">[l]ist all {total} ▸</a>
       </nav>
     </section>
   </div>
@@ -131,7 +131,7 @@ const spine = [...years].reverse();
     <section class="deck" aria-labelledby="run-h">
       <h2 id="run-h"><b>{currentYear} by month</b><span>{runTotal} entries</span></h2>
       {run.map((tier, i) => (
-        <a class={`tally${i === 0 ? ' tally--now' : ''}`} href={`/archive#y${currentYear}`}>
+        <a class={`tally${i === 0 ? ' tally--now' : ''}`} href={`/archive/#y${currentYear}`}>
           <span class="tally__l">{tier.label.toLowerCase()}</span>
           <span class="bars" aria-hidden="true">{tallyBar(tier.entries.length, runMax, 16)}</span>
           <span class="tally__n">{tier.entries.length}<span class="sr-only"> entries</span></span>
@@ -158,7 +158,7 @@ const spine = [...years].reverse();
           <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
         </a>
       ))}
-      <a class="tally" href="/blog">
+      <a class="tally" href="/blog/">
         <span class="tally__l">+{tagsUsedOnce}</span>
         <span>used exactly once ▸</span>
         <span class="tally__n"></span>
@@ -177,7 +177,7 @@ const spine = [...years].reverse();
             <span class="tally__n">0</span>
           </span>
         ) : (
-          <a class={`tally${year === lastYear ? ' tally--now' : ''}`} href={`/archive#y${year}`}>
+          <a class={`tally${year === lastYear ? ' tally--now' : ''}`} href={`/archive/#y${year}`}>
             <span class="tally__l">{year}</span>
             <span class="bars" aria-hidden="true">{tallyBar(count, maxYear, 20)}</span>
             <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
@@ -186,7 +186,7 @@ const spine = [...years].reverse();
       ))}
       <div class="gate">
         <span class="gate__n">{total}</span>
-        <a class="btn btn--ghost" href="/archive">open the archive ▸</a>
+        <a class="btn btn--ghost" href="/archive/">open the archive ▸</a>
       </div>
     </section>
   </div>

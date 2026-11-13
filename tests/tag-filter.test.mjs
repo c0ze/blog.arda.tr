@@ -3,8 +3,8 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-// The /blog tag filter. On phones the ~66 chips collapse behind a toggle, and
-// a ?tag= deep link must still land filtered, with the active chip selected
+// The /blog/ tag filter. On phones the ~66 chips collapse behind a toggle, and
+// a /blog/?tag= deep link must still land filtered, with the active chip selected
 // (the collapsed view keeps only that chip) and named on the toggle.
 const source = await readFile(new URL('../src/pages/blog/index.astro', import.meta.url), 'utf8');
 const script = source.match(/<script is:inline>([\s\S]*?)<\/script>/)[1];
@@ -41,7 +41,7 @@ function page(search = '') {
     'tag-toggle-now': toggleNow,
   };
   const replaced = [];
-  const href = `https://blog.arda.tr/blog${search}`;
+  const href = `https://blog.arda.tr/blog/${search}`;
   vm.runInNewContext(script, {
     URL,
     URLSearchParams,
@@ -82,12 +82,12 @@ test('the toggle opens the chips; picking one filters, updates the URL and colla
 
   chip('dev').click();
   assert.deepEqual(rows.map((r) => r.hidden), [false, false, true]);
-  assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog?tag=dev');
+  assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog/?tag=dev');
   assert.equal(ids['tag-filters'].attrs['data-collapsed'], 'true');
   assert.equal(ids['tag-toggle-now'].textContent, 'dev');
 
   ids['tag-toggle'].click();
   chip('all').click();
-  assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog');
+  assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog/');
   assert.equal(ids['tag-toggle-now'].hidden, true);
 });

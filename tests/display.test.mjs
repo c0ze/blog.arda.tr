@@ -9,6 +9,34 @@ test('post links carry the trailing slash the canonical URL has', () => {
   assert.equal(postHref('2011-07-05-new-nook-'), '/blog/2011-07-05-new-nook-/');
 });
 
+// The listing is served at /blog/ too: /blog?tag= cost a 301 per tag click.
+test('tag links go to the slash URL of the listing', async () => {
+  const { tagHref } = await import('../src/lib/display.ts');
+  assert.equal(tagHref('ai'), '/blog/?tag=ai');
+  assert.equal(tagHref('c++ & go'), '/blog/?tag=c%2B%2B%20%26%20go');
+});
+
+// Every page is a directory (archive/index.html …), so a chrome link to
+// /archive, /search or /blog takes a 301 before it lands. Guard the sources.
+test('chrome links to site pages carry the trailing slash', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const files = [
+    'src/components/Header.astro',
+    'src/components/TagChip.astro',
+    'src/pages/index.astro',
+    'src/pages/404.astro',
+    'src/pages/search.astro',
+    'src/pages/archive.astro',
+    'src/pages/blog/index.astro',
+    'src/pages/blog/[slug].astro',
+  ];
+  for (const file of files) {
+    const source = await readFile(new URL(`../${file}`, import.meta.url), 'utf8');
+    const bare = source.match(/(?:href=["'{`]+|href: ')\/(?:archive|search|blog)(?=["'`?#}])/g);
+    assert.equal(bare, null, `${file}: ${bare}`);
+  }
+});
+
 // Twenty legacy posts have neither description nor excerpt, and shipped an
 // empty meta/og:description. Their body is the best summary they have.
 test('a description can be derived from the post body', async () => {

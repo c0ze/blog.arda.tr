@@ -15,7 +15,7 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
 
   <div class="body" lang="en">
     <!-- The filter: the tag chips are the control. Deep-linked from anywhere on
-         the site as /blog?tag=dev; with no script it is simply the full list. -->
+         the site as /blog/?tag=dev; with no script it is simply the full list. -->
     <p class="prompt">arda@coze:~$ <b>ls entries/ --tag=<span id="tag-now">*</span></b></p>
     <!-- Phones only (global.css): the script shows this toggle and collapses the
          chips to the active one. Without script every chip stays visible. -->
@@ -115,7 +115,7 @@ const allTags = [...tags].sort((a, b) => a.tag.localeCompare(b.tag));
     }
     setOpen(false);
 
-    // Deep-link support: a tag chip anywhere links to /blog?tag=dev, landing pre-filtered.
+    // Deep-link support: a tag chip anywhere links to /blog/?tag=dev, landing pre-filtered.
     var requested = new URLSearchParams(window.location.search).get('tag');
     if (requested) {
       var known = false;

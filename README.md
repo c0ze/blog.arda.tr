@@ -86,7 +86,7 @@ Your content here...
 
 ### Available Tags
 
-Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as ruled mono chips and drive the `/blog?tag=` filter; the front page tallies them with ▮ bars.
+Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as ruled mono chips and drive the `/blog/?tag=` filter; the front page tallies them with ▮ bars.
 
 ## Project Structure
 
