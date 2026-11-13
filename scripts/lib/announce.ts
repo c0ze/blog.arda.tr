@@ -18,7 +18,7 @@ export const BLUESKY_LIMIT = 300;
 export const MASTODON_LIMIT = 495; // 500 minus a little slack
 
 export interface ChangedPost {
-  status: 'A' | 'M' | 'R' | 'C';
+  status: 'A' | 'M' | 'R' | 'C' | 'D';
   filePath: string;
   /** For a rename or copy (R, C): the path it came from. */
   oldPath?: string;
@@ -33,7 +33,7 @@ const isPostPath = (p: string | undefined): p is string =>
   !!p && p.startsWith('src/content/blog/') && p.endsWith('.md');
 
 /**
- * Added, modified, renamed or copied posts from `git diff --name-status -z`:
+ * Added, modified, renamed, copied or deleted posts from `git diff --name-status -z`:
  * NUL-separated records, so no path is ever quoted (plain output quotes
  * non-ASCII names, and even core.quotePath=false quotes tabs, quotes and
  * backslashes; a quoted path never matched and the post was never
@@ -54,7 +54,7 @@ export function changedPosts(nameStatusZ: string): ChangedPost[] {
       continue;
     }
     const filePath = fields[i++];
-    if ((status === 'A' || status === 'M') && isPostPath(filePath)) {
+    if ((status === 'A' || status === 'M' || status === 'D') && isPostPath(filePath)) {
       out.push({ status, filePath });
     }
   }
@@ -79,19 +79,32 @@ export function credentialMode(name: string, env: Record<string, string | undefi
 
 type Log = { warn: (...args: unknown[]) => void; log: (...args: unknown[]) => void };
 
+const isDraft = (data: Record<string, unknown>) => data.draft === true || data.draft === 'true';
+
+/** A title as a post identity: trimmed, whitespace collapsed, case folded; "" when missing. */
+export function titleKey(title: unknown): string {
+  return typeof title === 'string' ? title.trim().replace(/\s+/g, ' ').toLowerCase() : '';
+}
+
 /**
- * The posts a push should announce: added (A); modified (M) from a draft to
- * published; renamed or copied (R, C) into a post path from anywhere that
- * was not a published post at BEFORE (a file moved in from outside the
- * content tree, or a draft renamed to its publish date and un-drafted in
- * the same push). Edits to posts that were already published, and renames
- * of them, are not. `git` runs git with the given arguments and returns
- * stdout (or throws). In CI anything that would silently drop an
- * announcement throws: missing SHAs, a failed diff, an unreadable earlier
- * version of a modified or renamed post. Locally those are warnings. A
- * branch's first push (all-zero BEFORE_SHA) has nothing to diff against and
- * is skipped either way; an added file has no earlier version to read and
- * needs none.
+ * The posts a push should announce. Git pairs files by content, which is not
+ * post identity, so the frontmatter title decides on top of git's pairing:
+ * - added (A): announced, unless the same push deletes a published post with
+ *   the same title (a rename git did not pair, say after heavy edits);
+ * - modified (M): announced when it was a draft at BEFORE and is not now;
+ * - renamed or copied (R, C): announced when the old path was not a post
+ *   (moved in from outside the content tree) or was a draft at BEFORE (a
+ *   draft renamed to its publish date and un-drafted); a published post is
+ *   skipped only when its title is unchanged, since a new title means git
+ *   paired a deleted post with a new one.
+ * Titles compare trimmed, whitespace-collapsed and case-insensitive; an
+ * empty title never matches. `git` runs git with the given arguments and
+ * returns stdout (or throws). In CI anything that would silently drop an
+ * announcement throws: missing SHAs, a failed diff, a version of a post that
+ * cannot be read. Locally those are warnings and the post is not announced.
+ * A branch's first push (all-zero BEFORE_SHA) has nothing to diff against
+ * and is skipped either way. The draft flag of the version at AFTER is
+ * checked later, by the scripts.
  */
 export function postsToAnnounce({ before, after, ci, git, log = console }: {
   before?: string;
@@ -118,9 +131,48 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
     return problem(`git diff ${before} ${after} failed: ${(error as Error).message}`);
   }
 
+  /** The frontmatter of `file` at `rev`; null (locally) when it cannot be read. */
+  const frontmatter = (rev: string, file: string, forPost: string): Record<string, unknown> | null => {
+    try {
+      return matter(git(['show', `${rev}:${file}`])).data;
+    } catch (error) {
+      if (ci) throw new Error(`could not read ${file} at ${rev}: ${(error as Error).message}`);
+      log.warn(`⚠️ Could not read ${file} at ${rev}; not announcing ${forPost}.`, error);
+      return null;
+    }
+  };
+
+  const changes = changedPosts(diff);
+  const deleted = changes.filter((c) => c.status === 'D');
+  // Titles of the published posts this push deletes; null if one is unreadable.
+  let deletedTitles: Set<string> | null | undefined;
+  const deletedPublishedTitles = (forPost: string): Set<string> | null => {
+    if (deletedTitles !== undefined) return deletedTitles;
+    const titles = new Set<string>();
+    for (const d of deleted) {
+      const data = frontmatter(before, d.filePath, forPost);
+      if (!data) return (deletedTitles = null);
+      if (!isDraft(data) && titleKey(data.title)) titles.add(titleKey(data.title));
+    }
+    return (deletedTitles = titles);
+  };
+
   const posts: ChangedPost[] = [];
-  for (const post of changedPosts(diff)) {
+  for (const post of changes) {
+    if (post.status === 'D') continue;
     if (post.status === 'A') {
+      if (deleted.length === 0) {
+        posts.push(post);
+        continue;
+      }
+      const titles = deletedPublishedTitles(post.filePath);
+      if (!titles) continue;
+      const now = frontmatter(after, post.filePath, post.filePath);
+      if (!now) continue;
+      if (titleKey(now.title) && titles.has(titleKey(now.title))) {
+        log.log(`⏭️ ${post.filePath} takes the title of a published post this push deletes — a rename, not announcing.`);
+        continue;
+      }
       posts.push(post);
       continue;
     }
@@ -131,18 +183,22 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
       posts.push(post);
       continue;
     }
-    let data: Record<string, unknown>;
-    try {
-      data = matter(git(['show', `${before}:${earlier}`])).data;
-    } catch (error) {
-      if (ci) throw new Error(`could not read ${earlier} at ${before}: ${(error as Error).message}`);
-      log.warn(`⚠️ Could not read ${earlier} at ${before}; not announcing ${post.filePath}.`, error);
-      continue;
-    }
-    if (data.draft === true || data.draft === 'true') {
+    const was = frontmatter(before, earlier, post.filePath);
+    if (!was) continue;
+    if (isDraft(was)) {
       log.log(`📢 ${earlier} was a draft before this push — announcing ${post.filePath}.`);
       posts.push(post);
+      continue;
     }
+    if (post.status === 'M') continue; // an edit to a published post
+    const now = frontmatter(after, post.filePath, post.filePath);
+    if (!now) continue;
+    if (titleKey(was.title) && titleKey(was.title) === titleKey(now.title)) {
+      log.log(`⏭️ ${post.filePath} is ${earlier} moved, title unchanged — not announcing.`);
+      continue;
+    }
+    log.log(`📢 ${post.filePath} has a different title from ${earlier}: a new post git paired with a deleted one — announcing.`);
+    posts.push(post);
   }
   return posts;
 }

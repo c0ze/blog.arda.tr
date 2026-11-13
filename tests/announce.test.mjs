@@ -33,7 +33,8 @@ async function postFiles(dir = join(repo, 'src/content/blog')) {
 // paths; both are consumed so the next record still lines up, and a record
 // whose new path is a post is kept with its old path, so postsToAnnounce()
 // can tell a moved published post (not new) from a post that arrived by a
-// rename (new).
+// rename (new). Deleted posts are kept too: an added post with the title of
+// a deleted one is a rename git did not pair.
 test('pushed posts are read from NUL-separated name-status output', () => {
   const out = [
     'A', 'src/content/blog/2011/2011-02-19-日本いろいろ.md',
@@ -51,6 +52,7 @@ test('pushed posts are read from NUL-separated name-status output', () => {
     { status: 'R', filePath: 'src/content/blog/2026/new-name.md', oldPath: 'src/content/blog/2026/old.md' },
     { status: 'M', filePath: 'src/content/blog/2026/2026-10-27-dergi-coze-org.md' },
     { status: 'C', filePath: 'src/content/blog/2026/copy.md', oldPath: 'src/content/blog/2026/a.md' },
+    { status: 'D', filePath: 'src/content/blog/2010/2010-05-10-les-claypool.md' },
     { status: 'A', filePath: 'src/content/blog/2026/tab\there "quoted" back\\slash.md' },
   ]);
   // a post renamed out of the content tree is no longer a post
@@ -303,6 +305,8 @@ test('a new file or a first push is not an error', async () => {
 // tree by `git mv`, or a draft renamed to its publish date and un-drafted in
 // the same push, used to be dropped silently. Only a rename of a post that
 // was already published stays unannounced (moving a post is not a new post).
+const fm = (title, extra = '') => `---\ntitle: "${title}"\n${extra}---\nbody\n`;
+
 test('posts to announce: renamed posts count unless they were already published', async () => {
   const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
   const git = gitFake({
@@ -313,8 +317,9 @@ test('posts to announce: renamed posts count unless they were already published'
       'R095', 'src/content/blog/2026/notes.txt', 'src/content/blog/2026/notes.md',
       '',
     ].join('\0'),
-    'b1:src/content/blog/2026/2026-01-01-wip.md': '---\ntitle: wip\ndraft: true\n---\n',
-    'b1:src/content/blog/2025/moved.md': '---\ntitle: moved\n---\n',
+    'b1:src/content/blog/2026/2026-01-01-wip.md': fm('WIP', 'draft: true\n'),
+    'b1:src/content/blog/2025/moved.md': fm('Moved'),
+    'a1:src/content/blog/2026/moved.md': fm('Moved'),
   });
   const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
   assert.deepEqual(posts.map((p) => p.filePath), [
@@ -324,11 +329,69 @@ test('posts to announce: renamed posts count unless they were already published'
   ]);
 });
 
+// Git pairs files by content similarity, which is not post identity. The
+// frontmatter title is: a published post renamed with its title kept is the
+// same post; a "rename" whose title changed is git pairing a deleted post
+// with a new one; and an added post that takes the title of a published post
+// the same push deletes is a rename git did not pair (heavy edits).
+test('post identity: a rename keeps its title, a new title is a new post', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({
+    diff: [
+      'R092', 'src/content/blog/2025/old.md', 'src/content/blog/2026/same-title.md',
+      'R061', 'src/content/blog/2025/retired.md', 'src/content/blog/2026/brand-new.md',
+      '',
+    ].join('\0'),
+    'b1:src/content/blog/2025/old.md': fm('  The  Same Title '),
+    'a1:src/content/blog/2026/same-title.md': fm('the same title'),
+    'b1:src/content/blog/2025/retired.md': fm('Retired post'),
+    'a1:src/content/blog/2026/brand-new.md': fm('A genuinely new post'),
+  });
+  const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
+  assert.deepEqual(posts.map((p) => p.filePath), ['src/content/blog/2026/brand-new.md']);
+});
+
+test('post identity: an add that takes a deleted published title is a rename', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({
+    diff: [
+      'D', 'src/content/blog/2025/rewritten.md',
+      'A', 'src/content/blog/2026/rewritten-heavily.md',
+      'D', 'src/content/blog/2025/gone.md',
+      'A', 'src/content/blog/2026/unrelated.md',
+      'D', 'src/content/blog/2025/draft-idea.md',
+      'A', 'src/content/blog/2026/draft-idea-published.md',
+      '',
+    ].join('\0'),
+    'b1:src/content/blog/2025/rewritten.md': fm('Rewritten'),
+    'a1:src/content/blog/2026/rewritten-heavily.md': fm('REWRITTEN'),
+    'b1:src/content/blog/2025/gone.md': fm('Gone'),
+    'a1:src/content/blog/2026/unrelated.md': fm('Unrelated'),
+    'b1:src/content/blog/2025/draft-idea.md': fm('Draft idea', 'draft: true\n'),
+    'a1:src/content/blog/2026/draft-idea-published.md': fm('Draft idea'),
+  });
+  const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
+  assert.deepEqual(posts.map((p) => p.filePath), [
+    'src/content/blog/2026/unrelated.md',
+    'src/content/blog/2026/draft-idea-published.md', // the deleted one was a draft: never announced
+  ]);
+});
+
+// Without a deleted post in the push, an added post needs no reads at all.
+test('an add with no deletion in the push is announced without reading it', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({ diff: 'A\0src/content/blog/2026/new.md\0D\0public/images/old.png\0' });
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }).map((p) => p.filePath), ['src/content/blog/2026/new.md']);
+});
+
 test('a renamed post whose earlier version cannot be read fails in CI, skips locally', async () => {
   const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
   const git = gitFake({ diff: 'R090\0src/content/blog/2026/a.md\0src/content/blog/2026/b.md\0' });
   assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }), /a\.md/);
   assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git, log: quiet }), []);
+  const unpaired = gitFake({ diff: 'D\0src/content/blog/2025/x.md\0A\0src/content/blog/2026/y.md\0', 'a1:src/content/blog/2026/y.md': fm('Y') });
+  assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git: unpaired, log: quiet }), /x\.md/);
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git: unpaired, log: quiet }), []);
 });
 
 // The announce job only runs after build and deploy succeed. When a push that
