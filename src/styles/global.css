@@ -553,6 +553,9 @@ html:lang(ja) .excerpt p { font-family: var(--jp); font-style: normal; }
   font-size: 18px;
   line-height: 1.7;
   color: var(--fg);
+  /* long URLs and inline code wrap instead of running off a phone screen
+     (body clips horizontal overflow); pre blocks still scroll */
+  overflow-wrap: anywhere;
 }
 html:lang(ja) .prose { font-family: var(--jp); font-size: 17px; line-height: 1.9; }
 /* The measure: prose never exceeds 68ch; media, code and tables take the column. */
@@ -632,7 +635,9 @@ html:lang(ja) .prose { font-family: var(--jp); font-size: 17px; line-height: 1.9
 .prose hr { border: 0; height: 1px; background: var(--rule); margin: 3em 0; }
 .prose ul > li::marker { content: "▪  "; color: var(--signal); font-size: 0.8em; }
 .prose ol > li::marker { font: 0.85em var(--mono); color: var(--fg-2); }
-.prose table { display: block; overflow-x: auto; font-size: 15px; font-family: var(--sans); border-collapse: collapse; }
+/* tables scroll instead: overflow-wrap: anywhere would shrink their columns
+   to a letter and break ordinary words ("Inventor-y") at phone widths */
+.prose table { display: block; overflow-x: auto; overflow-wrap: normal; font-size: 15px; font-family: var(--sans); border-collapse: collapse; }
 .prose thead th {
   font: 500 11px/1.3 var(--mono);
   letter-spacing: 0.08em;
