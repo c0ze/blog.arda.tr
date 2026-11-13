@@ -51,7 +51,7 @@ here is some of my configuration in case your mouth is watering for some config 
 
 ### .goxc.json
 
-{{< highlight  json >}}
+```json
 {
   "ArtifactsDest": "./build",
   "Tasks": [
@@ -61,11 +61,11 @@ here is some of my configuration in case your mouth is watering for some config 
   "BuildConstraints": "linux,arm",
   "ConfigVersion": "0.9"
 }
-{{< / highlight >}}
+```
 
 a previous version looked like this, when I was using goxc for deb packaging as well :
 
-{{< highlight  json >}}
+```json
 {
   "ArtifactsDest": "./build",
   "Tasks": [
@@ -84,13 +84,13 @@ a previous version looked like this, when I was using goxc for deb packaging as 
   "BuildConstraints": "linux,arm",
   "ConfigVersion": "0.9"
 }
-{{< / highlight >}}
+```
 
 ### Dockerfile
 
 Docker file for gitlab CI image which runs the build :
 
-{{< highlight  docker >}}
+```docker
 FROM golang:1.4.3
 
 RUN apt-get update
@@ -110,12 +110,12 @@ RUN goxc -t -arch=arm -bc=linux
 ADD ./ /go/src/gitlab.mycompany.com/FupIntuition
 
 WORKDIR /go/src/gitlab.mycompany.com/FupIntuition
-{{< / highlight >}}
+```
 
 This basically sets up the docker container for building and asset compilation etc.
 Docker file I use locally for testing the builds:
 
-{{< highlight  docker >}}
+```docker
 FROM golang:1.4.3
 
 RUN apt-get update
@@ -140,7 +140,7 @@ RUN ./compile_assets.sh
 RUN goxc -pv=`go run intuition.go -c=./intuition.yaml -v`
 RUN cp build/*/linux_arm/FupIntuition files/usr/bin
 RUN dpkg-buildpackage -aarmhf -tlinux -B -us -uc
-{{< / highlight >}}
+```
 
 This does the actual building. However you're not supposed to run the actual build commands inside the
 Dockerfile. We run these from the gitlab-ci, which is triggered by the configuration file which follows.
@@ -153,7 +153,7 @@ always needed to run sequentially, and I couldn't figure out how to make gitlab-
 export the binary artifacts after the build, so I concatenated them. I may separate them
 in the future.
 
-{{< highlight  yaml >}}
+```yaml
 stages:
   - test
   - deploy
@@ -182,7 +182,7 @@ deploy:
     - cp build/*/linux_arm/FupIntuition files/usr/bin
     - dpkg-buildpackage -aarmhf -tlinux -B -us -uc
     - sh /deploy_scripts/deploy_intuition.sh /builds/followup/intuition_`go run intuition.go -c=./intuition.yaml -v`_armhf.deb
-{{< / highlight >}}
+```
 
 The test stage is run whenever any branch is pushed into the repo. Deploy stage is run only
 when the `releases` branch is pushed. It is a protected branch which only I can push at the moment.

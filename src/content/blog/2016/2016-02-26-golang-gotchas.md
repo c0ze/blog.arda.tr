@@ -40,7 +40,7 @@ Here I will summarise my Gotchas.
     or attributes of an active model, the answer is usually only a method away. Go doesn't support much meta magic though,
     so when you need to do something like that you need to use reflection
 
-{{< highlight go >}}
+```go
 // returns a string representation of a struct.
 func GetStructStr(lead string, strct interface{}) string {
     str := lead
@@ -54,7 +54,7 @@ func GetStructStr(lead string, strct interface{}) string {
     }
     return str
 }
-{{< / highlight >}}
+```
 
 4. ### Lack of Generics aka. the interface{} Black Hole
 
