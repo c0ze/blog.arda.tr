@@ -104,3 +104,20 @@ export function rehypeMediaLoading({ publicDir = path.join(process.cwd(), 'publi
     await Promise.all(pending);
   };
 }
+
+const POST_LINK = /^(\/blog\/[^/?#]+)([?#].*)?$/;
+
+/**
+ * Body links to a post as `/blog/<slug>` get the trailing slash the post is
+ * served (and canonical) at, so they land without a 301. The posts keep
+ * their links as written; only the output changes.
+ */
+export function rehypeSlashPostLinks() {
+  return (tree) => {
+    walk(tree, (el) => {
+      if (el.tagName !== 'a' || typeof el.properties?.href !== 'string') return;
+      const m = POST_LINK.exec(el.properties.href);
+      if (m) el.properties.href = `${m[1]}/${m[2] ?? ''}`;
+    });
+  };
+}

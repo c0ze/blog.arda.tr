@@ -2,7 +2,7 @@ import { defineConfig, passthroughImageService } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import rehypeRaw from 'rehype-raw';
-import { rehypeDemoteHeadings, rehypeMediaLoading } from './src/lib/rehype.mjs';
+import { rehypeDemoteHeadings, rehypeMediaLoading, rehypeSlashPostLinks } from './src/lib/rehype.mjs';
 
 export default defineConfig({
   site: 'https://blog.arda.tr',
@@ -31,7 +31,7 @@ export default defineConfig({
       // the nearest grammar (OCaml) would misread, so they stay plain text
       langAlias: { rescript: 'plaintext' },
     },
-    rehypePlugins: [rehypeRaw, rehypeDemoteHeadings, rehypeMediaLoading],
+    rehypePlugins: [rehypeRaw, rehypeDemoteHeadings, rehypeMediaLoading, rehypeSlashPostLinks],
   },
   compressHTML: true,
   vite: {

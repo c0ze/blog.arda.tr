@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { rehypeDemoteHeadings, rehypeMediaLoading } from '../src/lib/rehype.mjs';
+import { rehypeDemoteHeadings, rehypeMediaLoading, rehypeSlashPostLinks } from '../src/lib/rehype.mjs';
 
 const publicDir = fileURLToPath(new URL('../public', import.meta.url));
 
@@ -85,4 +85,34 @@ test('an image that opens the post body stays eager', async () => {
   assert.equal(opener.properties.loading, undefined);
   assert.equal(opener.properties.decoding, 'async');
   assert.equal(later.properties.loading, 'lazy');
+});
+
+// Posts are served at /blog/<slug>/; about 40 posts link each other as
+// /blog/<slug>, and each such click cost a 301 on GitHub Pages. The links are
+// fixed on the way out, so the posts stay as written.
+test('in-body links to a post get the trailing slash', () => {
+  const links = {
+    bare: h('a', { href: '/blog/2026-02-03-digital-necromancy' }),
+    hash: h('a', { href: '/blog/2026-02-03-digital-necromancy#the-loot' }),
+    query: h('a', { href: '/blog/x?ref=1' }),
+    slashed: h('a', { href: '/blog/2026-02-03-digital-necromancy/' }),
+    listing: h('a', { href: '/blog/?tag=ai' }),
+    asset: h('a', { href: '/images/x.png' }),
+    external: h('a', { href: 'https://example.com/blog/x' }),
+    deeper: h('a', { href: '/blog/x/y' }),
+    none: h('a', {}),
+  };
+  rehypeSlashPostLinks()(root(h('p', {}, Object.values(links))));
+  const hrefs = Object.fromEntries(Object.entries(links).map(([k, v]) => [k, v.properties.href]));
+  assert.deepEqual(hrefs, {
+    bare: '/blog/2026-02-03-digital-necromancy/',
+    hash: '/blog/2026-02-03-digital-necromancy/#the-loot',
+    query: '/blog/x/?ref=1',
+    slashed: '/blog/2026-02-03-digital-necromancy/',
+    listing: '/blog/?tag=ai',
+    asset: '/images/x.png',
+    external: 'https://example.com/blog/x',
+    deeper: '/blog/x/y',
+    none: undefined,
+  });
 });
