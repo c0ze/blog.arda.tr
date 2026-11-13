@@ -3,7 +3,7 @@ import { statSync } from 'node:fs';
 import path from 'node:path';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
 import { postHref } from '@/lib/display';
-import { feedItemDescription } from '@/lib/feed';
+import { feedItemDescription, feedItemText } from '@/lib/feed';
 
 const MIME_TYPES = {
     '.png': 'image/png',
@@ -52,9 +52,10 @@ export async function GET(context) {
                 // Generate absolute URL for the image if it exists
                 const imageURL = image ? new URL(image, context.site).href : undefined;
 
-                // HTML description: the cover image, then the excerpt as escaped text
+                // HTML description: the cover image, then the excerpt (else the
+                // description, else a summary of the body) as escaped text
                 const content = feedItemDescription({
-                    text: post.data.excerpt || post.data.description,
+                    text: feedItemText(post.data, post.body),
                     imageURL,
                 });
 

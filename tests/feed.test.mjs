@@ -19,3 +19,18 @@ test('an empty excerpt leaves no empty or undefined paragraph', () => {
   assert.equal(feedItemDescription({ text: undefined }), undefined);
   assert.equal(feedItemDescription({ text: 'a < b' }), 'a &lt; b');
 });
+
+// Twenty legacy posts have neither excerpt nor description, and their RSS
+// items shipped without any <description>. They get the same body-derived
+// summary as their pages' meta description.
+test('an item without excerpt or description is summarised from its body', async () => {
+  const { feedItemText } = await import('../src/lib/feed.ts');
+  assert.equal(feedItemText({ excerpt: 'E', description: 'D' }, 'body'), 'E');
+  assert.equal(feedItemText({ excerpt: '', description: 'D' }, 'body'), 'D');
+  assert.equal(feedItemText({ excerpt: '' }, 'Some **bold** body & more.'), 'Some bold body & more.');
+  assert.equal(feedItemText({}, '<iframe src="x"></iframe>'), '', 'a lone embed has no text');
+  assert.equal(
+    feedItemDescription({ text: feedItemText({}, 'Tom & Jerry') }),
+    'Tom &amp; Jerry',
+  );
+});
