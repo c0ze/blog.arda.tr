@@ -18,8 +18,10 @@ export const BLUESKY_LIMIT = 300;
 export const MASTODON_LIMIT = 495; // 500 minus a little slack
 
 export interface ChangedPost {
-  status: 'A' | 'M';
+  status: 'A' | 'M' | 'R' | 'C';
   filePath: string;
+  /** For a rename or copy (R, C): the path it came from. */
+  oldPath?: string;
 }
 
 /** The git arguments whose output changedPosts() reads. */
@@ -27,12 +29,17 @@ export function diffArgs(before: string, after: string): string[] {
   return ['diff', '--name-status', '-z', before, after];
 }
 
+const isPostPath = (p: string | undefined): p is string =>
+  !!p && p.startsWith('src/content/blog/') && p.endsWith('.md');
+
 /**
- * Added or modified posts from `git diff --name-status -z`: NUL-separated
- * records, so no path is ever quoted (plain output quotes non-ASCII names,
- * and even core.quotePath=false quotes tabs, quotes and backslashes; a
- * quoted path never matched and the post was never announced). Rename and
- * copy records (R…, C…) carry two paths; both are consumed and ignored.
+ * Added, modified, renamed or copied posts from `git diff --name-status -z`:
+ * NUL-separated records, so no path is ever quoted (plain output quotes
+ * non-ASCII names, and even core.quotePath=false quotes tabs, quotes and
+ * backslashes; a quoted path never matched and the post was never
+ * announced). Rename and copy records (R…, C…) carry two paths; they are
+ * kept when the new path is a post, with the old path alongside, and their
+ * similarity score is dropped from the status.
  */
 export function changedPosts(nameStatusZ: string): ChangedPost[] {
   const fields = nameStatusZ.split('\0');
@@ -40,9 +47,14 @@ export function changedPosts(nameStatusZ: string): ChangedPost[] {
   for (let i = 0; i < fields.length; ) {
     const status = fields[i++];
     if (!status) continue;
-    const paths = /^[RC]/.test(status) ? [fields[i++], fields[i++]] : [fields[i++]];
-    const filePath = paths[0];
-    if ((status === 'A' || status === 'M') && filePath?.startsWith('src/content/blog/') && filePath.endsWith('.md')) {
+    if (/^[RC]/.test(status)) {
+      const oldPath = fields[i++];
+      const filePath = fields[i++];
+      if (isPostPath(filePath)) out.push({ status: status[0] as 'R' | 'C', filePath, oldPath });
+      continue;
+    }
+    const filePath = fields[i++];
+    if ((status === 'A' || status === 'M') && isPostPath(filePath)) {
       out.push({ status, filePath });
     }
   }
@@ -68,14 +80,18 @@ export function credentialMode(name: string, env: Record<string, string | undefi
 type Log = { warn: (...args: unknown[]) => void; log: (...args: unknown[]) => void };
 
 /**
- * The posts a push should announce: added (A), or modified (M) from a draft
- * to published; edits to posts that were already published are not. `git`
- * runs git with the given arguments and returns stdout (or throws). In CI
- * anything that would silently drop an announcement throws: missing SHAs, a
- * failed diff, an unreadable earlier version of a modified post. Locally
- * those are warnings. A branch's first push (all-zero BEFORE_SHA) has
- * nothing to diff against and is skipped either way; an added file has no
- * earlier version to read and needs none.
+ * The posts a push should announce: added (A); modified (M) from a draft to
+ * published; renamed or copied (R, C) into a post path from anywhere that
+ * was not a published post at BEFORE (a file moved in from outside the
+ * content tree, or a draft renamed to its publish date and un-drafted in
+ * the same push). Edits to posts that were already published, and renames
+ * of them, are not. `git` runs git with the given arguments and returns
+ * stdout (or throws). In CI anything that would silently drop an
+ * announcement throws: missing SHAs, a failed diff, an unreadable earlier
+ * version of a modified or renamed post. Locally those are warnings. A
+ * branch's first push (all-zero BEFORE_SHA) has nothing to diff against and
+ * is skipped either way; an added file has no earlier version to read and
+ * needs none.
  */
 export function postsToAnnounce({ before, after, ci, git, log = console }: {
   before?: string;
@@ -108,16 +124,23 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
       posts.push(post);
       continue;
     }
+    // The version at BEFORE: the same path for M, the old path for R and C.
+    const earlier = post.status === 'M' ? post.filePath : post.oldPath;
+    if (!isPostPath(earlier)) {
+      log.log(`📢 ${post.filePath} came from ${earlier}, which was not a post — announcing.`);
+      posts.push(post);
+      continue;
+    }
     let data: Record<string, unknown>;
     try {
-      data = matter(git(['show', `${before}:${post.filePath}`])).data;
+      data = matter(git(['show', `${before}:${earlier}`])).data;
     } catch (error) {
-      if (ci) throw new Error(`could not read ${post.filePath} at ${before}: ${(error as Error).message}`);
-      log.warn(`⚠️ Could not read ${post.filePath} at ${before}; not announcing it.`, error);
+      if (ci) throw new Error(`could not read ${earlier} at ${before}: ${(error as Error).message}`);
+      log.warn(`⚠️ Could not read ${earlier} at ${before}; not announcing ${post.filePath}.`, error);
       continue;
     }
     if (data.draft === true || data.draft === 'true') {
-      log.log(`📢 ${post.filePath} was a draft before this push — announcing.`);
+      log.log(`📢 ${earlier} was a draft before this push — announcing ${post.filePath}.`);
       posts.push(post);
     }
   }

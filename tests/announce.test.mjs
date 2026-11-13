@@ -30,8 +30,10 @@ async function postFiles(dir = join(repo, 'src/content/blog')) {
 // `git diff --name-status -z` gives NUL-separated records, so no path is ever
 // quoted (quotePath=false still quoted tabs, quotes and backslashes, and a
 // quoted path never matched src/content/blog/). Renames and copies carry two
-// paths; both are consumed so the next record still lines up, and they stay
-// ignored (a moved post is not a new post).
+// paths; both are consumed so the next record still lines up, and a record
+// whose new path is a post is kept with its old path, so postsToAnnounce()
+// can tell a moved published post (not new) from a post that arrived by a
+// rename (new).
 test('pushed posts are read from NUL-separated name-status output', () => {
   const out = [
     'A', 'src/content/blog/2011/2011-02-19-日本いろいろ.md',
@@ -46,9 +48,13 @@ test('pushed posts are read from NUL-separated name-status output', () => {
   ].join('\0');
   assert.deepEqual(changedPosts(out), [
     { status: 'A', filePath: 'src/content/blog/2011/2011-02-19-日本いろいろ.md' },
+    { status: 'R', filePath: 'src/content/blog/2026/new-name.md', oldPath: 'src/content/blog/2026/old.md' },
     { status: 'M', filePath: 'src/content/blog/2026/2026-10-27-dergi-coze-org.md' },
+    { status: 'C', filePath: 'src/content/blog/2026/copy.md', oldPath: 'src/content/blog/2026/a.md' },
     { status: 'A', filePath: 'src/content/blog/2026/tab\there "quoted" back\\slash.md' },
   ]);
+  // a post renamed out of the content tree is no longer a post
+  assert.deepEqual(changedPosts('R100\0src/content/blog/2026/x.md\0attic/x.md\0'), []);
   assert.deepEqual(changedPosts(''), []);
 });
 
@@ -291,4 +297,36 @@ test('a new file or a first push is not an error', async () => {
   const git = gitFake({ diff: 'A\0src/content/blog/2026/new.md\0' });
   assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }).map((p) => p.status), ['A']);
   assert.deepEqual(postsToAnnounce({ before: '0000000000000000000000000000000000000000', after: 'a1', ci: true, git, log: quiet }), []);
+});
+
+// A rename is one record (R…), never an A: a post brought into the content
+// tree by `git mv`, or a draft renamed to its publish date and un-drafted in
+// the same push, used to be dropped silently. Only a rename of a post that
+// was already published stays unannounced (moving a post is not a new post).
+test('posts to announce: renamed posts count unless they were already published', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({
+    diff: [
+      'R100', 'drafts/imported.md', 'src/content/blog/2026/imported.md',
+      'R087', 'src/content/blog/2026/2026-01-01-wip.md', 'src/content/blog/2026/2026-11-14-wip.md',
+      'R100', 'src/content/blog/2025/moved.md', 'src/content/blog/2026/moved.md',
+      'R095', 'src/content/blog/2026/notes.txt', 'src/content/blog/2026/notes.md',
+      '',
+    ].join('\0'),
+    'b1:src/content/blog/2026/2026-01-01-wip.md': '---\ntitle: wip\ndraft: true\n---\n',
+    'b1:src/content/blog/2025/moved.md': '---\ntitle: moved\n---\n',
+  });
+  const posts = postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet });
+  assert.deepEqual(posts.map((p) => p.filePath), [
+    'src/content/blog/2026/imported.md',
+    'src/content/blog/2026/2026-11-14-wip.md',
+    'src/content/blog/2026/notes.md',
+  ]);
+});
+
+test('a renamed post whose earlier version cannot be read fails in CI, skips locally', async () => {
+  const { postsToAnnounce } = await import('../scripts/lib/announce.ts');
+  const git = gitFake({ diff: 'R090\0src/content/blog/2026/a.md\0src/content/blog/2026/b.md\0' });
+  assert.throws(() => postsToAnnounce({ before: 'b1', after: 'a1', ci: true, git, log: quiet }), /a\.md/);
+  assert.deepEqual(postsToAnnounce({ before: 'b1', after: 'a1', ci: false, git, log: quiet }), []);
 });
