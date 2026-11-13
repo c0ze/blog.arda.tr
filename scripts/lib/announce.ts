@@ -204,52 +204,90 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
 }
 
 /**
- * The commit to diff from (BEFORE_SHA). The announce job runs only after
- * build and deploy succeed, so a push whose build failed never announced its
- * posts, and the push that fixed it only diffed its own `before`. The base
- * is therefore the head of the last successful earlier run of the deploy
- * workflow for a push to main (`runsJson`: `gh run list --json
- * headSha,databaseId,createdAt`; run ids grow, so "earlier" is a smaller
- * id than `currentRunId`). It falls back to the event's own `before` when
- * the list is empty or unreadable (the lookup failed) and when that head is
- * not an ancestor of AFTER (a force-push rewrote it). The wider range can
- * re-cover posts that were announced already; the scripts' check of the
- * accounts' recent posts skips those.
+ * The names of the posting steps in .github/workflows/deploy.yml (a contract:
+ * tests/announce.test.mjs checks the workflow still uses them). A run in
+ * which one of them ran attempted to announce its range.
  */
-export function announceBase({ runsJson, currentRunId, eventBefore, isAncestor, log = console }: {
+export const POSTING_STEPS = ['Post to Mastodon', 'Post to Blue Sky'] as const;
+
+/** How many earlier runs announceBase() looks through at most. */
+export const BASE_RUN_LIMIT = 20;
+
+interface JobSteps {
+  name?: string;
+  steps?: { name?: string; conclusion?: string | null }[];
+}
+
+/** Whether a run's jobs (the Actions jobs API) show a posting step that ran. */
+export function postingAttempted(jobs: JobSteps[]): boolean {
+  return jobs.some((job) => (job.steps ?? []).some((step) =>
+    (POSTING_STEPS as readonly string[]).includes(step.name ?? '')
+    && step.conclusion != null && step.conclusion !== 'skipped'));
+}
+
+/**
+ * The commit to diff from (BEFORE_SHA): the head of the newest earlier push
+ * run of the deploy workflow on main whose posting steps actually ran,
+ * whatever that run's overall result. Runs whose build or deploy failed, or
+ * whose announce job stopped before posting, do not count, so the next run
+ * that posts covers their pushes too; a run that did post is never covered
+ * again (re-processing it could re-announce a post under a new URL).
+ *
+ * `runsJson` is `gh run list --json databaseId,headSha,createdAt` for push
+ * runs on main; `jobsOf(id)` returns a run's jobs with their steps and is
+ * called newest run first, stopping at the first match (at most
+ * BASE_RUN_LIMIT runs). Run ids grow, so "earlier" is a smaller id than
+ * `currentRunId`. Falls back to the event's own `before` only when that is
+ * verified to be right: no earlier run in reach attempted to post (the
+ * workflow's first run), or the found head is not an ancestor of AFTER (a
+ * force-push). A failed or unreadable lookup throws: falling back would
+ * post a shorter range, count as attempted, and lose the earlier posts.
+ */
+export function announceBase({ runsJson, currentRunId, eventBefore, isAncestor, jobsOf, log = console }: {
   runsJson: string;
   currentRunId: number;
   eventBefore: string;
   isAncestor: (sha: string) => boolean;
+  jobsOf: (runId: number) => unknown;
   log?: Log;
 }): string {
   let runs: unknown;
   try {
     runs = JSON.parse(runsJson);
-  } catch {
-    log.warn('⚠️ Could not read the earlier deploy runs; diffing from the push\'s own before.');
-    return eventBefore;
+  } catch (error) {
+    throw new Error(`could not read the deploy run list: ${(error as Error).message}`);
   }
-  const last = (Array.isArray(runs) ? runs : [])
-    .filter((r: any) => Number.isInteger(r?.databaseId) && r.databaseId < currentRunId
-      && typeof r.headSha === 'string' && r.headSha)
-    .sort((a: any, b: any) => b.databaseId - a.databaseId)[0] as { headSha: string; databaseId: number } | undefined;
-  if (!last) {
-    log.log('ℹ️ No earlier successful deploy run; diffing from the push\'s own before.');
-    return eventBefore;
+  if (!Array.isArray(runs)) throw new Error('could not read the deploy run list: not an array');
+  const earlier = runs
+    .filter((r: any) => Number.isInteger(r?.databaseId) && r.databaseId < currentRunId)
+    .sort((a: any, b: any) => b.databaseId - a.databaseId)
+    .slice(0, BASE_RUN_LIMIT) as { databaseId: number; headSha?: unknown }[];
+
+  for (const run of earlier) {
+    let jobs: unknown;
+    try {
+      jobs = jobsOf(run.databaseId);
+    } catch (error) {
+      throw new Error(`could not read the jobs of run ${run.databaseId}: ${(error as Error).message}`);
+    }
+    if (!Array.isArray(jobs)) throw new Error(`could not read the jobs of run ${run.databaseId}: no job list`);
+    if (!postingAttempted(jobs)) continue;
+    if (typeof run.headSha !== 'string' || !run.headSha) throw new Error(`run ${run.databaseId} has no head SHA`);
+    let ancestor = false;
+    try {
+      ancestor = isAncestor(run.headSha);
+    } catch {
+      ancestor = false;
+    }
+    if (!ancestor) {
+      log.warn(`⚠️ ${run.headSha} (run ${run.databaseId}) is not in this push's history (force-push); diffing from the push's own before.`);
+      return eventBefore;
+    }
+    log.log(`ℹ️ Diffing from ${run.headSha}, the head of run ${run.databaseId}, the last one that attempted to post.`);
+    return run.headSha;
   }
-  let ancestor = false;
-  try {
-    ancestor = isAncestor(last.headSha);
-  } catch {
-    ancestor = false;
-  }
-  if (!ancestor) {
-    log.warn(`⚠️ ${last.headSha} (run ${last.databaseId}) is not in this push's history; diffing from the push's own before.`);
-    return eventBefore;
-  }
-  log.log(`ℹ️ Diffing from ${last.headSha}, the head of the last successful deploy run (${last.databaseId}).`);
-  return last.headSha;
+  log.log(`ℹ️ None of the ${earlier.length} earlier deploy run(s) looked at attempted to post; diffing from the push's own before.`);
+  return eventBefore;
 }
 
 /**
