@@ -27,7 +27,7 @@ The headlines: reminders can now decrement physical inventory, the widget hides 
 
 The new promo video is the fastest way to see what the app looks like now:
 
-<video controls preload="metadata" width="100%" style="max-width:480px;margin:1.5rem auto;display:block;border-radius:12px;">
+<video controls preload="metadata" crossorigin="anonymous" width="100%" style="max-width:480px;margin:1.5rem auto;display:block;border-radius:12px;">
   <source src="https://vigil.today/promos/vigil-promo-en.mp4" type="video/mp4" />
   <track kind="captions" src="https://vigil.today/promos/vigil-promo-en.vtt" srclang="en" label="English" default />
   <a href="https://vigil.today/promos/vigil-promo-en.mp4">Vigil Today promo video (English)</a>
