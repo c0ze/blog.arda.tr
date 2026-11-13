@@ -106,7 +106,9 @@ draft: true                   # Optional: hide from production builds (default f
 ### Announcements
 A push to `main` announces the posts it added or un-drafted (deploy.yml `announce` job).
 When a post's first push failed its build or deploy, the fix push does not announce it:
-run the workflow manually with `announce_since` set to the commit before the post was added.
+run the workflow manually with `announce_since` set to the commit right before the missing
+post was added. The duplicate check only sees the accounts' recent posts (40 on Mastodon,
+100 on Bluesky), so a manual run that selects more than 3 posts fails and posts nothing.
 
 ### Content Collection
 Posts are loaded via Astro Content Collections defined in `src/content.config.ts`. Schema validates frontmatter at build time.

@@ -206,7 +206,8 @@ export function postsToAnnounce({ before, after, ci, git, log = console }: {
  * must not stand in for a SHA): 4-40 hex digits, exactly one object
  * (`rev-parse --disambiguate`), of type commit (`cat-file -t`; an annotated
  * tag is not peeled), and an ancestor of the checked-out commit. Anything
- * else throws before posting.
+ * else throws before posting. `manual` says which kind of run it is, for
+ * capManualAnnouncements().
  */
 export function announceRange({ eventName, eventBefore, eventAfter, head, since, git }: {
   eventName?: string;
@@ -215,10 +216,10 @@ export function announceRange({ eventName, eventBefore, eventAfter, head, since,
   head?: string;
   since?: string;
   git: (args: string[]) => string;
-}): { before?: string; after?: string } {
+}): { before?: string; after?: string; manual: boolean } {
   if (eventName !== 'workflow_dispatch') {
     if (eventName && eventName !== 'push') throw new Error(`announcing is not set up for ${eventName} events`);
-    return { before: eventBefore, after: eventAfter };
+    return { before: eventBefore, after: eventAfter, manual: false };
   }
   const input = (since ?? '').trim().toLowerCase();
   if (!input) throw new Error('a manual run announces only with announce_since set (a commit SHA)');
@@ -235,7 +236,26 @@ export function announceRange({ eventName, eventBefore, eventAfter, head, since,
   } catch {
     throw new Error(`announce_since ${input} is not an ancestor of ${head}; nothing is announced`);
   }
-  return { before: commit, after: head };
+  return { before: commit, after: head, manual: true };
+}
+
+/** The most posts a manual run may announce (see capManualAnnouncements). */
+export const MANUAL_ANNOUNCE_LIMIT = 3;
+
+/**
+ * A manual run that selects more than MANUAL_ANNOUNCE_LIMIT posts throws,
+ * listing them, before any network call: a too-old announce_since selects
+ * every post since then, and the duplicate check only sees the accounts'
+ * recent posts (40 statuses, 100 feed items), so most would go out again.
+ * Pushes are never capped.
+ */
+export function capManualAnnouncements({ manual, posts }: { manual: boolean; posts: ChangedPost[] }): void {
+  if (!manual || posts.length <= MANUAL_ANNOUNCE_LIMIT) return;
+  throw new Error(
+    `announce_since selects ${posts.length} posts, more than the ${MANUAL_ANNOUNCE_LIMIT} a manual run may announce; `
+    + `nothing was posted. Pick a closer commit (the one right before the missing post was added). Selected:\n`
+    + posts.map((p) => `  ${p.filePath}`).join('\n'),
+  );
 }
 
 /**

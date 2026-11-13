@@ -49,13 +49,17 @@ The workflow has three jobs:
   uploads `dist/` as the Pages artifact (read-only token);
 - **deploy**: publishes the artifact to GitHub Pages (the only job with
   `pages: write` / `id-token: write`);
-- **announce** (pushes only, after deploy so the post is live): runs
+- **announce** (after deploy so the post is live): on a push, runs
   `npm run post-mastodon` and `npm run post-bluesky` for posts the push added
-  or flipped from draft to published.
+  or flipped from draft to published; on a manual run, only when
+  `announce_since` is set (below).
 
 When a post's first push failed its build or deploy, the push that fixes it
 does not announce it. Run the workflow manually on `main` with `announce_since`
-set to the commit before the post was added; posts already announced are skipped.
+set to the commit right before the missing post was added. The duplicate check
+only sees the accounts' recent posts (40 on Mastodon, 100 on Bluesky), so an
+older commit would announce old posts again; a manual run that selects more
+than 3 posts fails and posts nothing.
 
 Runs queue in the `pages` concurrency group (`queue: max`, up to 100 waiting)
 instead of cancelling each other, so a quick series of pushes doesn't lose an

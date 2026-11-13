@@ -8,6 +8,7 @@ import {
     credentialMode,
     isCI,
     announceRange,
+    capManualAnnouncements,
     postsToAnnounce,
     composeMastodonStatus,
     idempotencyKey,
@@ -142,7 +143,7 @@ async function main() {
         console.log(`Executing: git ${gitArgs.join(' ')}`);
         return execFileSync('git', gitArgs, { encoding: 'utf-8' });
     };
-    const { before, after } = announceRange({
+    const { before, after, manual } = announceRange({
         eventName: process.env.GITHUB_EVENT_NAME,
         eventBefore: process.env.BEFORE_SHA,
         eventAfter: process.env.AFTER_SHA,
@@ -151,6 +152,9 @@ async function main() {
         git,
     });
     const posts = postsToAnnounce({ before, after, ci: CI, git });
+    // A manual run selecting more than a few posts stops here, before any
+    // network call: announce_since was probably too old.
+    capManualAnnouncements({ manual, posts });
 
     if (posts.length === 0) {
         console.log('ℹ️ No blog posts to announce in this commit range.');

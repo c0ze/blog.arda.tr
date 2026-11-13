@@ -421,11 +421,11 @@ test('a push announces its own before..after, whatever the input', async () => {
   const { git, calls } = rangeGit();
   assert.deepEqual(
     announceRange({ eventName: 'push', eventBefore: 'b1', eventAfter: 'a1', head: HEAD, since: '', git }),
-    { before: 'b1', after: 'a1' },
+    { before: 'b1', after: 'a1', manual: false },
   );
   assert.deepEqual(
     announceRange({ eventName: 'push', eventBefore: 'b1', eventAfter: 'a1', head: HEAD, since: SINCE, git }),
-    { before: 'b1', after: 'a1' },
+    { before: 'b1', after: 'a1', manual: false },
   );
   assert.deepEqual(calls, []);
 });
@@ -435,7 +435,7 @@ test('a manual run announces announce_since..the checked-out commit', async () =
   const { git, calls } = rangeGit();
   assert.deepEqual(
     announceRange({ eventName: 'workflow_dispatch', eventBefore: undefined, eventAfter: undefined, head: HEAD, since: ` ${SINCE.slice(0, 7)} `, git }),
-    { before: SINCE, after: HEAD },
+    { before: SINCE, after: HEAD, manual: true },
   );
   assert.deepEqual(calls, [
     `rev-parse --disambiguate=${SINCE.slice(0, 7)}`,
@@ -469,4 +469,28 @@ test('a manual run rejects a missing, malformed, unknown or non-ancestor announc
   assert.throws(manual(SINCE, { ancestor: false }).run, /not an ancestor/);
   assert.throws(() => announceRange({ eventName: 'workflow_dispatch', head: '', since: SINCE, git: rangeGit().git }), /GITHUB_SHA/);
   assert.throws(() => announceRange({ eventName: 'schedule', head: HEAD, since: SINCE, git: rangeGit().git }), /schedule/);
+});
+
+// A wrong (too old) announce_since would select every post since then, and
+// the duplicate check only sees the accounts' recent posts, so most would be
+// announced again. A manual run that selects more than 3 posts fails before
+// any network call and posts nothing; a push is never capped.
+test('a manual run selecting more than 3 posts fails; a push is not capped', async () => {
+  const { capManualAnnouncements, MANUAL_ANNOUNCE_LIMIT } = await import('../scripts/lib/announce.ts');
+  assert.equal(MANUAL_ANNOUNCE_LIMIT, 3);
+  const posts = (n) => Array.from({ length: n }, (_, i) => ({ status: 'A', filePath: `src/content/blog/2026/p${i}.md` }));
+  assert.doesNotThrow(() => capManualAnnouncements({ manual: true, posts: posts(3) }));
+  assert.throws(() => capManualAnnouncements({ manual: true, posts: posts(4) }), (error) => {
+    assert.match(error.message, /4 posts/);
+    assert.match(error.message, /closer commit/);
+    for (const p of posts(4)) assert.ok(error.message.includes(p.filePath), p.filePath);
+    return true;
+  });
+  assert.doesNotThrow(() => capManualAnnouncements({ manual: false, posts: posts(4) }));
+});
+
+test('the range says whether it is a manual run', async () => {
+  const { announceRange } = await import('../scripts/lib/announce.ts');
+  assert.equal(announceRange({ eventName: 'push', eventBefore: 'b1', eventAfter: 'a1', git: rangeGit().git }).manual, false);
+  assert.equal(announceRange({ eventName: 'workflow_dispatch', head: HEAD, since: SINCE, git: rangeGit().git }).manual, true);
 });
