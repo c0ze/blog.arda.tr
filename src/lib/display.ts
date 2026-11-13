@@ -19,15 +19,19 @@ const NAMED_REFERENCES: Record<string, string> = {
   hellip: '…', mdash: '—', ndash: '–', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”',
 };
 
-/** One character reference as its character; an unknown one stays as written. */
+/** Whether a code point is a character XML 1.0 allows (the summary goes into rss.xml). */
+const isXmlChar = (c: number) =>
+  c === 0x9 || c === 0xa || c === 0xd || (c >= 0x20 && c <= 0xd7ff)
+  || (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
+
+/**
+ * One character reference as its character. An unknown name, or a number
+ * that is not an XML 1.0 character (NUL, a lone surrogate …), stays as written.
+ */
 function decodeReference(ref: string, name: string): string {
   if (name[0] === '#') {
     const code = name[1] === 'x' || name[1] === 'X' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10);
-    try {
-      return String.fromCodePoint(code);
-    } catch {
-      return ref;
-    }
+    return isXmlChar(code) ? String.fromCodePoint(code) : ref;
   }
   return NAMED_REFERENCES[name] ?? NAMED_REFERENCES[name.toLowerCase()] ?? ref;
 }

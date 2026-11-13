@@ -45,3 +45,17 @@ test('character references in a body are decoded before escaping', async () => {
   assert.equal(feedItemDescription({ text: feedItemText({}, 'Tom &amp; Jerry &lt;b&gt;') }), 'Tom &amp; Jerry &lt;b&gt;');
   assert.equal(bodyDescription('&unknownref; stays'), '&unknownref; stays');
 });
+
+// The summary goes into rss.xml. A numeric reference to a character XML 1.0
+// does not allow (NUL, a lone surrogate) would make the feed unparseable, so
+// it stays as written (and is escaped as text); valid ones decode.
+test('numeric references decode only to valid XML characters', async () => {
+  const { bodyDescription } = await import('../src/lib/display.ts');
+  assert.equal(bodyDescription('a&#0;b'), 'a&#0;b');
+  assert.equal(bodyDescription('a&#xD800;b'), 'a&#xD800;b');
+  assert.equal(bodyDescription('a&#xFFFE;b &#x1;'), 'a&#xFFFE;b &#x1;');
+  assert.equal(bodyDescription('a&#x110000;b'), 'a&#x110000;b');
+  assert.equal(bodyDescription('smile &#x1F600; tab&#9;x'), 'smile 😀 tab x');
+  assert.equal(bodyDescription('Tom &#38; Jerry'), 'Tom & Jerry');
+  assert.equal(feedItemDescription({ text: bodyDescription('a&#0;b') }), 'a&amp;#0;b');
+});
