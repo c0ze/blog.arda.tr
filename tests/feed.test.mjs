@@ -59,3 +59,12 @@ test('numeric references decode only to valid XML characters', async () => {
   assert.equal(bodyDescription('Tom &#38; Jerry'), 'Tom & Jerry');
   assert.equal(feedItemDescription({ text: bodyDescription('a&#0;b') }), 'a&amp;#0;b');
 });
+
+// The cut near 155 characters must not split a surrogate pair: half an
+// emoji is not a character, and as a lone surrogate it is not valid XML.
+test('a long summary is cut on code points, never inside an emoji', async () => {
+  const { bodyDescription } = await import('../src/lib/display.ts');
+  const out = bodyDescription(`${'x'.repeat(154)}&#x1F600;${'y'.repeat(20)}`);
+  assert.equal(out, `${'x'.repeat(154)}😀…`);
+  assert.doesNotMatch(out, /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/);
+});

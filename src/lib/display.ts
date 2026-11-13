@@ -56,8 +56,9 @@ export function bodyDescription(body: string | undefined, max = 155): string {
     .replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/gi, decodeReference)
     .replace(/\s+/g, ' ')
     .trim();
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
+  const chars = Array.from(text); // code points: a cut never splits a surrogate pair
+  if (chars.length <= max) return text;
+  const cut = chars.slice(0, max).join('');
   const space = cut.lastIndexOf(' ');
   return `${(space > max * 0.6 ? cut.slice(0, space) : cut).trimEnd()}…`;
 }
