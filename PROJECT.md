@@ -157,7 +157,8 @@ locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/ch
 - **Custom OG images** - Add `image` field to frontmatter for per-post images
 - **JSON-LD** - BlogPosting on blog posts (`blogPostingLd()` in `src/lib/display.ts`): author and
   publisher are the family's shared Person `https://arda.tr/#person` (a post by another author keeps
-  its own byline), `isPartOf` the Blog `https://blog.arda.tr/#blog`, `inLanguage` the post's `lang`
+  its own byline), `isPartOf` the Blog `https://blog.arda.tr/#blog`, `inLanguage` the post's `lang`;
+  the home page prints that Blog node (`blogLd()`), whose author is the same Person
 - **Canonical URLs** - Automatically generated; the 404 gets `noindex` instead (BaseLayout `noindex` prop)
 - **Descriptions** - `description`, else `excerpt`, else ~155 characters of the body
 

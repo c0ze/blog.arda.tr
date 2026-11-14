@@ -41,6 +41,33 @@ export function blogPostingLd(data: PostingData, page: { url: string; descriptio
   };
 }
 
+/** The Blog node of the home page, the one every BlogPosting's isPartOf names. */
+export function blogLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': BLOG['@id'],
+    name: BLOG.name,
+    url: BLOG.url,
+    description: "Arda Karaduman's tech blog: AI tooling, Go, DevOps, and side quests.",
+    inLanguage: 'en',
+    author: {
+      '@type': 'Person',
+      '@id': PERSON['@id'],
+      name: OWNER,
+      url: PERSON.url,
+      sameAs: [
+        'https://github.com/c0ze',
+        'https://mastodon.world/@arda',
+        'https://bsky.app/profile/arda-karaduman.bsky.social',
+        'https://arda.tr/',
+        'https://resume.arda.tr/',
+      ],
+    },
+    publisher: { '@id': PERSON['@id'] },
+  };
+}
+
 /** Link target for a post: /blog/<slug>/, the URL it is served (and canonical) at. */
 export function postHref(slug: string): string {
   return `/blog/${slug}/`;

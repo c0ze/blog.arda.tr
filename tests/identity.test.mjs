@@ -114,8 +114,33 @@ test('a post without an author is credited to Arda', async () => {
   assert.equal(ld.inLanguage, 'en');
 });
 
+// The home page's Blog node is the one every BlogPosting points to, and its
+// author is the shared person, with the profiles it listed before plus the
+// family's identity pages.
+test('the Blog node carries the shared @ids', async () => {
+  const { blogLd } = await import('../src/lib/display.ts');
+  const ld = blogLd();
+  assert.equal(ld['@type'], 'Blog');
+  assert.equal(ld['@id'], BLOG['@id']);
+  assert.equal(ld.url, BLOG.url);
+  assert.equal(ld.name, 'Coze');
+  assert.equal(ld.author['@id'], PERSON['@id']);
+  assert.equal(ld.author.url, PERSON.url);
+  assert.deepEqual(ld.author.sameAs, [
+    'https://github.com/c0ze',
+    'https://mastodon.world/@arda',
+    'https://bsky.app/profile/arda-karaduman.bsky.social',
+    'https://arda.tr/',
+    'https://resume.arda.tr/',
+  ]);
+  assert.deepEqual(ld.publisher, { '@id': PERSON['@id'] });
+  assert.doesNotMatch(JSON.stringify(ld), /coze\.org/);
+});
+
 // The helpers only count if the pages print them.
-test('the post page prints the shared JSON-LD', async () => {
+test('the post and home pages print the shared JSON-LD', async () => {
   const slug = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
   assert.match(slug, /<script type="application\/ld\+json" is:inline set:html=\{jsonLd\(blogPostingLd\(/);
+  const home = await readFile(new URL('../src/pages/index.astro', import.meta.url), 'utf8');
+  assert.match(home, /<script type="application\/ld\+json" is:inline set:html=\{jsonLd\(blogLd\(\)\)\}/);
 });
