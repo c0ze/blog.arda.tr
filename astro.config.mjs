@@ -3,12 +3,14 @@ import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import rehypeRaw from 'rehype-raw';
 import { rehypeDemoteHeadings, rehypeMediaLoading, rehypeSlashPostLinks } from './src/lib/rehype.mjs';
+import { sitemapItem } from './src/lib/sitemap.mjs';
 
 export default defineConfig({
   site: 'https://blog.arda.tr',
   integrations: [
     tailwind(),
-    sitemap()
+    // a post's entry gets its date as lastmod (src/lib/sitemap.mjs)
+    sitemap({ serialize: sitemapItem })
   ],
   build: {
     // Inline small assets as base64

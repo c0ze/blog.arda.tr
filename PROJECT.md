@@ -37,6 +37,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   ├── order.ts            # byNewestFirst(): date, then post id (stable № and prev/next)
 │   │   ├── feed.ts             # RSS item HTML (escaped excerpt + cover)
 │   │   ├── rehype.mjs          # Post-body steps: demote body h1s, lazy media + image sizes, slash post links
+│   │   ├── sitemap.mjs         # Sitemap serialize hook: a post's lastmod from the date in its slug
 │   │   ├── ledger.ts           # getLedger(): numbering, month tiers, year spine, the silence, tag counts
 │   │   └── display.ts          # Date, reading-time, ▮ bar, label, postHref, description, JSON-LD helpers
 │   ├── pages/
@@ -159,6 +160,9 @@ locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/ch
   publisher are the family's shared Person `https://arda.tr/#person` (a post by another author keeps
   its own byline), `isPartOf` the Blog `https://blog.arda.tr/#blog`, `inLanguage` the post's `lang`;
   the home page prints that Blog node (`blogLd()`), whose author is the same Person
+- **Sitemap** - `@astrojs/sitemap`, merged into `dist/sitemap.xml` by `scripts/merge-sitemap.ts`; post
+  URLs carry `lastmod` from the date in their slug (the serialize hook sees only URLs), which
+  `tests/sitemap.test.mjs` keeps equal to every post's frontmatter date
 - **Canonical URLs** - Automatically generated; the 404 gets `noindex` instead (BaseLayout `noindex` prop)
 - **Descriptions** - `description`, else `excerpt`, else ~155 characters of the body
 
