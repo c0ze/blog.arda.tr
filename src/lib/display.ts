@@ -19,11 +19,11 @@ interface PostingData {
 }
 
 /** The BlogPosting node of a post page. A post by someone else (the Gemmy
- * bot post) keeps its own byline instead of the shared Person. */
+ * bot post) keeps its own byline, without Arda's @id or URL. */
 export function blogPostingLd(data: PostingData, page: { url: string; description?: string; image: string }) {
   const author = !data.author || data.author === OWNER
     ? PERSON
-    : { '@type': 'Person', name: data.author, url: 'https://arda.tr' };
+    : { '@type': 'Person', name: data.author };
   return {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',

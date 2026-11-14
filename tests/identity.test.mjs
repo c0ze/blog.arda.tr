@@ -98,12 +98,12 @@ for (const [path, lang] of [
 }
 
 // A post written by someone else (Gemmy, the assistant bot) keeps its own
-// byline: it is not Arda, so it must not claim his @id.
+// byline: it is not Arda, so it must claim neither his @id nor his URL.
 test('a post by another author keeps that author', async () => {
   const { blogPostingLd } = await import('../src/lib/display.ts');
   const data = await post('2026/2026-01-25-the-awakening-of-gemmy.md');
   const ld = blogPostingLd(data, page('2026-01-25-the-awakening-of-gemmy'));
-  assert.deepEqual(ld.author, { '@type': 'Person', name: data.author, url: 'https://arda.tr' });
+  assert.deepEqual(ld.author, { '@type': 'Person', name: data.author });
   assert.deepEqual(ld.publisher, PERSON);
 });
 
