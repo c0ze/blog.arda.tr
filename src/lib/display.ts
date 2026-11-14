@@ -4,6 +4,43 @@ export function jsonLd(data: unknown): string {
   return JSON.stringify(data).replace(/</g, '\\u003c');
 }
 
+/* One identity across the arda.tr family: every site's JSON-LD points its
+ * author and publisher at the same Person node, and every post at the Blog. */
+const OWNER = 'Arda Karaduman';
+const PERSON = { '@type': 'Person', '@id': 'https://arda.tr/#person', name: OWNER, url: 'https://arda.tr/' };
+const BLOG = { '@type': 'Blog', '@id': 'https://blog.arda.tr/#blog', name: 'Coze', url: 'https://blog.arda.tr/' };
+
+interface PostingData {
+  title: string;
+  date: Date;
+  author?: string;
+  lang?: string;
+  keywords?: string;
+}
+
+/** The BlogPosting node of a post page. A post by someone else (the Gemmy
+ * bot post) keeps its own byline instead of the shared Person. */
+export function blogPostingLd(data: PostingData, page: { url: string; description?: string; image: string }) {
+  const author = !data.author || data.author === OWNER
+    ? PERSON
+    : { '@type': 'Person', name: data.author, url: 'https://arda.tr' };
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: data.title,
+    description: page.description,
+    datePublished: data.date.toISOString(),
+    dateModified: data.date.toISOString(),
+    image: page.image,
+    inLanguage: data.lang ?? 'en',
+    author,
+    publisher: PERSON,
+    isPartOf: BLOG,
+    mainEntityOfPage: { '@type': 'WebPage', '@id': page.url },
+    keywords: data.keywords,
+  };
+}
+
 /** Link target for a post: /blog/<slug>/, the URL it is served (and canonical) at. */
 export function postHref(slug: string): string {
   return `/blog/${slug}/`;

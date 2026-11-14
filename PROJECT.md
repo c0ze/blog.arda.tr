@@ -155,7 +155,9 @@ locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/ch
 - **Open Graph** - og:title, og:description, og:image, og:url
 - **Twitter Cards** - summary_large_image for posts with their own image; summary for the square default image
 - **Custom OG images** - Add `image` field to frontmatter for per-post images
-- **JSON-LD** - BlogPosting schema on blog posts
+- **JSON-LD** - BlogPosting on blog posts (`blogPostingLd()` in `src/lib/display.ts`): author and
+  publisher are the family's shared Person `https://arda.tr/#person` (a post by another author keeps
+  its own byline), `isPartOf` the Blog `https://blog.arda.tr/#blog`, `inLanguage` the post's `lang`
 - **Canonical URLs** - Automatically generated; the 404 gets `noindex` instead (BaseLayout `noindex` prop)
 - **Descriptions** - `description`, else `excerpt`, else ~155 characters of the body
 
