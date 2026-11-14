@@ -3,6 +3,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import test from 'node:test';
+import matter from 'gray-matter';
 import { sitemapItem } from '../src/lib/sitemap.mjs';
 
 const blogDir = fileURLToPath(new URL('../src/content/blog/', import.meta.url));
@@ -39,6 +40,28 @@ test('other pages get no lastmod', () => {
   }
 });
 
+/** A post's frontmatter date as YYYY-MM-DD. YAML reads an unquoted date as
+ * a Date (UTC midnight) and a quoted one as a string. */
+function frontmatterDate(source) {
+  const { date } = matter(source).data;
+  if (date instanceof Date) return date.toISOString().slice(0, 10);
+  return typeof date === 'string' ? date.match(/^\d{4}-\d{2}-\d{2}/)?.[0] : undefined;
+}
+
+// Any date line Astro accepts must read back as the same day, or the check
+// below fails the suite (and with it a deploy) on a valid post.
+test('a frontmatter date reads the same however it is written', () => {
+  for (const line of [
+    'date: "2026-11-14"',
+    "date: '2026-11-14'",
+    'date: 2026-11-14',
+    'date: 2026-11-14 # publication date',
+    'date: "2026-11-14" # publication date',
+  ]) {
+    assert.equal(frontmatterDate(`---\ntitle: t\n${line}\n---\nbody\n`), '2026-11-14', line);
+  }
+});
+
 // That is only the post's date because every post's filename carries its
 // frontmatter date. A post whose date is edited without renaming it (or the
 // other way round) would put a wrong lastmod in the sitemap: fail here first.
@@ -47,8 +70,7 @@ test('every post filename starts with its frontmatter date', async () => {
   assert.ok(files.length > 0, 'expected to find blog posts');
   const mismatched = [];
   for (const file of files) {
-    const source = await readFile(file, 'utf8');
-    const date = source.match(/^---\n[\s\S]*?^date:\s*["']?(\d{4}-\d{2}-\d{2})["']?\s*$/m)?.[1];
+    const date = frontmatterDate(await readFile(file, 'utf8'));
     const named = file.split('/').pop().slice(0, 10);
     if (date !== named) mismatched.push(`${file}: date ${date}`);
   }
