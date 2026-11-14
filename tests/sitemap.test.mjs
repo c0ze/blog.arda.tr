@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
-import { readdir, readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
+import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { join } from 'node:path';
 import test from 'node:test';
 import matter from 'gray-matter';
@@ -83,7 +84,28 @@ test('every post filename starts with its frontmatter date', async () => {
   assert.deepEqual(mismatched, [], `posts whose filename and date disagree:\n${mismatched.join('\n')}`);
 });
 
-test('the sitemap integration uses it', async () => {
-  const config = await readFile(new URL('../astro.config.mjs', import.meta.url), 'utf8');
-  assert.match(config, /sitemap\(\{\s*serialize: sitemapItem\s*\}\)/);
+// The helper only counts if the configured integration applies it: run the
+// sitemap integration from astro.config.mjs on two pages and read what it wrote.
+test('the configured sitemap gives a post its lastmod', async () => {
+  const { default: config } = await import('../astro.config.mjs');
+  const sitemap = config.integrations.find((i) => i.name === '@astrojs/sitemap');
+  assert.ok(sitemap, 'astro.config.mjs has no sitemap integration');
+  const dir = await mkdtemp(join(tmpdir(), 'blog-sitemap-'));
+  try {
+    sitemap.hooks['astro:routes:resolved']({ routes: [] });
+    await sitemap.hooks['astro:config:done']({
+      config: { site: config.site, base: '/', trailingSlash: 'ignore', build: { format: 'directory' } },
+    });
+    const logger = { info() {}, warn: (m) => assert.fail(m), error: (m) => assert.fail(m) };
+    await sitemap.hooks['astro:build:done']({
+      dir: pathToFileURL(`${dir}/`),
+      pages: [{ pathname: '' }, { pathname: 'blog/2026-10-27-dergi-coze-org/' }],
+      logger,
+    });
+    const xml = await readFile(join(dir, 'sitemap-0.xml'), 'utf8');
+    assert.match(xml, /<url><loc>https:\/\/blog\.arda\.tr\/<\/loc><\/url>/);
+    assert.match(xml, /<loc>https:\/\/blog\.arda\.tr\/blog\/2026-10-27-dergi-coze-org\/<\/loc><lastmod>2026-10-27T00:00:00\.000Z<\/lastmod>/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

@@ -137,10 +137,20 @@ test('the Blog node carries the shared @ids', async () => {
   assert.doesNotMatch(JSON.stringify(ld), /coze\.org/);
 });
 
-// The helpers only count if the pages print them.
-test('the post and home pages print the shared JSON-LD', async () => {
-  const slug = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
-  assert.match(slug, /<script type="application\/ld\+json" is:inline set:html=\{jsonLd\(blogPostingLd\(/);
-  const home = await readFile(new URL('../src/pages/index.astro', import.meta.url), 'utf8');
-  assert.match(home, /<script type="application\/ld\+json" is:inline set:html=\{jsonLd\(blogLd\(\)\)\}/);
-});
+// The helpers only count if the pages print them, and print them through
+// jsonLd(), which escapes "<" so no string can close the script element.
+// is:inline keeps Astro from bundling the block as a script.
+for (const [file, builder] of [
+  ['src/pages/blog/[slug].astro', 'blogPostingLd'],
+  ['src/pages/index.astro', 'blogLd'],
+]) {
+  test(`${file} prints ${builder}() through jsonLd()`, async () => {
+    const source = await readFile(new URL(`../${file}`, import.meta.url), 'utf8');
+    assert.match(source, new RegExp(`\\b${builder}\\(`), `${file} does not call ${builder}()`);
+    const blocks = [...source.matchAll(/<script\b(?=[^>]*\btype="application\/ld\+json")([^>]*)>/g)];
+    assert.equal(blocks.length, 1, `${file}: one JSON-LD block`);
+    const [, attrs] = blocks[0];
+    assert.match(attrs, /(^|\s)is:inline(\s|$)/);
+    assert.match(attrs, /\bset:html=\{\s*jsonLd\(/);
+  });
+}
