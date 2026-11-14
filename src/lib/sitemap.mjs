@@ -1,5 +1,5 @@
-/** A post's URL starts its slug with the post's date: /blog/YYYY-MM-DD-…/. */
-const POST_DATE = /^\/blog\/(\d{4}-\d{2}-\d{2})-/;
+/** A post's URL is /blog/YYYY-MM-DD-…/, its slug starting with the post's date. */
+const POST_DATE = /^\/blog\/(\d{4}-\d{2}-\d{2})-[^/]+\/$/;
 
 /**
  * The sitemap integration's serialize hook: a post's entry gets its date as

@@ -33,9 +33,15 @@ test('post URLs get a lastmod from the date in their slug', () => {
   );
 });
 
-// Pages that are not one post have no single date of their own.
+// Pages that are not one post have no single date of their own, including
+// anything nested under a post's path.
 test('other pages get no lastmod', () => {
-  for (const url of ['https://blog.arda.tr/', 'https://blog.arda.tr/blog/', 'https://blog.arda.tr/archive/']) {
+  for (const url of [
+    'https://blog.arda.tr/',
+    'https://blog.arda.tr/blog/',
+    'https://blog.arda.tr/archive/',
+    'https://blog.arda.tr/blog/2026-11-14-example/extra/',
+  ]) {
     assert.deepEqual(sitemapItem({ url }), { url });
   }
 });
