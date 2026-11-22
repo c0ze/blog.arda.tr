@@ -43,17 +43,17 @@ const spine = [...years].reverse();
 ---
 
 <BaseLayout
-  title="Coze - Arda Karaduman's tech blog"
-  description="Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, generative music, and other side quests. Posts since 2010."
+  title="Coze - Arda Karaduman's blog"
+  description="Notes by Arda Karaduman on AI tooling, Go, DevOps, home networking, and generative music. Published since 2010."
 >
   <script type="application/ld+json" is:inline set:html={jsonLd(blogLd())} />
 
   <header class="mast" lang="en">
     <h1 aria-label="Coze">C<span>0</span>ze</h1>
     <p class="mast__sub">
-      the ledger of side quests<br />
-      <b>▲ {newest.entries.length} {newest.entries.length === 1 ? 'entry' : 'entries'} in {newest.label}</b> · <span>last entry {formatDateShort(latest)}</span><br />
-      <span>{total} entries · {firstYear} — {lastYear}</span> · <span>{tags.length} tags</span>
+      notes on software and tools<br />
+      <b>▲ {newest.entries.length} {newest.entries.length === 1 ? 'entry' : 'entries'} in {newest.label}</b> · <span>latest {formatDateShort(latest)}</span><br />
+      <span>{total} entries · {firstYear} – {lastYear}</span> · <span>{tags.length} tags</span>
     </p>
   </header>
 
@@ -81,12 +81,12 @@ const spine = [...years].reverse();
         {lead.post.data.excerpt && (
           <p lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>{lead.post.data.excerpt}</p>
         )}
-        <a class="btn" href={postHref(lead.slug)} lang="en">read ▸<span class="sr-only"> {lead.post.data.title}</span></a>
+        <a class="btn" href={postHref(lead.slug)} lang="en">Read entry<span class="sr-only"> {lead.post.data.title}</span></a>
       </article>
     )}
 
     <section class="files" aria-label="Latest entries" lang="en">
-      <div class="ls-head" aria-hidden="true"><span>cover</span><span>date</span><span>entry</span><span>min</span></div>
+      <div class="ls-head" aria-hidden="true"><span>Cover</span><span>Date</span><span>Entry</span><span>Min</span></div>
       {listed.map((entry) => (
         <FileRow
           slug={entry.slug}
@@ -104,7 +104,7 @@ const spine = [...years].reverse();
         <a href="/search/" data-key="/"><b>[/]</b>search</a>
         <a href="#tags" data-key="t"><b>[t]</b>ags</a>
         <a href="/rss.xml" data-key="r"><b>[r]</b>ss</a>
-        <a class="keys__all" href="/blog/" data-key="l">[l]ist all {total} ▸</a>
+        <a class="keys__all" href="/blog/" data-key="l">[l]ist all {total}</a>
       </nav>
     </section>
   </div>
@@ -120,20 +120,20 @@ const spine = [...years].reverse();
           <span class="tally__n">{tier.entries.length}<span class="sr-only"> entries</span></span>
         </a>
       ))}
-      <p class="note">bar = entries</p>
+      <p class="note">One bar per entry</p>
 
       {silence && (
         <div class="silence" role="group" aria-label={`${silence.from} to ${silence.to}: no entries`}>
-          <div class="silence__yrs">{silence.from} — {silence.to}</div>
+          <div class="silence__yrs">{silence.from} – {silence.to}</div>
           <canvas class="px" data-static aria-hidden="true"></canvas>
-          <p class="silence__cap"><span><b>longest gap</b> · {spell(silenceYears)} years</span><span>no entries</span></p>
+          <p class="silence__cap"><span><b>Longest gap</b> · {spell(silenceYears)} years</span><span>No entries</span></p>
         </div>
       )}
     </section>
 
     <!-- the tag index -->
     <section class="deck" id="tags" aria-labelledby="tags-h">
-      <h2 id="tags-h"><b>tags</b><span>{tags.length} tags · {tagsUsedOnce} used once</span></h2>
+      <h2 id="tags-h"><b>Tags</b><span>{tags.length} total · {tagsUsedOnce} used once</span></h2>
       {headTags.map(({ tag, count }) => (
         <a class="tally" href={tagHref(tag)}>
           <span class="tally__l">{tag}</span>
@@ -143,15 +143,15 @@ const spine = [...years].reverse();
       ))}
       <a class="tally" href="/blog/">
         <span class="tally__l">+{tagsUsedOnce}</span>
-        <span>used exactly once ▸</span>
+        <span>used once</span>
         <span class="tally__n"></span>
       </a>
-      {legacyYears.length > 0 && <p class="note"><span class="sig">legacy</span> marks the posts from {Math.min(...legacyYears)} to {Math.max(...legacyYears)}.</p>}
+      {legacyYears.length > 0 && <p class="note"><span class="sig">legacy</span> marks posts from {Math.min(...legacyYears)} to {Math.max(...legacyYears)}.</p>}
     </section>
 
     <!-- the archive teaser: the year spine -->
     <section class="deck" aria-labelledby="arch-h">
-      <h2 id="arch-h"><b>the archive</b><span>{firstYear} — {lastYear}</span></h2>
+      <h2 id="arch-h"><b>Archive</b><span>{firstYear} – {lastYear}</span></h2>
       {spine.map(({ year, count }) => (
         count === 0 ? (
           <span class="tally tally--void">
@@ -169,7 +169,7 @@ const spine = [...years].reverse();
       ))}
       <div class="gate">
         <span class="gate__n">{total}</span>
-        <a class="btn btn--ghost" href="/archive/">open the archive ▸</a>
+        <a class="btn btn--ghost" href="/archive/">Open archive</a>
       </div>
     </section>
   </div>

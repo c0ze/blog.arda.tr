@@ -8,23 +8,23 @@ import { getLedger } from '@/lib/ledger';
 const { total } = await getLedger();
 ---
 
-<BaseLayout title="Search - Coze" description="Full-text search across every entry in the Coze ledger.">
+<BaseLayout title="Search - Coze" description="Full-text search across every post on Coze.">
   <header class="phead" lang="en">
     <h1>Search</h1>
-    <p class="phead__sub">grep the ledger<br /><b>{total} entries</b> · post text only</p>
+    <p class="phead__sub">Full-text search<br /><b>{total} entries</b> · post text only</p>
   </header>
 
   <div class="body search-shell" lang="en">
-    <p class="prompt">arda@coze:~$ <b>grep -ri</b> …</p>
+    <p class="prompt">Search <b>all {total} entries</b></p>
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
     <div id="search"></div>
     <p id="search-unavailable" class="empty" hidden>
-      <b>№000</b>: the search index only exists in production builds. Run
-      <code>npm run build</code> and preview <code>dist/</code> to try it here.
+      <b>Search unavailable</b>: the search index only exists in production builds. Run
+      <code>npm run build</code> and preview <code>dist/</code> to test it locally.
     </p>
     <noscript>
       <p class="empty">
-        <b>№000</b>: search runs in the browser and needs JavaScript. The
+        <b>JavaScript required</b>: search runs in the browser. The
         <a href="/archive/">archive</a> lists every entry by year.
       </p>
     </noscript>

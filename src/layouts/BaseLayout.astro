@@ -15,7 +15,7 @@ interface Props {
   noindex?: boolean;
 }
 
-const { title, description = "Arda Karaduman's tech blog: AI tooling, Go, DevOps, home networking, and generative music. Posts since 2010.", image, keywords, type = 'website', publishedTime, lang = 'en', noindex = false } = Astro.props;
+const { title, description = "Notes by Arda Karaduman on AI tooling, Go, DevOps, home networking, and generative music. Published since 2010.", image, keywords, type = 'website', publishedTime, lang = 'en', noindex = false } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const DEFAULT_OG_IMAGE = '/images/og-image.jpg';
 const ogImage = new URL(image || DEFAULT_OG_IMAGE, Astro.site).href;

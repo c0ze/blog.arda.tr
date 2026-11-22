@@ -6,11 +6,11 @@ const { total, firstYear } = await getLedger();
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 const navLinks = [
-  { href: '/', label: 'index', current: pathname === '/' },
-  { href: '/archive/', label: 'archive', current: pathname === '/archive' },
-  { href: '/search/', label: 'search', current: pathname === '/search' },
-  { href: '/#tags', label: 'tags', current: false },
-  { href: '/rss.xml', label: 'rss', current: false },
+  { href: '/', label: 'Index', current: pathname === '/' },
+  { href: '/archive/', label: 'Archive', current: pathname === '/archive' },
+  { href: '/search/', label: 'Search', current: pathname === '/search' },
+  { href: '/#tags', label: 'Tags', current: false },
+  { href: '/rss.xml', label: 'RSS', current: false },
 ];
 ---
 
