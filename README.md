@@ -2,9 +2,12 @@
 
 Personal tech blog at **blog.arda.tr** - built with Astro for static HTML output, perfect SEO, and per-page social media previews.
 
-The visual system is **One Bit Forest**, shared with arda.tr, resume.arda.tr
-and ai.arda.tr: amber phosphor on a warm night, a BBS-style file list, and every
-post's OG image dithered live to one bit in the browser. See [DESIGN.md](./DESIGN.md).
+The visual system is **Kara Duman**, shared with arda.tr, resume.arda.tr
+and ai.arda.tr: bone paper (dark if the visitor pins it), titles in blackletter,
+text in Spectral in one 720px column, every post numbered in roman numerals.
+The theme and the shared patterns are verbatim copies of arda.tr's brand files
+in `src/brand/`.
+See [DESIGN.md](./DESIGN.md).
 
 ## Quick Start
 
@@ -27,7 +30,7 @@ npm run preview
 The `npm run build` command generates static HTML in the `dist/` folder. Astro automatically:
 
 - **Minifies HTML** - Whitespace removal, attribute optimization
-- **Minifies CSS** - Via Tailwind's built-in purging + Vite's CSS minification
+- **Minifies CSS** - Via Vite's CSS minification
 - **Minifies JS** - Via Vite/Rollup with tree-shaking
 - **Optimizes assets** - Content-hashed filenames for caching
 
@@ -94,19 +97,20 @@ Your content here...
 
 ### Available Tags
 
-Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as ruled mono chips and drive the `/blog/?tag=` filter; the front page tallies them with ▮ bars.
+Tags are free-form — reuse an existing tag when one fits (common ones include `dev`, `geek`, `music`, `metal`, `ai`, `hardware`, `retro`). Tags render as square mono chips and drive the `/blog/?tag=` filter; the front page lists the ones used more than once, with counts.
 
 ## Project Structure
 
 ```
 src/
+├── brand/            # Verbatim copies of arda.tr's brand files (theme, patterns, scheme switch, artwork, logo)
 ├── content/blog/     # Markdown blog posts (one folder per year)
 ├── components/       # Astro components
 ├── layouts/          # Page layouts
 ├── lib/              # Post, ledger and display helpers
 ├── pages/            # Route pages
-├── scripts/          # onebit.js (shared 1-bit engine, verbatim) + site.js (wiring)
-└── styles/           # Rendition tokens and component styles
+├── scripts/          # site.js: the scheme switch and the single-key shortcuts
+└── styles/           # global.css: the brand imports and the blog's own styles
 public/
 └── images/           # Static images
 dist/                 # Build output (git-ignored)
@@ -114,11 +118,11 @@ dist/                 # Build output (git-ignored)
 
 ## Performance Features
 
-- **Small JS** - One bundled module (`site.js` + the `onebit.js` engine) dithers the post images; covers are created lazily as they scroll near, so `/blog` never decodes every image on load. Everything else is four `is:inline` scripts: the rendition boot, the rendition switch, the `/blog` tag filter, and the `/search` Pagefind loader
-- **No-JS fallback** - Each dithered canvas carries a `<noscript>` plain image
+- **Small JS** - One bundled module (`site.js` + the family's `scheme.js`) for the scheme switch and the single-key shortcuts. Everything else is three `is:inline` scripts: the scheme boot snippet, the `/blog` tag filter, and the `/search` Pagefind loader
+- **No-JS fallback** - Every page reads fully without script; the scheme then follows the system (with script the blog is light unless dark is pinned)
 - **Static HTML** - Every page is pre-rendered at build time
-- **Fonts** - Big Shoulders Display and IBM Plex Sans / Mono / Serif / Sans JP from Google Fonts, with preconnect; the Plex Sans JP stylesheet only blocks rendering on Japanese pages
-- **CSS purging** - Unused Tailwind classes removed automatically
+- **Fonts** - Grenze Gotisch, Spectral and JetBrains Mono from Google Fonts, with preconnect and `display=swap`; the Zen Antique stylesheet only blocks rendering on Japanese pages
+- **Two small images in the chrome** - The emblem in the bar (15 KB) and one wisp beside a post on wide screens (7 KB, lazy); lists and post heads are text, and a post's `image` is only its social preview
 
 ## License
 

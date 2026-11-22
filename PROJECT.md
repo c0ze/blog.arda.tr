@@ -10,10 +10,11 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 ## Architecture
 
 - **Framework**: Astro 5 (Static Site Generator)
-- **Styling**: TailwindCSS with CSS variables
+- **Styling**: plain CSS on the family theme's tokens: verbatim copies of arda.tr's brand files in
+  `src/brand/`, plus the blog's own `src/styles/global.css`. No Tailwind, no PostCSS config.
 - **Content**: Markdown files via Astro Content Collections
-- **Design**: One Bit Forest, the arda.tr family system (see [DESIGN.md](./DESIGN.md))
-- **Theming**: Four renditions — Night / Night HC / Xerox / Xerox HC (see Theming below)
+- **Design**: Kara Duman, the arda.tr family system (see [DESIGN.md](./DESIGN.md) and `../DESIGN-SYSTEM.md`)
+- **Theming**: light (bone paper) unless the visitor pins dark, with a two-state switch (see Theming below)
 - **Deployment**: GitHub Pages
 
 ## Project Structure
@@ -21,51 +22,55 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 ```
 .
 ├── src/
+│   ├── brand/                  # VERBATIM copies of arda.tr/brand/ (never edit here)
+│   │   ├── arda.css            # The built Astryx theme: every token, scoped to [data-astryx-theme="arda"]
+│   │   ├── brand.css           # The family patterns (ix- classes): bar, row, section, chips, prose, footer
+│   │   ├── scheme.js           # The scheme switch: pin light/dark, old stored ids, the pre-paint snippet (+ scheme.d.ts)
+│   │   ├── art/                # emblem.webp (the bar), wisp.webp (the plate at the top of a post)
+│   │   └── logo/               # wordmark.svg (inlined in the bar as an Astro SVG component)
 │   ├── content/
 │   │   └── blog/               # Markdown posts in year folders (YYYY/YYYY-MM-DD-slug.md)
 │   ├── components/
-│   │   ├── Header.astro        # The status bar: site mark, nav, entry count, JST clock, rendition switch
-│   │   ├── Footer.astro        # Treeline strip + colophon (keeps the "Human-driven" disclosure)
-│   │   ├── OgCanvas.astro      # A post's OG image as a live dithered canvas (+ <noscript> <img>)
-│   │   ├── FileRow.astro       # BBS file-list row: cover, №, date, title + tags, minutes ▮ bars
-│   │   ├── TagChip.astro       # Ruled mono tag chip (links to /blog/?tag=)
-│   │   └── ThemeToggle.astro   # Rendition switch (4 renditions, a <details> menu)
+│   │   ├── Header.astro        # The family bar: emblem and wordmark, "blog", nav, scheme switch
+│   │   ├── Footer.astro        # Colophon (keeps the "Human-driven" disclosure), licences, family links
+│   │   ├── EntryRow.astro      # The family row: roman numeral, title (+ description), date
+│   │   └── TagChip.astro       # A tag as a chip linking to /blog/?tag= (outlined; moss on a post)
 │   ├── layouts/
-│   │   └── BaseLayout.astro    # Base HTML layout with SEO + theme boot script
+│   │   └── BaseLayout.astro    # Base HTML layout with SEO, fonts and the scheme boot snippet
 │   ├── lib/
 │   │   ├── posts.ts            # getPublishedPosts()/getSlug() helpers (pages + RSS)
-│   │   ├── order.ts            # byNewestFirst(): date, then post id (stable № and prev/next)
+│   │   ├── order.ts            # byNewestFirst(): date, then post id (stable numbers and prev/next)
 │   │   ├── feed.ts             # RSS item HTML (escaped excerpt + cover)
 │   │   ├── rehype.mjs          # Post-body steps: demote body h1s, lazy media + image sizes, slash post links
 │   │   ├── sitemap.mjs         # Sitemap serialize hook: a post's lastmod from the date in its slug
-│   │   ├── ledger.ts           # getLedger(): numbering, month tiers, year spine, the silence, tag counts
-│   │   └── display.ts          # Date, reading-time, ▮ bar, label, postHref, description, JSON-LD helpers
+│   │   ├── ledger.ts           # getLedger(): numbering, years, gaps, tag counts
+│   │   └── display.ts          # Post number and its roman numeral, the title threshold, date, reading time, summary, hrefs, JSON-LD helpers
 │   ├── pages/
-│   │   ├── index.astro         # Home page
+│   │   ├── index.astro         # Home: "Blog", the ten newest posts, the tag index
 │   │   ├── blog/
-│   │   │   ├── index.astro     # Blog listing with tag filter
-│   │   │   └── [slug].astro    # Individual blog post (+ related posts)
+│   │   │   ├── index.astro     # Every post, with the tag filter
+│   │   │   └── [slug].astro    # Individual blog post (+ tags, related posts, prev/next)
 │   │   ├── archive.astro       # Posts grouped by year
 │   │   ├── search.astro        # Pagefind search (lazy-loads the Pagefind UI)
 │   │   ├── rss.xml.js          # RSS feed
 │   │   └── 404.astro           # Not found page
 │   ├── content.config.ts       # Content collection schema
 │   ├── scripts/
-│   │   ├── onebit.js           # VERBATIM copy of ../design-previews/onebit/onebit.js (the 1-bit engine)
-│   │   └── site.js             # The only bundled script: wires onebit to the markup (lazy OG canvases…)
+│   │   └── site.js             # The only bundled script: the scheme switch and the single-key shortcuts
 │   └── styles/
-│       └── global.css          # Rendition tokens and every component style, Tailwind
+│       └── global.css          # Layer order, the brand imports, and everything the blog adds
 ├── public/
+│   ├── favicon.svg             # The family's small glyph (copy of arda.tr/brand/logo/favicon.svg)
 │   └── images/                 # Static images, OG images
 ├── scripts/                    # new-post, post-to-mastodon/-bluesky (pure parts in scripts/lib/), sitemap merge, theme contract
-├── astro.config.mjs            # Astro configuration (rehype steps, Shiki css-variables theme)
-└── tailwind.config.mjs         # Tailwind with CSS variables
+└── astro.config.mjs            # Astro configuration (rehype steps, Shiki css-variables theme)
 ```
 
 ## Commands
 
 ```bash
-npm test         # Browser-control regression tests (Node, no extra dependencies)
+npm test         # Regression tests (Node's test runner, no extra dependencies)
+npm run check    # astro check (types)
 npm run dev      # Development server (port 8080)
 npm run build    # Production build to dist/ (merges sitemap, then indexes search with Pagefind)
 npm run preview  # Preview production build
@@ -116,39 +121,51 @@ Posts are loaded via Astro Content Collections defined in `src/content.config.ts
 
 ## Theming
 
-Four **renditions** — the One Bit Forest family ids — defined in
-`src/styles/global.css` as plain hex custom-property blocks (`--bg`, `--fg`,
-`--signal`, `--ob-*` …), see [DESIGN.md](./DESIGN.md). The rendition lists
-live in `src/layouts/BaseLayout.astro` (boot script) and
-`src/components/ThemeToggle.astro` (`renditions` array, with roles). Catalogue,
-in menu order:
+Kara Duman (see [DESIGN.md](./DESIGN.md)). Two schemes; the blog is **light (bone paper) unless
+the visitor pinned dark**. The system's scheme does not decide.
 
-| ID | Name | Role |
-|----|------|------|
-| `night` | Night | dark — the default (bound to `:root`) |
-| `night-hc` | Night HC | hc-dark (AAA) |
-| `xerox` | Xerox | light |
-| `xerox-hc` | Xerox HC | hc-light (AAA) |
+- `<html data-astryx-theme="arda">` scopes the theme's tokens. `src/styles/global.css` declares
+  `@layer reset, astryx-base, astryx-theme, brand;` first, imports `src/brand/arda.css` and
+  `src/brand/brand.css`, then holds the blog's own rules, unlayered. The blog loads no Astryx, so
+  `global.css` also states the part of Astryx's reset and base (`--spacing-*`, `--focus-outline-width`,
+  `color-scheme`) that the brand files assume.
+- A pinned scheme is stored in localStorage under `theme` (only ever `dark`: going back to light
+  clears the pin) and mirrored on `<html data-theme>` and the `color-scheme` meta.
+  `BaseLayout.astro` inlines `bootSnippet('theme', 'light')` from `src/brand/scheme.js` right after
+  the meta, so it applies before first paint. The snippet rewrites old stored ids by role (`night`,
+  `night-hc` → `dark`; `xerox`, `xerox-hc` → `light`; the Ink & Ledger ids too) and drops anything
+  else. Without script there is no `data-theme`, and the page follows the system.
+- The switch is the `[data-scheme-toggle]` button in `Header.astro`; `src/scripts/site.js` calls
+  `toggleScheme('theme', 'light')` and `watchScheme('theme', 'light')`. The key and the default
+  must be the same pair in both places. It keeps working when browser storage is blocked; the
+  choice simply cannot persist. `tests/scheme.test.mjs` runs the snippet and `site.js` against a
+  fake page.
+- Code blocks are dark in both schemes (brand.css gives `<pre>` `color-scheme: dark`), so every
+  token inside one resolves to its dark value; `tests/code-contrast.test.mjs` checks them on both
+  plates.
+- High contrast is `prefers-contrast: more`, handled in brand.css. There are no renditions.
+- A post's number is its chronological position (`ledgerNo()`), printed as a roman numeral
+  (`roman()`). A post title longer than `TITLE_MAX` (48 characters), or a Japanese one, is set in
+  Spectral instead of blackletter (`isPlainTitle()`), all in `src/lib/display.ts`.
 
-The rendition is stored in localStorage under `theme` and applied as a class on
-`<html>`. The boot script migrates older ids by role: the Weekly Page ids
-(`pulp`→`xerox`, `pulp-hc`→`xerox-hc`, `beta`→`night`, `beta-hc`→`night-hc`)
-and every Ink & Ledger id (`paper`→`xerox-hc`, `carbon`→`night-hc`,
-`alucard`/`light`→`xerox`, the rest→`night`). With nothing stored it follows the
-system color-scheme/contrast preference, and Night when none is stated. Theme
-controls keep working when browser storage is blocked; preferences simply
-cannot persist. `tests/theme-toggle.test.mjs` runs both scripts against a fake
-DOM.
+### Brand files and the contract
 
-`scripts/check-theme-contract.mjs` (run by `.github/workflows/theme-contract.yml`)
-compares this repo against the catalogue published by `c0ze/arda.tr`
-(`config/themes.json`). Contract v3 checks shape only — the id set, each id's
-role, and that every `requiredTokens` entry is declared per rendition — never
-values (each site has its own tint and signal). arda.tr publishes contract v3
-and the check passes for real; it only soft-passes when the contract cannot be
-fetched or an older contract shares no ids. Run it
-locally with `THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/check-theme-contract.mjs`.
+Everything in `src/brand/` and `public/favicon.svg` is a verbatim copy from `arda.tr/brand/`.
+Change a file in arda.tr, then copy it out:
 
+```bash
+cp ../arda.tr/brand/{arda.css,brand.css,scheme.js,scheme.d.ts} src/brand/
+cp ../arda.tr/brand/art/{emblem.webp,wisp.webp} src/brand/art/
+cp ../arda.tr/brand/logo/wordmark.svg src/brand/logo/
+cp ../arda.tr/brand/logo/favicon.svg public/favicon.svg
+```
+
+`scripts/check-theme-contract.mjs` (run by `.github/workflows/theme-contract.yml`) fetches
+`config/themes.json` from `c0ze/arda.tr`. With contract v4 it compares the sha256 of the three
+copies with `files[name].sha256` and fails on a mismatch; while arda.tr's `main` still publishes an
+older contract it prints a note and passes; it soft-passes when the contract cannot be fetched.
+The comparison is `scripts/lib/theme-contract.mjs` (`tests/brand.test.mjs`). Run it locally with
+`THEMES_CONTRACT_PATH=../arda.tr/config/themes.json node scripts/check-theme-contract.mjs`.
 
 ## SEO & Social Sharing
 
@@ -176,7 +193,7 @@ import Component from '@/components/Component.astro'
 ## Key Differences from React Version
 
 1. **Static HTML** - Every page is pre-rendered, no client-side routing
-2. **No hydration** - Components render to HTML only; one small bundled module (`src/scripts/site.js` + `onebit.js`) runs the 1-bit imagery, everything else is `is:inline`
+2. **No hydration** - Components render to HTML only; one small bundled module (`src/scripts/site.js` + the family's `scheme.js`) runs the scheme switch and the shortcuts, everything else is `is:inline`
 3. **Content Collections** - Type-safe markdown with Zod schema validation
 4. **Per-page OG images** - Social previews work correctly now
 5. **Faster builds** - ~3 seconds for all pages
@@ -184,6 +201,9 @@ import Component from '@/components/Component.astro'
 ## Code Style
 
 - Use `.astro` files for components and pages
-- Keep interactive JS minimal (inline scripts with `is:inline`); pictorial motion goes through `onebit.js`, never a fork of it
-- Use the One Bit classes (`.bar`, `.file`, `.ls-head`, `.chip`, `.tally`, `.og`, `.prose`) and tokens (`--bg`, `--fg`, `--fg-2`, `--rule`, `--signal`, `--ob-*`); see DESIGN.md
+- Keep interactive JS minimal (inline scripts with `is:inline`)
+- Use the family's classes (`.ix-bar`, `.ix-list` / `.ix-row`, `.ix-label`, `.ix-num`, `.ix-chip`, `.ix-prose`, …) and the theme's tokens (`--color-*`, `--text-*`, `--spacing-*`, `--ix-*`); see DESIGN.md. No hex colours and no px font sizes in the blog's own CSS (a test fails on either)
+- A pattern brand.css lacks goes in `src/styles/global.css` under a class without the `ix-` prefix, and in DESIGN.md's list of what the blog adds
+- Nothing is set below 18px (a test fails on a smaller size written in the blog's CSS)
+- Post bodies still use a few Tailwind utility classes and One Bit Forest token names in raw HTML; `global.css` keeps those working (see its prose section). Don't rewrite old posts for a new system
 - Follow existing component patterns

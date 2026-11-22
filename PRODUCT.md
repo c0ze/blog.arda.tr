@@ -20,8 +20,8 @@ surface. No conversion funnel belongs here.
 
 ## Product Purpose
 
-A personal blog, published since 2010; the site counts its own entries (the
-masthead and the status bar), so no number is kept here. It is where the work
+A personal blog, published since 2010; the site counts its own posts (the
+counts beside its lists), so no number is kept here. It is where the work
 on `arda.tr` gets explained: how a thing was built, why it was abandoned, what
 the interesting part was.
 
@@ -49,14 +49,14 @@ generative black metal.
 
 ## Capabilities and Constraints
 
-- **Astro 5 static**, `@astrojs/tailwind` + `@astrojs/sitemap` only.
-  Tailwind 3.4 with `@tailwindcss/typography`. No MDX integration, and the
+- **Astro 5 static**, `@astrojs/sitemap` only. Plain CSS on the family
+  theme's tokens (no Tailwind since 2026-11-22). No MDX integration, and the
   content glob is `**/*.md` — posts cannot embed components today.
 - **Minimal JS, no framework.** No hydration. Chrome behaviour is small
-  `is:inline` scripts (rendition boot + switch, `/blog` tag filter, the
+  `is:inline` scripts (the scheme boot snippet, the `/blog` tag filter, the
   `/search` Pagefind loader). The one bundled module is `src/scripts/site.js`
-  plus the shared 1-bit engine `onebit.js` (One Bit Forest, 2026-09-23): the
-  dithered OG images, treeline and clock. Every page reads fully without it.
+  plus the family's `scheme.js`: the scheme switch and the single-key
+  shortcuts. Every page reads fully without it.
   A redesign that needs a JS framework is the wrong redesign.
 - **Post bodies contain raw HTML** — markdown images alongside raw `<img>`,
   `<iframe>` (youtube-nocookie, SoundCloud) and `<video>`. These must keep
@@ -70,29 +70,37 @@ generative black metal.
   Pagefind needs `data-pagefind-body` to survive on post pages.
 - **Frontmatter schema** (`src/content.config.ts`): `title`, `date` required;
   `excerpt`, `author`, `description`, `keywords`, `image`, `lang`, `draft`
-  optional. `image` does double duty as OG image and card art. No `heroImage`,
-  no `series`, no `updated`.
+  optional. `image` is the OG image only (Kara Duman shows no hero and no card
+  art); `excerpt` is also the row description and the post's standfirst. No
+  `heroImage`, no `series`, no `updated`.
 - **Tags are a long tail** — a few heavy ones (`dev`, `ai`, `legacy`, `geek`)
   and most used exactly once; the index prints the live counts. `legacy`
   marks the 2010–2011 posts.
 - **No tag pages and no pagination.** `/blog` renders every post at once and
   filters client-side via `?tag=`.
 - **Automated gates:** `npm test` (node:test — OG images exist in `public/`,
-  the rendition and tag-filter scripts under a fake DOM, code-token contrast,
-  and the pure helpers: post order, links, descriptions, feed, rehype steps,
-  the announce and new-post builders), `astro check`, the build, and
-  the theme-contract script. There is no lint and no `verify` script.
+  the scheme and tag-filter scripts under a fake DOM, code-token contrast and
+  tokens-only CSS, the brand-file contract, and the pure helpers: post order,
+  links, descriptions, feed, rehype steps, the announce and new-post
+  builders), `astro check`, the build, and the theme-contract script. There
+  is no lint and no `verify` script.
 - Node 24.14.0 pinned via `.mise.toml`.
-- **Visual system:** the family's One Bit Forest (2026-09-23), see DESIGN.md
-  and `../DESIGN-SYSTEM.md`. It replaced The Weekly Page, which had replaced
-  the shared Ink & Ledger catalogue.
+- **Visual system:** the family's Kara Duman (2026-11-23), see DESIGN.md
+  and `../DESIGN-SYSTEM.md`. It replaced The Index (2026-11-22, rejected the
+  next day), which had replaced One Bit Forest (2026-09-23), The Weekly Page
+  and, before them, Ink & Ledger.
 
 ## Brand Commitments
 
-- Wordmark **"Coze."**; the strapline *the ledger of side quests*; the footer
-  line *"Coze: Arda Karaduman’s blog, since 2010."*
-- The disclosure **"Human-driven. AI is utilized solely for editorial
-  refinement."** must survive any redesign.
+- The bar carries the family's emblem and **arda.tr** wordmark followed by
+  `blog`. The home headline is **"Blog"** (2026-11-23, Kara Duman's slide 13;
+  it was "Coze."); the line under it is *Notes on software and tools.*
+  (2026-11-22; it was *the ledger of side quests*). The blog's own name stays
+  **"Coze"** in page titles, the feed, the JSON-LD and the footer line
+  *"Coze: Arda Karaduman’s blog, since 2010."*
+- The disclosure **"Human-driven. AI is used only for editing."** must
+  survive any redesign (reworded 2026-11-22 from "AI is utilized solely for
+  editorial refinement").
 - Voice is dry, first-person, unhyped — "first post baby", "Grep Thyself".
 - Licence split: code MIT, **posts CC BY 4.0**.
 - The Cloudflare Web Analytics beacon ships `is:inline` and must stay verbatim.
@@ -111,9 +119,9 @@ site collects none of these.
 
 1. **The post is the product.** Every design decision serves reading a single
    piece of prose to the end.
-2. **Minimal JS.** Interactivity is a cost, not a feature; the dithered
-   images are the one place the site spends it, and they degrade to plain
-   images.
+2. **Minimal JS.** Interactivity is a cost, not a feature: the scheme
+   switch, the tag filter, search and a few single-key shortcuts are all of
+   it.
 3. **Recent work leads; the archive stays reachable.** The front page is
    current; sixteen years of history is one deliberate click away, not buried
    and not shoved forward (confirmed 2026-07-25).
@@ -123,10 +131,11 @@ site collects none of these.
 
 ## Accessibility & Inclusion
 
-- WCAG-conscious contrast in every theme, with at least one AAA-targeted
-  high-contrast light mode and one AAA-targeted high-contrast dark mode.
-- `prefers-reduced-motion` fully respected: every 1-bit canvas draws one
-  still frame.
+- WCAG AA contrast in both schemes; under `prefers-contrast: more` hairlines
+  take the strong rule colour and muted text the text colour. (The four
+  renditions with their AAA high-contrast pair went with One Bit Forest.)
+- Light (bone paper) by default; dark is the visitor's pin.
+- No animation: there is nothing for `prefers-reduced-motion` to turn off.
 - Posts carry `lang` where they are not English (5 `tr`, 4 `ja`); `<html lang>`
   follows it, and so does `og:locale` (`tr_TR`, `ja_JP`, else `en_US`). The
   chrome keeps `lang="en"`.
