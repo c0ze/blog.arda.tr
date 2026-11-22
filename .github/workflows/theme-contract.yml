@@ -1,7 +1,9 @@
 name: Theme contract
 
-# Verifies the blog's rendition ids, roles and required tokens against the
-# One Bit Forest catalogue published by c0ze/arda.tr (config/themes.json, v3).
+# Verifies that the blog's copies of the family's brand files (src/brand/:
+# arda.css, brand.css, scheme.js) are the ones c0ze/arda.tr publishes in
+# config/themes.json (contract v4, sha256 per file). While arda.tr's main
+# still publishes an older contract the check prints a note and passes.
 # Runs as its own workflow so a drift never blocks the Pages deploy; the
 # check itself soft-skips (exit 0) when the contract can't be fetched.
 on:
