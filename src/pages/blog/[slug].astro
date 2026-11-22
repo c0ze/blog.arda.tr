@@ -2,10 +2,10 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { render } from 'astro:content';
 import { getPublishedPosts, getSlug } from '@/lib/posts';
-import { blogPostingLd, bodyDescription, jsonLd, ledgerNo, readingTimeMinutes, formatDateShort, minuteBars, postHref } from '@/lib/display';
+import { OWNER, blogPostingLd, bodyDescription, isPlainTitle, jsonLd, ledgerNo, readingTimeMinutes, formatDateShort, postHref, roman, summary } from '@/lib/display';
+import wisp from '@/brand/art/wisp.webp';
 import TagChip from '@/components/TagChip.astro';
-import FileRow from '@/components/FileRow.astro';
-import OgCanvas from '@/components/OgCanvas.astro';
+import EntryRow from '@/components/EntryRow.astro';
 
 export async function getStaticPaths() {
   const sortedPosts = await getPublishedPosts();
@@ -37,8 +37,9 @@ export async function getStaticPaths() {
       props: {
         post,
         no: ledgerNo(index, sortedPosts.length),
-        prevPost: sortedPosts[index + 1] || null,
-        nextPost: sortedPosts[index - 1] || null,
+        // older and newer neighbours, each with its number
+        prevPost: sortedPosts[index + 1] ? { post: sortedPosts[index + 1], no: ledgerNo(index + 1, sortedPosts.length) } : null,
+        nextPost: sortedPosts[index - 1] ? { post: sortedPosts[index - 1], no: ledgerNo(index - 1, sortedPosts.length) } : null,
         related,
       },
     };
@@ -54,9 +55,14 @@ const slug = getSlug(post);
 // the layout's default description.
 const description = post.data.description || post.data.excerpt || bodyDescription(post.body) || undefined;
 
-// Determine OG image - use post image if available, otherwise default
+// Determine OG image - use post image if available, otherwise default.
+// It is only a meta tag: the page itself opens with number, date, title.
 const ogImage = post.data.image || '/images/og-image.jpg';
 const ogImageAbsolute = new URL(ogImage, Astro.site).href;
+
+const standfirst = summary(post.data);
+// A post by someone else (the Gemmy bot post) keeps its byline in the meta line.
+const guestAuthor = post.data.author && post.data.author !== OWNER ? post.data.author : undefined;
 ---
 
 <BaseLayout
@@ -71,89 +77,84 @@ const ogImageAbsolute = new URL(ogImage, Astro.site).href;
   <!-- data-pagefind-body scopes the Pagefind search index to post content:
        once any page declares it, pages without it (home, listings) are skipped. -->
   <article class="post" data-pagefind-body>
-    <header class="post__col">
-      <a class="post__back" href="/blog/" lang="en" data-pagefind-ignore>◂ back to the ledger</a>
+    <!-- A post opens with number, date and reading time, then the title: no
+         hero image. The meta line stays out of the search index; only the
+         title and body count. -->
+    <header class="post-head">
+      <p class="ix-mono" lang="en" data-pagefind-ignore>
+        <span aria-hidden="true">{roman(no)}</span><span class="ix-sr">Post {no}</span> ·
+        <time datetime={post.data.date.toISOString()}>{formatDateShort(post.data.date)}</time> ·
+        {minutes} min read{guestAuthor && ` · ${guestAuthor}`}
+      </p>
 
-      <div class="post__meta" lang="en" data-pagefind-ignore>
-        <span class="sig">{no}</span>
-        <time datetime={post.data.date.toISOString()}>{formatDateShort(post.data.date)}</time>
-        <span title={`${minutes} minute read`}>{minutes} min<span class="bars" aria-hidden="true" data-pagefind-ignore>{minuteBars(minutes)}</span></span>
-        {post.data.author && <span class="post__author">{post.data.author}</span>}
-      </div>
+      <!-- Blackletter for a name; Spectral for a long title or a Japanese one. -->
+      <h1 class={isPlainTitle(post.data.title, post.data.lang) ? 'title-plain' : undefined}>{post.data.title}</h1>
 
-      <h1>{post.data.title}</h1>
-
-      {post.data.tags.length > 0 && (
-        <ul class="chips" lang="en" aria-label="Tags">
-          {post.data.tags.map((tag) => <li><TagChip tag={tag} /></li>)}
-        </ul>
-      )}
-
-      {post.data.excerpt && (
-        <div class="excerpt">
-          <span lang="en" data-pagefind-ignore>excerpt</span>
-          <p>{post.data.excerpt}</p>
-        </div>
-      )}
+      {standfirst && <p class="ix-lede ix-muted">{standfirst}</p>}
     </header>
 
-    <!-- The cover: the post's OG image develops as 1-bit, then the dither burns off to the real image
-         (a seeded sigil, which stays 1-bit, when it has none). -->
-    <OgCanvas
-      src={post.data.image}
-      seed={slug}
-      alt={`Cover image: ${post.data.title}`}
-      px={2}
-      contrast={1.3}
-      class="post__hero"
-      reveal
-    />
+    <!-- The one piece of artwork: a wisp on a soot plate in the right margin,
+         wide screens only (global.css). Decoration: empty alt, lazy, so a
+         phone never fetches it. -->
+    <div class="ix-plate post-wisp" data-pagefind-ignore>
+      <img class="ix-art" alt="" src={wisp.src} width={wisp.width} height={wisp.height} loading="lazy" decoding="async" />
+    </div>
 
-    <!-- The reading column: Plex Serif at a 68ch measure. Media, code and
-         tables are not prose and take the column. -->
-    <div class="post__col post__body prose">
+    <!-- The reading column. -->
+    <div class="ix-prose post-body">
       <Content />
     </div>
 
-    <div class="after" lang="en">
-      <!-- Related entries: shared-tag neighbours, resolved at build time.
-           data-pagefind-ignore keeps their titles out of this page's search record. -->
+    <!-- data-pagefind-ignore keeps tags, related titles and prev/next out of
+         this page's search record. -->
+    <footer class="post-foot" lang="en" data-pagefind-ignore>
+      {post.data.tags.length > 0 && (
+        <ul class="ix-chips block" aria-label="Tags">
+          {post.data.tags.map((tag) => <li><TagChip tag={tag} moss /></li>)}
+        </ul>
+      )}
+
+      <!-- Related posts: shared-tag neighbours, resolved at build time. -->
       {related.length > 0 && (
-        <section aria-labelledby="related-heading" data-pagefind-ignore>
-          <h2 id="related-heading" class="sec-h"><b>related entries</b><span>shared tags</span></h2>
-          <div class="ls">
+        <section class="block">
+          <div class="list-head">
+            <h2 class="ix-label ix-label--ember">Related posts</h2>
+            <span class="ix-label">shared tags</span>
+          </div>
+          <ul class="ix-list">
             {related.map(({ post: rel, no: relNo }) => (
-              <FileRow
+              <EntryRow
                 slug={getSlug(rel)}
                 title={rel.data.title}
                 date={rel.data.date}
                 tags={rel.data.tags}
                 no={relNo}
-                minutes={readingTimeMinutes(rel.body)}
                 lang={rel.data.lang}
-                image={rel.data.image}
               />
             ))}
-          </div>
+          </ul>
         </section>
       )}
 
-      <!-- Prev / next. -->
-      <nav class="postnav" aria-label="Adjacent posts" data-pagefind-ignore>
-        {prevPost && (
-          <a href={postHref(getSlug(prevPost))}>
-            <span>◂ previous entry</span>
-            <strong lang={prevPost.data.lang ?? 'en'}>{prevPost.data.title}</strong>
-          </a>
-        )}
-        {nextPost && (
-          <a class="postnav__next" href={postHref(getSlug(nextPost))}>
-            <span>next entry ▸</span>
-            <strong lang={nextPost.data.lang ?? 'en'}>{nextPost.data.title}</strong>
-          </a>
-        )}
+      <!-- The older and the newer neighbour, as key and value; then all posts. -->
+      <nav class="block" aria-label="More posts">
+        <dl class="ix-kv">
+          {prevPost && (
+            <div>
+              <dt>Older</dt>
+              <dd><a rel="prev" href={postHref(getSlug(prevPost.post))}><span aria-hidden="true">{roman(prevPost.no)}: </span><span lang={prevPost.post.data.lang ?? 'en'}>{prevPost.post.data.title}</span></a></dd>
+            </div>
+          )}
+          {nextPost && (
+            <div>
+              <dt>Newer</dt>
+              <dd><a rel="next" href={postHref(getSlug(nextPost.post))}><span aria-hidden="true">{roman(nextPost.no)}: </span><span lang={nextPost.post.data.lang ?? 'en'}>{nextPost.post.data.title}</span></a></dd>
+            </div>
+          )}
+        </dl>
+        <p class="more"><a href="/blog/">All posts</a></p>
       </nav>
-    </div>
+    </footer>
   </article>
 
   <!-- JSON-LD Schema -->

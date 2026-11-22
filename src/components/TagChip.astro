@@ -3,14 +3,15 @@ import { tagHref } from '@/lib/display';
 
 interface Props {
   tag: string;
-  /** Shown dimmed after the name. */
+  /** Shown after the name. */
   count?: number;
-  active?: boolean;
+  /** A post's own tag: bone on moss. Without it the chip is an outlined link. */
+  moss?: boolean;
 }
 
-const { tag, count, active = false } = Astro.props;
+const { tag, count, moss = false } = Astro.props;
 ---
 
-<a class={`chip${active ? ' chip--on' : ''}`} href={tagHref(tag)} aria-current={active ? 'true' : undefined}>
-  {tag}{count !== undefined && <em>{count}</em>}
+<a class:list={['ix-chip', moss && 'ix-chip--tag']} href={tagHref(tag)}>
+  {tag}{count !== undefined && <span class="chip-n">{count}</span>}
 </a>

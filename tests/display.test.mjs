@@ -23,6 +23,7 @@ test('chrome links to site pages carry the trailing slash', async () => {
   const files = [
     'src/components/Header.astro',
     'src/components/TagChip.astro',
+    'src/components/EntryRow.astro',
     'src/pages/index.astro',
     'src/pages/404.astro',
     'src/pages/search.astro',
@@ -82,4 +83,49 @@ test('JSON-LD never contains a raw "<"', async () => {
   const out = jsonLd(data);
   assert.doesNotMatch(out, /</);
   assert.deepEqual(JSON.parse(out), data);
+});
+
+// A post's number is its place in the whole run, oldest = 1, so a post keeps
+// its number when newer ones are published; `index` counts from the newest.
+test("a post's number is its chronological position", async () => {
+  const { ledgerNo } = await import('../src/lib/display.ts');
+  assert.equal(ledgerNo(0, 107), 107);
+  assert.equal(ledgerNo(106, 107), 1);
+  assert.equal(ledgerNo(65, 107), 42);
+});
+
+// The page prints that number as a roman numeral (the family's row, ../DESIGN-SYSTEM.md).
+// A wrong numeral is a wrong number on a hundred pages: check the subtractive
+// forms, the widest one the blog prints, and that nothing prints an empty string.
+test('the number is printed as a roman numeral', async () => {
+  const { roman } = await import('../src/lib/display.ts');
+  const cases = { 1: 'I', 4: 'IV', 9: 'IX', 12: 'XII', 14: 'XIV', 40: 'XL', 49: 'XLIX', 88: 'LXXXVIII', 90: 'XC', 99: 'XCIX', 107: 'CVII', 400: 'CD', 1994: 'MCMXCIV', 3999: 'MMMCMXCIX' };
+  for (const [n, numeral] of Object.entries(cases)) assert.equal(roman(Number(n)), numeral, n);
+  assert.equal(roman(0), '0', 'no roman zero: digits');
+  assert.equal(roman(4000), '4000');
+});
+
+// Blackletter names things: a post title of about six words is set in it, a
+// longer one is a sentence and is set in Spectral. Japanese is never
+// blackletter (the face has no kana or kanji), however short the title.
+test('a long title, or a Japanese one, is not set in blackletter', async () => {
+  const { TITLE_MAX, isPlainTitle } = await import('../src/lib/display.ts');
+  assert.equal(isPlainTitle('Zork, Illuminated'), false);
+  assert.equal(isPlainTitle('x'.repeat(TITLE_MAX)), false, 'the threshold itself is still a name');
+  assert.equal(isPlainTitle('x'.repeat(TITLE_MAX + 1)), true);
+  assert.equal(isPlainTitle('I put Wikipedia, Stack Overflow and the Amiga Hardware Reference Manual on my NAS, for my agents'), true);
+  assert.equal(isPlainTitle('日本いろいろ', 'ja'), true);
+  assert.equal(isPlainTitle('RETRO yayında', 'tr'), false, 'Turkish is Latin script: blackletter has its letters');
+  assert.equal(isPlainTitle('😀'.repeat(TITLE_MAX)), false, 'counted in characters, not UTF-16 units');
+});
+
+// The row description and the post's standfirst are the author's own summary:
+// the excerpt, else the meta description. A legacy post has neither and gets
+// none; nothing is made up from the body.
+test('a summary is the excerpt, else the description, else nothing', async () => {
+  const { summary } = await import('../src/lib/display.ts');
+  assert.equal(summary({ excerpt: 'An excerpt.', description: 'A description.' }), 'An excerpt.');
+  assert.equal(summary({ excerpt: '', description: 'A description.' }), 'A description.');
+  assert.equal(summary({ excerpt: '' }), '');
+  assert.equal(summary({}), '');
 });

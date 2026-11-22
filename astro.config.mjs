@@ -1,5 +1,4 @@
 import { defineConfig, passthroughImageService } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
 import sitemap from '@astrojs/sitemap';
 import rehypeRaw from 'rehype-raw';
 import { rehypeDemoteHeadings, rehypeMediaLoading, rehypeSlashPostLinks } from './src/lib/rehype.mjs';
@@ -8,7 +7,6 @@ import { sitemapItem } from './src/lib/sitemap.mjs';
 export default defineConfig({
   site: 'https://blog.arda.tr',
   integrations: [
-    tailwind(),
     // a post's entry gets its date as lastmod (src/lib/sitemap.mjs)
     sitemap({ serialize: sitemapItem })
   ],
@@ -25,8 +23,8 @@ export default defineConfig({
   markdown: {
     // rehype-raw first, so the steps below also see the raw HTML in posts
     // (Astro would otherwise only parse it after every user plugin).
-    // Code colours come from the rendition tokens (the --astro-code-* map in
-    // global.css), so code blocks follow all four renditions.
+    // Code colours come from the theme's --color-syntax-* tokens (the
+    // --astro-code-* map in global.css), so code blocks follow both schemes.
     shikiConfig: {
       theme: 'css-variables',
       // no ReScript grammar in Shiki; the posts' snippets are mostly JSX, which

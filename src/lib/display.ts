@@ -6,7 +6,7 @@ export function jsonLd(data: unknown): string {
 
 /* One identity across the arda.tr family: every site's JSON-LD points its
  * author and publisher at the same Person node, and every post at the Blog. */
-const OWNER = 'Arda Karaduman';
+export const OWNER = 'Arda Karaduman';
 const PERSON = { '@type': 'Person', '@id': 'https://arda.tr/#person', name: OWNER, url: 'https://arda.tr/' };
 const BLOG = { '@type': 'Blog', '@id': 'https://blog.arda.tr/#blog', name: 'Coze', url: 'https://blog.arda.tr/' };
 
@@ -133,34 +133,49 @@ export function readingTimeMinutes(body: string | undefined): number {
   return Math.max(1, Math.round(words / 220));
 }
 
-/** Ledger number for a post: its 1-based position in chronological order,
- * formatted like "№042". `index` is the position in a newest-first list. */
-export function ledgerNo(index: number, total: number): string {
-  return `№${String(total - index).padStart(3, '0')}`;
+/** A post's number: its 1-based position in chronological order, so a post
+ * keeps its number when newer ones are published. `index` is the position in
+ * a newest-first list. */
+export function ledgerNo(index: number, total: number): number {
+  return total - index;
+}
+
+const ROMAN: [number, string][] = [
+  [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'], [100, 'C'], [90, 'XC'],
+  [50, 'L'], [40, 'XL'], [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I'],
+];
+
+/** A post's number as the page prints it: a roman numeral (12 is "XII").
+ * Anything that is not a whole number from 1 to 3999 is printed in digits. */
+export function roman(n: number): string {
+  if (!Number.isInteger(n) || n < 1 || n > 3999) return String(n);
+  let rest = n;
+  let out = '';
+  for (const [value, letters] of ROMAN) {
+    while (rest >= value) {
+      out += letters;
+      rest -= value;
+    }
+  }
+  return out;
+}
+
+/** The longest post title, in characters, still set in blackletter.
+ * Blackletter names things in about six words; a longer title is a sentence. */
+export const TITLE_MAX = 48;
+
+/** Whether a post title is set in Spectral instead of blackletter: a long
+ * title, or a Japanese one (blackletter has no Japanese). */
+export function isPlainTitle(title: string, lang?: string): boolean {
+  return lang === 'ja' || Array.from(title.trim()).length > TITLE_MAX;
+}
+
+/** A post's one-line summary for rows and the standfirst: the excerpt, else
+ * the meta description. Legacy posts have neither and print none. */
+export function summary(data: { excerpt?: string; description?: string }): string {
+  return (data.excerpt || data.description || '').trim();
 }
 
 export function formatDateShort(date: Date): string {
   return date.toISOString().slice(0, 10);
-}
-
-/** "Jul 2026" — the tier label. */
-export function monthLabel(date: Date): string {
-  return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
-}
-
-/** "2026-07" — the tier key. */
-export function monthKey(date: Date): string {
-  return date.toISOString().slice(0, 7);
-}
-
-/** Reading time as a bar of ▮, one per minute, capped so a long essay reads
- * as long rather than running out of its column. */
-export function minuteBars(minutes: number, cap = 12): string {
-  return '▮'.repeat(Math.max(1, Math.min(cap, minutes)));
-}
-
-/** A count as a proportional ▮ bar, `width` cells at the maximum. */
-export function tallyBar(count: number, max: number, width = 20): string {
-  if (count <= 0 || max <= 0) return '';
-  return '▮'.repeat(Math.max(1, Math.round((count / max) * width)));
 }

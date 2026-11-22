@@ -34,6 +34,41 @@ test('the footer links every family site by hostname', () => {
   }
 });
 
+// The bar is the family's: the emblem and the wordmark go to arda.tr, "blog"
+// to this site's home, and the nav names the family first (works, résumé and
+// the assistant, the one link in ember), then the blog's own archive, search
+// and feed. rel="me" follows the footer's rule: the identity pages only
+// (arda.tr and the résumé).
+test('the bar links the family, with rel="me" on the identity pages', async () => {
+  const header = await readFile(new URL('../src/components/Header.astro', import.meta.url), 'utf8');
+  const nav = [...header.matchAll(/\{ href: '([^']+)', label: '([^']+)'(?:, rel: '([^']+)')?(, accent: true)?/g)]
+    .map(([, href, label, rel, accent]) => ({ href, label, rel, accent: Boolean(accent) }));
+  assert.deepEqual(nav, [
+    { href: 'https://arda.tr', label: 'works', rel: 'me', accent: false },
+    { href: 'https://resume.arda.tr', label: 'résumé', rel: 'me', accent: false },
+    { href: 'https://ai.arda.tr', label: 'ask', rel: undefined, accent: true },
+    { href: '/archive/', label: 'archive', rel: undefined, accent: false },
+    { href: '/search/', label: 'search', rel: undefined, accent: false },
+    { href: '/rss.xml', label: 'rss', rel: undefined, accent: false },
+  ]);
+  assert.match(header, /data-accent=\{link\.accent \? '' : undefined\}/, 'the accent reaches the markup brand.css reads');
+  const brand = header.match(/<a class="ix-bar__brand" href="([^"]+)" rel="([^"]+)">([\s\S]*?)<\/a>\s*<a class="ix-bar__site" href="([^"]+)"/);
+  assert.ok(brand, 'expected the brand link, then the site name');
+  assert.deepEqual([brand[1], brand[2], brand[4]], ['https://arda.tr', 'me', '/']);
+  // The emblem is decoration beside the wordmark, which carries the link's name.
+  assert.match(brand[3], /<img class="ix-emblem"[^>]*\salt=""/);
+  assert.match(brand[3], /<Wordmark class="ix-wordmark" \/>/);
+});
+
+// The single-key shortcuts (site.js follows a[data-key]) must reach the same
+// places on every page, so they sit on the bar's own links.
+test('the bar carries the archive, search and feed shortcuts', async () => {
+  const header = await readFile(new URL('../src/components/Header.astro', import.meta.url), 'utf8');
+  const keys = Object.fromEntries([...header.matchAll(/href: '([^']+)', label: '[^']+', key: '([^']+)'/g)].map(([, href, key]) => [key, href]));
+  assert.deepEqual(keys, { a: '/archive/', '/': '/search/', r: '/rss.xml' });
+  assert.match(header, /data-key=\{link\.key\}/);
+});
+
 // Only the arda.tr landing page links to coze.org; the blog's chrome must not.
 test('the footer has no coze.org link', () => {
   assert.doesNotMatch(footer, /coze\.org/);

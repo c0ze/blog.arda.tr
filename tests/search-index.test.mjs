@@ -17,13 +17,27 @@ test('the build keeps one index per language', async () => {
   assert.match(page, /bundlePath: '\/pagefind-all\/'/);
 });
 
-// Every post's meta line (№, date, minutes, author) sat inside the indexed
-// article: "karaduman" matched all posts, and excerpts opened with
-// "№010 2011-02-19 1 min Arda Karaduman". Only the title and body count.
+// Every post's meta line (number, date, minutes) sat inside the indexed
+// article: "min" matched all posts, and excerpts opened with
+// "X · 2011-02-19 · 1 min read". Only the title and body count.
 test('the post meta line is kept out of the search index', async () => {
   const page = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
-  assert.match(page, /data-pagefind-body/);
-  assert.match(page, /<div class="post__meta"[^>]*\sdata-pagefind-ignore[\s>]/);
+  assert.match(page, /<article class="post" data-pagefind-body>/);
+  const head = page.match(/<header class="post-head">([\s\S]*?)<\/header>/)[1];
+  const meta = head.match(/<p class="ix-mono"[^>]*>[\s\S]*?<\/p>/)?.[0];
+  assert.ok(meta, 'expected the mono meta line in the post head');
+  assert.match(meta, /^<p class="ix-mono"[^>]*\sdata-pagefind-ignore[\s>]/);
+  assert.match(meta, /roman\(no\)[\s\S]*formatDateShort\(post\.data\.date\)[\s\S]*min read/, 'numeral, date, reading time');
+});
+
+// A search result is titled by the post's <h1>: it must hold the title and
+// nothing else. The tags, related posts and neighbours under the post are
+// other posts' words, not this one's; the wisp is decoration.
+test('the title is indexed alone; the post footer and the artwork are not indexed', async () => {
+  const page = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
+  assert.match(page, /<h1 class=\{[^}]*\}>\{post\.data\.title\}<\/h1>/);
+  assert.match(page, /<footer class="post-foot"[^>]*\sdata-pagefind-ignore[\s>]/);
+  assert.match(page, /<div class="ix-plate post-wisp" data-pagefind-ignore>\s*<img class="ix-art" alt=""/);
 });
 
 function fakeDoc(lang = 'en') {

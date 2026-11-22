@@ -1,45 +1,20 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import FileRow from '@/components/FileRow.astro';
-import OgCanvas from '@/components/OgCanvas.astro';
-import { getLedger, spell } from '@/lib/ledger';
-import { blogLd, formatDateShort, jsonLd, postHref, tagHref, tallyBar } from '@/lib/display';
+import EntryRow from '@/components/EntryRow.astro';
+import TagChip from '@/components/TagChip.astro';
+import { getLedger } from '@/lib/ledger';
+import { blogLd, jsonLd } from '@/lib/display';
 
-const ledger = await getLedger();
-const { total, entries, tiers, years, gaps, tags, tagsUsedOnce, firstYear, lastYear, latest } = ledger;
+const { total, entries, tags, tagsUsedOnce } = await getLedger();
 
-/* The lead is the newest entry; the file list carries the next few. */
-const [lead, ...rest] = entries;
-const LIST = 7;
-const listed = rest.slice(0, LIST);
-
-/* THE RUN — the current year, month by month, newest first. */
-const currentYear = lastYear;
-const run = tiers.filter((tier) => Number(tier.key.slice(0, 4)) === currentYear);
-const runMax = Math.max(1, ...run.map((t) => t.entries.length));
-const runTotal = run.reduce((sum, t) => sum + t.entries.length, 0);
-const newest = tiers[0];
-
-/* THE SILENCE — elapsed time, not empty calendar years: the gap between the
-   last entry before it and the first entry after it. */
-const silence = gaps[0];
-let silenceYears = silence ? silence.years : 0;
-if (silence) {
-  const before = entries.filter((e) => e.date.getUTCFullYear() < silence.from).at(0);
-  const after = entries.filter((e) => e.date.getUTCFullYear() > silence.to).at(-1);
-  if (before && after) {
-    silenceYears = Math.floor((after.date.getTime() - before.date.getTime()) / (365.25 * 864e5));
-  }
-}
+/* The front page is current: the newest posts. Everything else is one
+   click away, in /blog/ and /archive/. */
+const LIST = 10;
+const listed = entries.slice(0, LIST);
 
 /* The tag index: the head of a long tail, with the tail counted. */
-const maxTag = tags[0]?.count ?? 1;
-const headTags = tags.filter((t) => t.count > 1).slice(0, 11);
+const headTags = tags.filter((t) => t.count > 1);
 const legacyYears = entries.filter((e) => e.post.data.tags.includes('legacy')).map((e) => e.date.getUTCFullYear());
-
-/* The year spine, newest first, empty years included. */
-const maxYear = Math.max(1, ...years.map((y) => y.count));
-const spine = [...years].reverse();
 ---
 
 <BaseLayout
@@ -48,129 +23,50 @@ const spine = [...years].reverse();
 >
   <script type="application/ld+json" is:inline set:html={jsonLd(blogLd())} />
 
-  <header class="mast" lang="en">
-    <h1 aria-label="Coze">C<span>0</span>ze</h1>
-    <p class="mast__sub">
-      notes on software and tools<br />
-      <b>▲ {newest.entries.length} {newest.entries.length === 1 ? 'entry' : 'entries'} in {newest.label}</b> · <span>latest {formatDateShort(latest)}</span><br />
-      <span>{total} entries · {firstYear} – {lastYear}</span> · <span>{tags.length} tags</span>
-    </p>
+  <header class="page-head" lang="en">
+    <h1>Blog</h1>
+    <p class="ix-lede">Notes on software and tools.</p>
   </header>
 
-  <div class="front">
-    {lead && (
-      <article class="lead" data-og-host>
-        <a href={postHref(lead.slug)} tabindex="-1" aria-hidden="true">
-          <OgCanvas
-            src={lead.post.data.image}
-            seed={lead.slug}
-            px={2}
-            contrast={1.35}
-            class="lead__img"
-          />
-        </a>
-        <div class="lead__meta" lang="en">
-          <span>{lead.no}</span>
-          <time datetime={lead.date.toISOString()}>{formatDateShort(lead.date)}</time>
-          <span>{lead.minutes} min</span>
-          {lead.post.data.tags.length > 0 && <span>{lead.post.data.tags.slice(0, 4).join(' · ')}</span>}
-        </div>
-        <h2 lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>
-          <a href={postHref(lead.slug)}>{lead.post.data.title}</a>
-        </h2>
-        {lead.post.data.excerpt && (
-          <p lang={lead.post.data.lang !== 'en' ? lead.post.data.lang : undefined}>{lead.post.data.excerpt}</p>
-        )}
-        <a class="btn" href={postHref(lead.slug)} lang="en">Read entry<span class="sr-only"> {lead.post.data.title}</span></a>
-      </article>
-    )}
-
-    <section class="files" aria-label="Latest entries" lang="en">
-      <div class="ls-head" aria-hidden="true"><span>Cover</span><span>Date</span><span>Entry</span><span>Min</span></div>
+  <section lang="en">
+    <div class="list-head">
+      <h2 class="ix-label ix-label--ember">Posts</h2>
+      <span class="ix-label">{listed.length} of {total}</span>
+    </div>
+    <ul class="ix-list">
       {listed.map((entry) => (
-        <FileRow
+        <EntryRow
           slug={entry.slug}
           title={entry.post.data.title}
           date={entry.date}
           tags={entry.post.data.tags}
           no={entry.no}
-          minutes={entry.minutes}
           lang={entry.post.data.lang}
-          image={entry.post.data.image}
         />
       ))}
-      <nav class="keys" aria-label="More">
-        <a href="/archive/" data-key="a"><b>[a]</b>rchive</a>
-        <a href="/search/" data-key="/"><b>[/]</b>search</a>
-        <a href="#tags" data-key="t"><b>[t]</b>ags</a>
-        <a href="/rss.xml" data-key="r"><b>[r]</b>ss</a>
-        <a class="keys__all" href="/blog/" data-key="l">[l]ist all {total}</a>
-      </nav>
-    </section>
-  </div>
+    </ul>
+    <!-- data-key: single-key shortcuts (l, t here; a, / and r are in the bar). -->
+    <nav class="more" aria-label="More">
+      <a href="/blog/" data-key="l" aria-keyshortcuts="l">Older posts</a>
+      <a href="#tags" data-key="t" aria-keyshortcuts="t">Tags</a>
+      <a href="/rss.xml">RSS</a>
+    </nav>
+  </section>
 
-  <div class="decks" lang="en">
-    <!-- the run + the silence -->
-    <section class="deck" aria-labelledby="run-h">
-      <h2 id="run-h"><b>{currentYear} by month</b><span>{runTotal} entries</span></h2>
-      {run.map((tier, i) => (
-        <a class={`tally${i === 0 ? ' tally--now' : ''}`} href={`/archive/#y${currentYear}`}>
-          <span class="tally__l">{tier.label.toLowerCase()}</span>
-          <span class="bars" aria-hidden="true">{tallyBar(tier.entries.length, runMax, 16)}</span>
-          <span class="tally__n">{tier.entries.length}<span class="sr-only"> entries</span></span>
-        </a>
-      ))}
-      <p class="note">One bar per entry</p>
-
-      {silence && (
-        <div class="silence" role="group" aria-label={`${silence.from} to ${silence.to}: no entries`}>
-          <div class="silence__yrs">{silence.from} – {silence.to}</div>
-          <canvas class="px" data-static aria-hidden="true"></canvas>
-          <p class="silence__cap"><span><b>Longest gap</b> · {spell(silenceYears)} years</span><span>No entries</span></p>
-        </div>
-      )}
-    </section>
-
-    <!-- the tag index -->
-    <section class="deck" id="tags" aria-labelledby="tags-h">
-      <h2 id="tags-h"><b>Tags</b><span>{tags.length} total · {tagsUsedOnce} used once</span></h2>
+  <!-- the tag index -->
+  <section class="block" id="tags" lang="en">
+    <div class="list-head">
+      <h2 class="ix-label ix-label--ember">Tags</h2>
+      <span class="ix-label">{tags.length} total · {tagsUsedOnce} used once</span>
+    </div>
+    <ul class="ix-chips">
       {headTags.map(({ tag, count }) => (
-        <a class="tally" href={tagHref(tag)}>
-          <span class="tally__l">{tag}</span>
-          <span class="bars" aria-hidden="true">{tallyBar(count, maxTag, 20)}</span>
-          <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
-        </a>
+        <li><TagChip tag={tag} count={count} /></li>
       ))}
-      <a class="tally" href="/blog/">
-        <span class="tally__l">+{tagsUsedOnce}</span>
-        <span>used once</span>
-        <span class="tally__n"></span>
-      </a>
-      {legacyYears.length > 0 && <p class="note"><span class="sig">legacy</span> marks posts from {Math.min(...legacyYears)} to {Math.max(...legacyYears)}.</p>}
-    </section>
-
-    <!-- the archive teaser: the year spine -->
-    <section class="deck" aria-labelledby="arch-h">
-      <h2 id="arch-h"><b>Archive</b><span>{firstYear} – {lastYear}</span></h2>
-      {spine.map(({ year, count }) => (
-        count === 0 ? (
-          <span class="tally tally--void">
-            <span class="tally__l">{year}</span>
-            <span class="bars" aria-hidden="true">{silence && year >= silence.from && year <= silence.to ? '· · ·' : '·'}</span>
-            <span class="tally__n">0</span>
-          </span>
-        ) : (
-          <a class={`tally${year === lastYear ? ' tally--now' : ''}`} href={`/archive/#y${year}`}>
-            <span class="tally__l">{year}</span>
-            <span class="bars" aria-hidden="true">{tallyBar(count, maxYear, 20)}</span>
-            <span class="tally__n">{count}<span class="sr-only"> entries</span></span>
-          </a>
-        )
-      ))}
-      <div class="gate">
-        <span class="gate__n">{total}</span>
-        <a class="btn btn--ghost" href="/archive/">Open archive</a>
-      </div>
-    </section>
-  </div>
+      <li><a class="ix-chip" href="/blog/">+{tagsUsedOnce} <span class="chip-n">used once</span></a></li>
+    </ul>
+    {legacyYears.length > 0 && (
+      <p class="ix-note ix-small tag-note"><b>legacy</b> marks posts from {Math.min(...legacyYears)} to {Math.max(...legacyYears)}.</p>
+    )}
+  </section>
 </BaseLayout>

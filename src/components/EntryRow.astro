@@ -1,0 +1,35 @@
+---
+import { formatDateShort, postHref, roman } from '@/lib/display';
+
+/**
+ * One post, one line: the family's row (brand.css .ix-row). The post's number
+ * as a roman numeral in ember, the title with an optional description in
+ * italics under it, and the date in mono at the end. The title link covers
+ * the row. `data-tags` feeds the /blog tag filter.
+ */
+interface Props {
+  slug: string;
+  title: string;
+  date: Date;
+  tags: string[];
+  /** The post's number, oldest = 1. */
+  no: number;
+  lang?: string;
+  /** The description under the title; omitted in the compact lists. */
+  desc?: string;
+  /** Heading level of the title: one below the heading the list sits under. */
+  level?: 2 | 3;
+}
+
+const { slug, title, date, tags, no, lang, desc, level = 3 } = Astro.props;
+const foreign = lang && lang !== 'en' ? lang : undefined;
+const Title = `h${level}` as 'h2' | 'h3';
+---
+
+<li class="ix-row" data-tags={tags.join(',')}>
+  <!-- A screen reader would spell a roman numeral out as letters. -->
+  <span class="ix-num"><span aria-hidden="true">{roman(no)}</span><span class="ix-sr">Post {no}</span></span>
+  <Title class="ix-row__title"><a href={postHref(slug)} lang={foreign}>{title}</a></Title>
+  {desc && <p class="ix-row__desc" lang={foreign}>{desc}</p>}
+  <p class="ix-row__meta ix-mono"><time datetime={date.toISOString()}>{formatDateShort(date)}</time></p>
+</li>

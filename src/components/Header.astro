@@ -1,30 +1,53 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
-import { getLedger } from '@/lib/ledger';
-
-const { total, firstYear } = await getLedger();
+/**
+ * The family bar: the emblem and the arda.tr wordmark (to arda.tr), "blog"
+ * (to this site's home), then the nav at the right: the family's links
+ * (the way to the assistant in ember), the blog's own, and the scheme switch.
+ */
+import Wordmark from '@/brand/logo/wordmark.svg';
+import emblem from '@/brand/art/emblem.webp';
 
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+// rel="me" on the identity pages (arda.tr and the résumé), as in the footer.
+// `key` is a single-key shortcut (src/scripts/site.js follows a[data-key]).
 const navLinks = [
-  { href: '/', label: 'Index', current: pathname === '/' },
-  { href: '/archive/', label: 'Archive', current: pathname === '/archive' },
-  { href: '/search/', label: 'Search', current: pathname === '/search' },
-  { href: '/#tags', label: 'Tags', current: false },
-  { href: '/rss.xml', label: 'RSS', current: false },
+  { href: 'https://arda.tr', label: 'works', rel: 'me' },
+  { href: 'https://resume.arda.tr', label: 'résumé', rel: 'me' },
+  { href: 'https://ai.arda.tr', label: 'ask', accent: true },
+  { href: '/archive/', label: 'archive', key: 'a', current: pathname === '/archive' },
+  { href: '/search/', label: 'search', key: '/', current: pathname === '/search' },
+  { href: '/rss.xml', label: 'rss', key: 'r' },
 ];
 ---
 
 <!-- lang="en" on the chrome: a Turkish post sets <html lang="tr">, and the
      chrome is English wherever the post is not (uppercase follows lang). -->
-<header class="bar" lang="en">
-  <a class="bar__site" href="/" aria-label="Coze, blog.arda.tr, home"><i aria-hidden="true"></i>blog.arda.tr</a>
-  <nav aria-label="Primary">
-    {navLinks.map((link) => (
-      <a href={link.href} aria-current={link.current ? 'page' : undefined}>{link.label}</a>
-    ))}
-  </nav>
-  <span class="bar__sp"></span>
-  <span class="bar__stat">{total} entries · since {firstYear}</span>
-  <span class="bar__clock" data-clock hidden></span>
-  <ThemeToggle />
+<header class="ix-bar" lang="en">
+  <div class="ix-wrap ix-wrap--read ix-bar__in">
+    <!-- The emblem is decoration here: the wordmark beside it names the link. -->
+    <a class="ix-bar__brand" href="https://arda.tr" rel="me">
+      <img class="ix-emblem" src={emblem.src} alt="" width="40" height="40" decoding="async" />
+      <Wordmark class="ix-wordmark" />
+    </a>
+    <a class="ix-bar__site" href="/" aria-current={pathname === '/' ? 'page' : undefined}>blog</a>
+    <nav class="ix-bar__nav ix-bar__nav--end" aria-label="Primary">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          rel={link.rel}
+          data-accent={link.accent ? '' : undefined}
+          data-key={link.key}
+          aria-keyshortcuts={link.key}
+          aria-current={link.current ? 'page' : undefined}
+        >{link.label}</a>
+      ))}
+      <!-- The scheme switch names the scheme it switches to. Both labels are in
+           the markup and brand.css shows one, so it is right before any script
+           runs. src/scripts/site.js wires it. -->
+      <button type="button" class="ix-navlink ix-scheme" data-scheme-toggle>
+        <span data-when="light"><span class="ix-sr">Switch to </span>dark<span class="ix-sr"> scheme</span></span>
+        <span data-when="dark"><span class="ix-sr">Switch to </span>light<span class="ix-sr"> scheme</span></span>
+      </button>
+    </nav>
+  </div>
 </header>

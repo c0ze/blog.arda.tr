@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
 
-// The /blog/ tag filter. On phones the ~66 chips collapse behind a toggle, and
+// The /blog/ tag filter. On phones the chips (one per tag) collapse behind a toggle, and
 // a /blog/?tag= deep link must still land filtered, with the active chip selected
 // (the collapsed view keeps only that chip) and named on the toggle.
 const source = await readFile(new URL('../src/pages/blog/index.astro', import.meta.url), 'utf8');
@@ -45,7 +45,7 @@ function page(search = '', { phone = false } = {}) {
     'tag-toggle-arrow': el(),
     'tag-toggle-now': toggleNow,
   };
-  // global.css at ≤640px: a collapsed filter shows only the pressed chip, never "*"
+  // global.css at ≤640px: a collapsed filter shows only the pressed chip, never "All"
   if (phone) {
     for (const c of chips) {
       c.displayed = () => ids['tag-filters'].attrs['data-collapsed'] !== 'true'
@@ -60,13 +60,24 @@ function page(search = '', { phone = false } = {}) {
     window: { location: { href, search } },
     history: { replaceState: (_state, _title, url) => replaced.push(String(url)) },
     document: {
-      querySelectorAll: (selector) => (selector === '#tag-filters .chip' ? chips : []),
+      querySelectorAll: (selector) => (selector === '#tag-filters .ix-chip' ? chips : []),
       getElementById: (id) => ids[id] ?? null,
     },
   });
   const chip = (tag) => chips.find((c) => c.attrs['data-tag'] === tag);
   return { chip, rows, ids, replaced };
 }
+
+// The script must find the chips and the rows the page actually prints: the
+// family's .ix-chip buttons and .ix-row entries (EntryRow.astro), each row
+// carrying its tags.
+test('the script reads the chips and rows the page prints', async () => {
+  const row = await readFile(new URL('../src/components/EntryRow.astro', import.meta.url), 'utf8');
+  assert.match(row, /<li class="ix-row" data-tags=\{tags\.join\(','\)\}>/);
+  assert.match(source, /<button type="button" class="ix-chip" data-tag=\{tag\} aria-pressed="false">/);
+  assert.match(script, /querySelectorAll\('#tag-filters \.ix-chip'\)/);
+  assert.match(script, /list\.querySelectorAll\('\.ix-row'\)/);
+});
 
 test('with script, the toggle shows and the chips start collapsed', () => {
   const { ids } = page();
@@ -102,11 +113,12 @@ test('the toggle opens the chips; picking one filters, updates the URL and colla
   chip('all').click();
   assert.equal(replaced.at(-1), 'https://blog.arda.tr/blog/');
   assert.equal(ids['tag-toggle-now'].hidden, true);
+  assert.equal(ids['tag-now'].textContent, 'all', 'the "Filter by tag:" line names the chip, "All"');
 });
 
-// On a phone, "*" is hidden once the chips collapse, so the chip that was
+// On a phone, "All" is hidden once the chips collapse, so the chip that was
 // just activated vanished under the keyboard and focus fell to <body>.
-test('on a phone, picking "*" moves focus to the toggle; a shown chip keeps it', () => {
+test('on a phone, picking "All" moves focus to the toggle; a shown chip keeps it', () => {
   const { chip, ids } = page('?tag=ai', { phone: true });
   ids['tag-toggle'].click();
   chip('all').click();

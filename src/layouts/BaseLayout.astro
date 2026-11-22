@@ -2,6 +2,7 @@
 import '@/styles/global.css';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
+import { bootSnippet } from '@/brand/scheme.js';
 
 interface Props {
   title: string;
@@ -21,34 +22,40 @@ const DEFAULT_OG_IMAGE = '/images/og-image.jpg';
 const ogImage = new URL(image || DEFAULT_OG_IMAGE, Astro.site).href;
 // The default image is square (1024×1024): a large-image card would crop it.
 const twitterCard = !image || image === DEFAULT_OG_IMAGE ? 'summary' : 'summary_large_image';
-const JP_FONT = 'https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&display=swap';
+const JP_FONT = 'https://fonts.googleapis.com/css2?family=Zen+Antique&display=swap';
 const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 ---
 
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang={lang} data-astryx-theme="arda">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Bone paper unless the visitor pinned dark. The family's boot snippet
+         (src/brand/scheme.js, localStorage key "theme", fallback "light") puts
+         the scheme on <html> before first paint and rewrites an old stored
+         rendition id to light or dark. It must directly follow the meta. -->
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#0a0908" />
+    <script is:inline set:html={bootSnippet('theme', 'light')} />
+    <meta name="theme-color" content="#E8E0CE" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonicalURL} />}
     <link rel="alternate" type="application/rss+xml" title="Coze Blog" href={new URL("rss.xml", Astro.site)} />
     <link rel="sitemap" href="/sitemap.xml" />
     <link rel="me" href="https://mastodon.world/@arda" />
 
-    <!-- Fonts (One Bit Forest): Big Shoulders Display for the masthead,
-         Plex Sans / Mono / Serif for UI, meta and long-form reading, Plex
-         Sans JP for the Japanese posts (Google serves it in unicode-range
-         slices, so English pages download no CJK glyphs). Plex covers
-         Latin Extended-A, so the Turkish posts' ğ ş İ stay in-face.
-         The Plex Sans JP stylesheet is most of the CSS (its @font-face
+    <!-- Fonts (Kara Duman): Grenze Gotisch for names (page and post titles),
+         Spectral for everything else, JetBrains Mono for dates and code, Zen
+         Antique for the Japanese posts and titles (Google serves it in
+         unicode-range slices, so English pages download no CJK glyphs).
+         Grenze Gotisch and Spectral cover Latin Extended-A, so the Turkish
+         posts' ğ ş İ stay in-face.
+         The Zen Antique stylesheet is most of the CSS (its @font-face
          slices), so it has its own <link>: render-blocking only on `ja`
          pages, loaded without blocking everywhere else. -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Grenze+Gotisch:wght@700;800;900&family=JetBrains+Mono:wght@400;700&family=Spectral:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
     {lang === 'ja' ? (
       <link href={JP_FONT} rel="stylesheet" />
     ) : (
@@ -86,47 +93,15 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-
-    <!-- Rendition boot: runs before paint to avoid a flash. Migrates any
-         older id a returning visitor may still be carrying (The Weekly Page,
-         Ink & Ledger and before) onto the rendition with the same role,
-         otherwise follows the system preference (prefers-contrast → the AAA
-         renditions); Night when the system states none. Keep the id list in
-         step with src/components/ThemeToggle.astro. -->
-    <script is:inline>
-      (function () {
-        var RENDITIONS = ['night', 'night-hc', 'xerox', 'xerox-hc'];
-        var LEGACY = {
-          pulp: 'xerox', 'pulp-hc': 'xerox-hc', beta: 'night', 'beta-hc': 'night-hc',
-          dark: 'night', light: 'xerox', dracula: 'night',
-          alucard: 'xerox', paper: 'xerox-hc', blade: 'night', 'dracula-pro': 'night',
-          carbon: 'night-hc', buffy: 'night', lincoln: 'night', morbius: 'night',
-          'van-helsing': 'night'
-        };
-        var COLORS = { night: '#0a0908', 'night-hc': '#000000', xerox: '#efede6', 'xerox-hc': '#ffffff' };
-        var stored = null;
-        try { stored = localStorage.getItem('theme'); } catch (e) {}
-        if (stored && LEGACY[stored]) stored = LEGACY[stored];
-        var rendition = stored;
-        if (!rendition || RENDITIONS.indexOf(rendition) === -1) {
-          var hc = matchMedia('(prefers-contrast: more)').matches;
-          var light = !matchMedia('(prefers-color-scheme: dark)').matches &&
-            matchMedia('(prefers-color-scheme: light)').matches;
-          rendition = light ? (hc ? 'xerox-hc' : 'xerox') : (hc ? 'night-hc' : 'night');
-        }
-        document.documentElement.classList.add(rendition);
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta && COLORS[rendition]) meta.setAttribute('content', COLORS[rendition]);
-      })();
-    </script>
   </head>
   <body>
+    <a class="ix-sr ix-label skip-link" href="#content" lang="en">Skip to content</a>
     <Header />
-    <main>
+    <main id="content" class="ix-wrap ix-wrap--read">
       <slot />
     </main>
     <Footer />
-    <!-- The 1-bit engine and its wiring: dithered OG images, treeline, clock. -->
+    <!-- The scheme switch and the single-key shortcuts. -->
     <script>
       import '@/scripts/site.js';
     </script>

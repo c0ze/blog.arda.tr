@@ -1,6 +1,6 @@
 import type { CollectionEntry } from 'astro:content';
 import { getPublishedPosts } from '@/lib/posts';
-import { ledgerNo, monthKey, monthLabel, readingTimeMinutes } from '@/lib/display';
+import { ledgerNo } from '@/lib/display';
 
 type Post = CollectionEntry<'blog'>;
 
@@ -8,16 +8,9 @@ type Post = CollectionEntry<'blog'>;
 export interface Entry {
   post: Post;
   slug: string;
-  no: string;
-  minutes: number;
+  /** The post's number, oldest = 1; printed as a roman numeral. */
+  no: number;
   date: Date;
-}
-
-/** One month of the run: a horizontal tier of panels. */
-export interface Tier {
-  key: string;
-  label: string;
-  entries: Entry[];
 }
 
 /** A run of years with nothing in it. The silence is the signature moment. */
@@ -42,9 +35,6 @@ export interface Ledger {
   total: number;
   firstYear: number;
   lastYear: number;
-  latest: Date;
-  /** Newest-first months, every month that has entries. */
-  tiers: Tier[];
   /** Every year between the first and the last, zeros included. */
   years: YearBar[];
   /** Empty-year runs, longest first. `gaps[0]` is the silence. */
@@ -58,7 +48,7 @@ function slugOf(post: Post): string {
 }
 
 /**
- * The whole ledger, derived once at build time: numbering, month tiers, the
+ * The whole ledger, derived once at build time: numbering, the
  * year spine, the silence, and the tag frequencies. Every page prints from
  * this so no count is ever hard-coded.
  */
@@ -70,22 +60,8 @@ export async function getLedger(): Promise<Ledger> {
     post,
     slug: slugOf(post),
     no: ledgerNo(index, total),
-    minutes: readingTimeMinutes(post.body),
     date: post.data.date,
   }));
-
-  // Month tiers, newest first.
-  const tierMap = new Map<string, Tier>();
-  for (const entry of entries) {
-    const key = monthKey(entry.date);
-    let tier = tierMap.get(key);
-    if (!tier) {
-      tier = { key, label: monthLabel(entry.date), entries: [] };
-      tierMap.set(key, tier);
-    }
-    tier.entries.push(entry);
-  }
-  const tiers = [...tierMap.values()];
 
   // The year spine: every year in range, empty ones included.
   const counts = new Map<number, number>();
@@ -129,8 +105,6 @@ export async function getLedger(): Promise<Ledger> {
     total,
     firstYear,
     lastYear,
-    latest: entries[0]?.date ?? new Date(),
-    tiers,
     years,
     gaps,
     tags,

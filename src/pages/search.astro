@@ -2,28 +2,28 @@
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { getLedger } from '@/lib/ledger';
 
-// Full-text search over the ledger, powered by Pagefind. The index is
+// Full-text search over every post, powered by Pagefind. The index is
 // generated at build time (`pagefind --site dist`, chained in `npm run build`),
 // and the UI bundle is lazy-loaded only on this page.
 const { total } = await getLedger();
 ---
 
 <BaseLayout title="Search - Coze" description="Full-text search across every post on Coze.">
-  <header class="phead" lang="en">
+  <header class="page-head" lang="en">
     <h1>Search</h1>
-    <p class="phead__sub">Full-text search<br /><b>{total} entries</b> · post text only</p>
+    <p class="ix-lede">Full-text search.</p>
+    <p class="ix-small ix-muted">{total} posts · post text only</p>
   </header>
 
-  <div class="body search-shell" lang="en">
-    <p class="prompt">Search <b>all {total} entries</b></p>
+  <div class="search-shell" lang="en">
     <link rel="stylesheet" href="/pagefind/pagefind-ui.css" />
     <div id="search"></div>
-    <p id="search-unavailable" class="empty" hidden>
+    <p id="search-unavailable" class="ix-small ix-muted note" hidden>
       <b>Search unavailable</b>: the search index only exists in production builds. Run
       <code>npm run build</code> and preview <code>dist/</code> to test it locally.
     </p>
     <noscript>
-      <p class="empty">
+      <p class="ix-small ix-muted note">
         <b>JavaScript required</b>: search runs in the browser. The
         <a href="/archive/">archive</a> lists every entry by year.
       </p>
@@ -35,13 +35,14 @@ const { total } = await getLedger();
      /pagefind-all/pagefind.js, which queries every per-language index. In `astro dev` the /pagefind/ bundle
      doesn't exist (it is generated after `astro build`), so on load failure we
      quietly swap in the explanation above instead of a broken widget. -->
-<script is:inline>
+<script is:inline define:vars={{ total }}>
   (function () {
     var script = document.createElement('script');
     script.src = '/pagefind/pagefind-ui.js';
     script.onload = function () {
       new PagefindUI({
         element: '#search',
+        translations: { placeholder: 'Search all ' + total + ' entries' },
         // Every language index at once (en, ja, tr), ranked together; see
         // public/pagefind-all/pagefind.js.
         bundlePath: '/pagefind-all/',
@@ -57,78 +58,123 @@ const { total } = await getLedger();
   })();
 </script>
 
-<!-- Pagefind UI in the One Bit language: a terminal input line, mono meta,
-     Plex Sans titles, Plex Serif excerpts, hits marked in signal. Pagefind
-     exposes these custom properties for exactly this; they follow the rendition. -->
+<!-- Pagefind UI on the theme's tokens: the family's input (surface colour, a
+     1px rule, 2px corners), messages as labels, a hairline between results,
+     result titles as ember links. Pagefind exposes these custom properties
+     for exactly this; they follow the scheme. -->
 <style is:global>
+  .note b {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
   #search {
-    --pagefind-ui-scale: 0.9;
-    --pagefind-ui-primary: var(--signal);
-    --pagefind-ui-text: var(--fg);
-    --pagefind-ui-background: var(--bg);
-    --pagefind-ui-border: var(--rule);
-    --pagefind-ui-tag: var(--surface);
+    --pagefind-ui-scale: 1;
+    --pagefind-ui-primary: var(--color-text-accent);
+    --pagefind-ui-text: var(--color-text-primary);
+    --pagefind-ui-background: var(--color-background-surface);
+    --pagefind-ui-border: var(--color-border-emphasized);
+    --pagefind-ui-tag: var(--color-background-surface);
     --pagefind-ui-border-width: 1px;
-    --pagefind-ui-border-radius: 0;
-    --pagefind-ui-image-border-radius: 0;
-    --pagefind-ui-font: var(--sans);
+    --pagefind-ui-border-radius: 2px;
+    --pagefind-ui-image-border-radius: 2px;
+    --pagefind-ui-font: var(--font-family-body);
   }
   #search .pagefind-ui__search-input {
-    font: 500 18px/1 var(--mono);
-    color: var(--fg);
-    background: var(--bg);
-    border: 1px solid var(--rule);
-    border-radius: 0;
+    font-family: var(--font-family-body);
+    font-size: var(--text-body-size);
+    font-weight: 400;
+    color: var(--color-text-primary);
+    background: var(--color-background-surface);
+    border: 1px solid var(--color-border-emphasized);
+    border-radius: 2px;
   }
-  #search .pagefind-ui__search-input:focus {
-    border-color: var(--signal);
-    outline: 2px solid var(--signal);
-    outline-offset: 2px;
+  #search .pagefind-ui__search-input:focus-visible {
+    outline: var(--focus-outline-width) solid var(--focus-outline-color);
+    outline-offset: var(--focus-outline-offset);
   }
-  #search .pagefind-ui__search-input::placeholder { color: var(--fg-2); opacity: 1; }
-  #search .pagefind-ui__form::before { background-color: var(--signal); opacity: 1; }
+  #search .pagefind-ui__search-input::placeholder {
+    color: var(--color-text-secondary);
+    opacity: 1;
+  }
+  #search .pagefind-ui__form::before {
+    background-color: var(--color-text-secondary);
+    opacity: 1;
+  }
   #search .pagefind-ui__search-clear {
-    font: 12px/1 var(--mono);
+    font-family: var(--font-family-body);
+    font-size: var(--text-supporting-size);
+    color: var(--ix-link);
     background: transparent;
-    color: var(--fg-2);
-    border-radius: 0;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
   }
-  #search .pagefind-ui__search-clear:hover { color: var(--signal); }
+  #search .pagefind-ui__search-clear:hover {
+    color: var(--color-text-primary);
+  }
+  /* The count of results: a label, with the rule that opens the list under it. */
   #search .pagefind-ui__message {
-    font: 12px/1.4 var(--mono);
-    letter-spacing: 0.06em;
+    font-family: var(--font-family-body);
+    font-size: var(--text-label-size);
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--fg-2);
-    padding-bottom: 10px;
-    border-bottom: 1px solid var(--rule);
+    color: var(--color-text-secondary);
+    height: auto;
+    padding-block: var(--spacing-6) var(--spacing-3);
+    border-block-end: var(--ix-rule);
   }
   #search .pagefind-ui__result {
-    border-top: 0;
-    border-bottom: 1px solid var(--rule-2);
-    padding: 16px 0;
+    border-block-start: 0;
+    border-block-end: var(--ix-hairline);
+    padding-block: var(--spacing-4);
   }
-  #search .pagefind-ui__result-title { font-family: var(--sans); font-weight: 500; }
-  #search .pagefind-ui__result-link { color: var(--fg); text-decoration: none; }
-  #search .pagefind-ui__result-link:hover { color: var(--signal); }
-  #search .pagefind-ui__result-excerpt { font-family: var(--serif); color: var(--fg-soft); }
-  #search .pagefind-ui__result-nested { border-left: 1px solid var(--rule); padding-left: 14px; }
+  #search .pagefind-ui__result-title {
+    font-family: var(--font-family-body);
+    font-size: var(--text-body-size);
+    line-height: 1.3;
+    font-weight: 600;
+  }
+  #search .pagefind-ui__result-link {
+    color: var(--ix-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.18em;
+  }
+  #search .pagefind-ui__result-link:hover {
+    color: var(--color-text-primary);
+  }
+  #search .pagefind-ui__result-excerpt {
+    font-family: var(--font-family-body);
+    font-size: var(--text-supporting-size);
+    line-height: var(--text-supporting-leading);
+    color: var(--color-text-primary);
+  }
+  #search .pagefind-ui__result-nested {
+    border-inline-start: var(--ix-hairline);
+    padding-inline-start: var(--spacing-4);
+  }
+  /* A hit: a tint of ember under the text, which keeps its own colour. */
   #search mark {
-    background: none;
-    color: var(--signal);
-    border-radius: 0;
+    color: inherit;
+    background: color-mix(in oklab, var(--ix-ember) 30%, transparent);
+    border-radius: 2px;
     box-shadow: none;
-    border-bottom: 1px solid var(--signal);
   }
   #search .pagefind-ui__button {
-    font: 13px/1 var(--mono);
-    color: var(--on-signal);
-    background: var(--signal);
-    border: 0;
-    border-radius: 0;
+    font-family: var(--font-family-body);
+    font-size: var(--text-supporting-size);
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: 1px solid var(--color-text-primary);
+    border-radius: 2px;
     height: auto;
-    padding: 10px 14px;
+    min-height: var(--ix-control);
+    padding: 0 var(--spacing-6);
   }
-  #search .pagefind-ui__button:hover { filter: brightness(1.12); }
-  #search .pagefind-ui__filter-name,
-  #search .pagefind-ui__filter-label { font-family: var(--mono); }
+  #search .pagefind-ui__button:hover {
+    background: var(--color-background-surface);
+  }
 </style>

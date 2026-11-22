@@ -1,26 +1,19 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import OgCanvas from '@/components/OgCanvas.astro';
 ---
 
 <BaseLayout title="Not Found - Coze" noindex>
-  <header class="phead" lang="en">
-    <h1>4<span>0</span>4</h1>
-    <p class="phead__sub">Missing entry<br /><b>Not in this index</b></p>
-  </header>
-
-  <div class="body notfound" lang="en">
-    <div>
-      <p class="prompt">HTTP 404<br /><b>Page not found</b></p>
-      <p class="lede">
-        No entry exists at this address. It may have moved, or it never existed.
-      </p>
-      <nav class="keys" aria-label="Where to next">
-        <a href="/" data-key="i"><b>[i]</b>ndex</a>
-        <a href="/archive/" data-key="a"><b>[a]</b>rchive</a>
-        <a href="/search/" data-key="/"><b>[/]</b>search</a>
-      </nav>
-    </div>
-    <OgCanvas seed="404" class="notfound__img" />
+  <div class="page-head" lang="en">
+    <p class="ix-mono">404 · Missing entry</p>
+    <h1>Not in this index</h1>
+    <p class="ix-lede">
+      No entry exists at this address. It may have moved, or it never existed.
+    </p>
+    <!-- data-key: single-key shortcuts (i here; a and / are in the bar). -->
+    <nav class="more" aria-label="Where to next">
+      <a href="/" data-key="i" aria-keyshortcuts="i">Blog</a>
+      <a href="/archive/">Archive</a>
+      <a href="/search/">Search</a>
+    </nav>
   </div>
 </BaseLayout>
