@@ -96,8 +96,8 @@ const guestAuthor = post.data.author && post.data.author !== OWNER ? post.data.a
     <!-- The one piece of artwork: a wisp on a soot plate in the right margin,
          wide screens only (global.css). Decoration: empty alt, lazy, so a
          phone never fetches it. -->
-    <div class="ix-plate post-wisp" data-pagefind-ignore>
-      <img class="ix-art ix-art--drift" alt="" src={wisp.src} width={wisp.width} height={wisp.height} loading="lazy" decoding="async" />
+    <div class="ix-plate ix-smoke post-wisp" data-pagefind-ignore>
+      <img class="ix-art ix-art--drift" data-smoke-video="/brand/wisp-smoke.mp4" alt="" src={wisp.src} width={wisp.width} height={wisp.height} loading="lazy" decoding="async" />
     </div>
 
     <!-- The reading column. -->
@@ -163,4 +163,10 @@ const guestAuthor = post.data.author && post.data.author !== OWNER ? post.data.a
     description,
     image: ogImageAbsolute,
   }))} />
+
+  <!-- The wisp moves: the family's smoke.js plays its film over the image. -->
+  <script>
+    import { startSmoke } from '@/brand/smoke.js';
+    startSmoke();
+  </script>
 </BaseLayout>

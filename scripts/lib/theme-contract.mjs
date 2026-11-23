@@ -8,7 +8,7 @@
  */
 
 /** The brand files this site carries, in src/brand/. (arda.js is for the React sites.) */
-export const BRAND_FILES = ['arda.css', 'brand.css', 'scheme.js'];
+export const BRAND_FILES = ['arda.css', 'brand.css', 'scheme.js', 'smoke.js'];
 
 export const CONTRACT_VERSION = 4;
 

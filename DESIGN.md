@@ -141,8 +141,9 @@ overrides of an `ix-` class where the blog's content needs it):
 ## Motion and script
 
 Little moves, and nothing under `prefers-reduced-motion`: page and post titles
-form out of smoke on load (`.ix-emerge`), the wisp on a post sways
-(`.ix-art--drift`), and the home page's carousel scrolls smoothly. The carousel
+form out of smoke on load (`.ix-emerge`), the wisp on a post sways and curls
+(`.ix-art--drift`, and its film `public/brand/wisp-smoke.mp4`, played over the
+image by the family's `smoke.js`), and the home page's carousel scrolls smoothly. The carousel
 ("Recent", `RecentPosts.astro`) shows the five newest posts, one a view: the
 post's card image on a plate, its date, title and snippet. It is a native
 scroller that snaps; `src/scripts/carousel.js` adds the Previous and Next

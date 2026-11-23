@@ -60,7 +60,7 @@ test('the artwork sits on soot: the emblem in the bar, one wisp on a plate in a 
   const brand = await read('../src/brand/brand.css');
   assert.match(header, /<img class="ix-emblem" src=\{emblem\.src\} alt=""/);
   assert.match(brand, /\.ix-emblem \{[^}]*background: var\(--ix-soot\);/);
-  assert.match(post, /<div class="ix-plate post-wisp"[^>]*>\s*<img class="ix-art ix-art--drift" alt="" src=\{wisp\.src\}/);
+  assert.match(post, /<div class="ix-plate ix-smoke post-wisp"[^>]*>\s*<img class="ix-art ix-art--drift" data-smoke-video="\/brand\/wisp-smoke\.mp4" alt="" src=\{wisp\.src\}/);
   assert.match(brand, /\.ix-plate \{[^}]*background: var\(--ix-soot\);/);
   assert.equal(post.match(/class="ix-art[ "]/g).length, 1);
   // the plate is hidden until the right margin can hold it, and in print
