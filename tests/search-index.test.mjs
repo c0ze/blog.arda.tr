@@ -35,9 +35,9 @@ test('the post meta line is kept out of the search index', async () => {
 // other posts' words, not this one's; the wisp is decoration.
 test('the title is indexed alone; the post footer and the artwork are not indexed', async () => {
   const page = await readFile(new URL('../src/pages/blog/[slug].astro', import.meta.url), 'utf8');
-  assert.match(page, /<h1 class=\{[^}]*\}>\{post\.data\.title\}<\/h1>/);
+  assert.match(page, /<h1 class:list=\{[^>]*\}>\{post\.data\.title\}<\/h1>/);
   assert.match(page, /<footer class="post-foot"[^>]*\sdata-pagefind-ignore[\s>]/);
-  assert.match(page, /<div class="ix-plate post-wisp" data-pagefind-ignore>\s*<img class="ix-art" alt=""/);
+  assert.match(page, /<div class="ix-plate post-wisp" data-pagefind-ignore>\s*<img class="ix-art ix-art--drift" alt=""/);
 });
 
 function fakeDoc(lang = 'en') {

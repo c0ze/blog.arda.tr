@@ -140,11 +140,19 @@ overrides of an `ix-` class where the blog's content needs it):
 
 ## Motion and script
 
-Nothing moves: no transitions, no animation, so `prefers-reduced-motion` has
-nothing to turn off (the wisp does not drift here). One bundled module
-(`src/scripts/site.js` with the family's `scheme.js`) runs the scheme switch
-and the single-key shortcuts (`a` archive, `/` search, `r` rss in the bar; `l`
-all posts and `t` tags on the home page; `i` on the 404). Everything else is
+Little moves, and nothing under `prefers-reduced-motion`: page and post titles
+form out of smoke on load (`.ix-emerge`), the wisp on a post sways
+(`.ix-art--drift`), and the home page's carousel scrolls smoothly. The carousel
+("Recent", `RecentPosts.astro`) shows the five newest posts, one a view: the
+post's card image on a plate, its date, title and snippet. It is a native
+scroller that snaps; `src/scripts/carousel.js` adds the Previous and Next
+buttons' behaviour, one marker per slide, and the announcement. Navigation is
+finite: at an end the button that leads nowhere is disabled.
+
+Two bundled modules: `src/scripts/site.js` (with the family's `scheme.js`) runs
+the scheme switch and the single-key shortcuts (`a` archive, `/` search, `r`
+rss in the bar; `l` all posts and `t` tags on the home page; `i` on the 404),
+and `carousel.js` on the home page. Everything else is
 `is:inline`: the scheme boot snippet, the tag filter, the Pagefind loader.
 
 ## Accessibility

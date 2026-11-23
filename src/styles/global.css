@@ -222,6 +222,149 @@ h1.title-plain {
   padding-block: var(--spacing-2);
 }
 
+/* ------------------------------------------------------- the recent posts */
+
+/* A carousel of the newest posts: a native scroller that snaps, one slide a
+   view. The script only adds the buttons' behaviour, the markers and the
+   announcement (src/scripts/carousel.js). */
+.recent .list-head {
+  align-items: center;
+}
+.recent__controls {
+  display: flex;
+  gap: var(--spacing-2);
+}
+.recent__step {
+  min-width: var(--ix-control);
+  padding-inline: 0;
+  justify-content: center;
+  touch-action: manipulation;
+}
+/* At an end the button that leads nowhere: the hairline and the quiet colour. */
+.recent__step:disabled {
+  color: var(--color-text-secondary);
+  border-color: var(--ix-hairline-color, var(--color-border));
+  cursor: default;
+}
+.recent__track {
+  display: flex;
+  gap: var(--spacing-6);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  touch-action: manipulation;
+  scrollbar-width: none;
+  border-block: var(--ix-rule);
+  padding-block: var(--spacing-5);
+}
+.recent__track:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .recent__track {
+    scroll-behavior: smooth;
+  }
+}
+.recent__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+  gap: var(--spacing-5) var(--spacing-6);
+  align-items: center;
+}
+.recent__image {
+  display: block;
+  overflow: clip;
+}
+.recent__image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+}
+.recent__words > * + * {
+  margin-block-start: var(--spacing-2);
+}
+.recent__date {
+  color: var(--color-text-secondary);
+  font-size: var(--text-supporting-size);
+}
+.recent__title {
+  font-family: var(--font-family-body);
+  font-size: var(--text-heading-3-size);
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.recent__title a {
+  color: var(--color-text-primary);
+  text-decoration: none;
+}
+.recent__title a:hover {
+  color: var(--ix-link);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.18em;
+}
+.recent__snippet {
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  overflow: hidden;
+}
+/* The markers: a 24px target around a 10px mark; the current one is wider
+   as well as darker, so it does not depend on colour alone. */
+.recent__markers {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-1);
+  margin-block-start: var(--spacing-3);
+}
+.recent__markers button {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  touch-action: manipulation;
+}
+.recent__markers button::before {
+  content: "";
+  width: 0.625rem;
+  height: 0.25rem;
+  border-radius: 2px;
+  background: var(--color-text-secondary);
+  transition: width 160ms ease;
+}
+.recent__markers button[aria-current="true"]::before {
+  width: 1.5rem;
+  background: var(--color-text-primary);
+}
+.recent__markers button:focus-visible {
+  outline: 2px solid var(--focus-outline-color);
+  outline-offset: 1px;
+}
+@media (max-width: 45rem) {
+  .recent__slide {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+}
+@media print {
+  .recent__controls,
+  .recent__markers {
+    display: none;
+  }
+}
+
 /* ---------------------------------------------------------------- the row */
 
 .ix-row {

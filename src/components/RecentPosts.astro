@@ -1,0 +1,63 @@
+---
+import { formatDateShort, postHref, recentSlides, type SlideSource } from '@/lib/display';
+
+/**
+ * The newest posts as a carousel: the post's card image, its title, its
+ * snippet and its date. One slide a view; the track scrolls natively and
+ * snaps, so it works by touch, wheel and keyboard, and without script. The
+ * script (src/scripts/carousel.js) wires the Previous and Next buttons, builds
+ * one marker per slide, and announces the slide the track settles on.
+ */
+interface Props {
+  entries: SlideSource[];
+}
+
+const slides = recentSlides(Astro.props.entries);
+---
+
+{slides.length > 0 && (
+  <section class="recent" aria-roledescription="carousel" aria-labelledby="recent-heading" data-carousel>
+    <div class="list-head">
+      <h2 class="ix-label ix-label--ember" id="recent-heading">Recent</h2>
+      <div class="recent__controls">
+        <button type="button" class="ix-btn recent__step" data-direction="previous" aria-label="Previous post">←</button>
+        <button type="button" class="ix-btn recent__step" data-direction="next" aria-label="Next post">→</button>
+      </div>
+    </div>
+
+    <div class="recent__track" tabindex="0" role="group" aria-label="Recent posts">
+      {slides.map((slide, i) => (
+        <article
+          class="recent__slide"
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} of ${slides.length}`}
+          data-marker-name={`Go to post ${i + 1}: ${slide.title}`}
+        >
+          <a class="recent__image ix-plate" href={postHref(slide.slug)} tabindex="-1" aria-hidden="true">
+            <img
+              src={slide.image}
+              alt=""
+              width="1200"
+              height="630"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              decoding="async"
+            />
+          </a>
+          <div class="recent__words">
+            <p class="ix-mono recent__date"><time datetime={slide.date.toISOString()}>{formatDateShort(slide.date)}</time></p>
+            <h3 class="recent__title"><a href={postHref(slide.slug)} lang={slide.lang}>{slide.title}</a></h3>
+            {slide.snippet && <p class="recent__snippet" lang={slide.lang}>{slide.snippet}</p>}
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <p class="ix-sr" role="status" aria-live="polite"></p>
+    <nav class="recent__markers" aria-label="Choose a post"></nav>
+  </section>
+)}
+
+<script>
+  import '@/scripts/carousel.js';
+</script>

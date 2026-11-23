@@ -179,3 +179,38 @@ export function summary(data: { excerpt?: string; description?: string }): strin
 export function formatDateShort(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
+
+/** What the home page's carousel needs of a post. */
+export interface SlideSource {
+  slug: string;
+  date: Date;
+  post: { data: { title: string; excerpt?: string; description?: string; image?: string; lang?: string } };
+}
+
+export interface Slide {
+  slug: string;
+  title: string;
+  date: Date;
+  /** The post's card image, or the blog's own when it has none. */
+  image: string;
+  /** The excerpt (else the meta description); empty when the post has neither. */
+  snippet: string;
+  /** Set only when the post is not in English. */
+  lang?: string;
+}
+
+export const DEFAULT_CARD_IMAGE = '/images/og-image.jpg';
+export const RECENT_MAX = 5;
+
+/** The newest posts as carousel slides: at most five, newest first (the
+ * ledger's order), each with a card image and a snippet. */
+export function recentSlides(entries: SlideSource[], max = RECENT_MAX): Slide[] {
+  return entries.slice(0, max).map(({ slug, date, post }) => ({
+    slug,
+    date,
+    title: post.data.title,
+    image: post.data.image || DEFAULT_CARD_IMAGE,
+    snippet: summary(post.data),
+    lang: post.data.lang && post.data.lang !== 'en' ? post.data.lang : undefined,
+  }));
+}

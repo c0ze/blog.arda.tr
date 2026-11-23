@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import EntryRow from '@/components/EntryRow.astro';
+import RecentPosts from '@/components/RecentPosts.astro';
 import TagChip from '@/components/TagChip.astro';
 import { getLedger } from '@/lib/ledger';
 import { blogLd, jsonLd } from '@/lib/display';
@@ -24,11 +25,13 @@ const legacyYears = entries.filter((e) => e.post.data.tags.includes('legacy')).m
   <script type="application/ld+json" is:inline set:html={jsonLd(blogLd())} />
 
   <header class="page-head" lang="en">
-    <h1>Blog</h1>
+    <h1 class="ix-emerge">Blog</h1>
     <p class="ix-lede">Notes on software and tools.</p>
   </header>
 
-  <section lang="en">
+  <RecentPosts entries={entries} />
+
+  <section class="block" lang="en">
     <div class="list-head">
       <h2 class="ix-label ix-label--ember">Posts</h2>
       <span class="ix-label">{listed.length} of {total}</span>

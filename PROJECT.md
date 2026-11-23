@@ -46,7 +46,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   ├── ledger.ts           # getLedger(): numbering, years, gaps, tag counts
 │   │   └── display.ts          # Post number and its roman numeral, the title threshold, date, reading time, summary, hrefs, JSON-LD helpers
 │   ├── pages/
-│   │   ├── index.astro         # Home: "Blog", the ten newest posts, the tag index
+│   │   ├── index.astro         # Home: "Blog", the recent-posts carousel, the ten newest posts, the tag index
 │   │   ├── blog/
 │   │   │   ├── index.astro     # Every post, with the tag filter
 │   │   │   └── [slug].astro    # Individual blog post (+ tags, related posts, prev/next)
@@ -56,7 +56,8 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 │   │   └── 404.astro           # Not found page
 │   ├── content.config.ts       # Content collection schema
 │   ├── scripts/
-│   │   └── site.js             # The only bundled script: the scheme switch and the single-key shortcuts
+│   │   ├── site.js             # The scheme switch and the single-key shortcuts (every page)
+│   │   └── carousel.js         # The home page's carousel: buttons, markers, the announcement
 │   └── styles/
 │       └── global.css          # Layer order, the brand imports, and everything the blog adds
 ├── public/
@@ -193,7 +194,7 @@ import Component from '@/components/Component.astro'
 ## Key Differences from React Version
 
 1. **Static HTML** - Every page is pre-rendered, no client-side routing
-2. **No hydration** - Components render to HTML only; one small bundled module (`src/scripts/site.js` + the family's `scheme.js`) runs the scheme switch and the shortcuts, everything else is `is:inline`
+2. **No hydration** - Components render to HTML only; two small bundled modules run the scheme switch and the shortcuts (`src/scripts/site.js` + the family's `scheme.js`) and the home page's carousel (`src/scripts/carousel.js`), everything else is `is:inline`
 3. **Content Collections** - Type-safe markdown with Zod schema validation
 4. **Per-page OG images** - Social previews work correctly now
 5. **Faster builds** - ~3 seconds for all pages

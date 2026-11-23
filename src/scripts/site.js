@@ -1,5 +1,5 @@
 /*
- * The blog's only bundled script.
+ * The script every page of the blog loads (the home page adds carousel.js).
  *
  *   [data-scheme-toggle]  the scheme switch in the bar. src/brand/scheme.js (the
  *                         family's, a verbatim copy) pins a scheme under the
