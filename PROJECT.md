@@ -89,6 +89,24 @@ worker clobber each other's language), searches all of them and returns one
 list ranked by score. Don't use `--force-language`: one forced index loses the
 Japanese segmentation, so words inside unspaced sentences (意味) go missing.
 
+## Deploy
+
+Deploying is manual. Pushing to GitHub does **not** deploy (the workflow is only a build
+check), and nothing deploys on its own. To publish:
+
+1. Commit the change. The script builds the committed `HEAD` in a temporary clone (`npm ci`, `npm test`, `npm run check`, `npm run build`), so uncommitted work is not deployed.
+2. Run `npm run deploy` on a machine with the owner's wrangler login (`npx wrangler whoami`
+   shows the personal account). Never create or store a Cloudflare API token for this.
+3. Check the live site: `curl -sI https://blog.arda.tr/` should return 200.
+
+**Deploy before you push a new post.** The announce job (Mastodon, Bluesky) runs on push, after the build check, and does not wait for the site: a post pushed before it is deployed gets announced while it is not live yet.
+
+`worker/ranges.js` serves byte ranges for `*.mp4` and `*.webm` (static assets ignore `Range`). Keep media paths listed in `assets.run_worker_first`.
+
+The Worker is `blog-arda-tr` (personal Cloudflare account), custom domain `blog.arda.tr`, both in
+[wrangler.jsonc](wrangler.jsonc). README "Deployment" has the details. Until 2026-11-25
+this was GitHub Pages, which could not renew its certificate behind the Cloudflare proxy.
+
 ## Blog Posts
 
 ### File Naming
