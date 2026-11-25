@@ -1,21 +1,25 @@
-name: Deploy to GitHub Pages
+name: Build check and announce
+
+# The site is deployed by hand to a Cloudflare Worker (tools/deploy_cloudflare.sh),
+# before the push. This checks that it still tests and builds, then announces
+# the pushed posts, which are live by then.
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
     inputs:
-      # Recovery for a post whose first push failed its build or deploy (the
+      # Recovery for a post whose first push failed its build or announce (the
       # push that fixed it does not announce it): the commit before the post
-      # was added. Empty: the manual run only builds and deploys.
+      # was added. Empty: the manual run only builds.
       announce_since:
-        description: "Announce posts added since this commit SHA (empty: deploy only)"
+        description: "Announce posts added since this commit SHA (empty: build only)"
         required: false
         type: string
         default: ""
 
-# Read-only by default: build and announce (which runs `npm ci` and then
-# handles the social secrets) get no write scopes. Only deploy can publish.
+# Read-only: build and announce (which runs `npm ci` and then handles the
+# social secrets) get no write scopes.
 permissions:
   contents: read
 
@@ -24,7 +28,7 @@ permissions:
 # cancelled push would never be announced. `queue: max` keeps up to 100 runs
 # pending (the default keeps one and cancels it when another arrives).
 concurrency:
-  group: pages
+  group: announce
   cancel-in-progress: false
   queue: max
 
@@ -55,30 +59,11 @@ jobs:
       - name: Build Astro site
         run: npm run build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
-
-  # Announces after deploy so the new post is actually live when Mastodon and
-  # Bluesky crawl the link for its preview card. Announcing from the build job
-  # raced the deploy, and an announce failure used to fail the deploy itself.
+  # The post has to be live when Mastodon and Bluesky crawl the link for its
+  # preview card, so deploy (tools/deploy_cloudflare.sh) before pushing. Runs
+  # after the build check, so a broken build announces nothing.
   announce:
-    needs: deploy
+    needs: build
     runs-on: ubuntu-latest
     # A push announces its own before..after; a manual run on main only when
     # announce_since is set (scripts/lib/announce.ts announceRange checks it).

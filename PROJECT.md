@@ -15,7 +15,7 @@ Personal tech blog at **blog.arda.tr** covering AI/LLM tooling, Go/DevOps, home 
 - **Content**: Markdown files via Astro Content Collections
 - **Design**: Kara Duman, the arda.tr family system (see [DESIGN.md](./DESIGN.md) and `../DESIGN-SYSTEM.md`)
 - **Theming**: light (bone paper) unless the visitor pins dark, with a two-state switch (see Theming below)
-- **Deployment**: GitHub Pages
+- **Deployment**: Cloudflare Worker (static assets), by hand: `npm run deploy`
 
 ## Project Structure
 
@@ -111,8 +111,8 @@ draft: true                   # Optional: hide from production builds (default f
 ```
 
 ### Announcements
-A push to `main` announces the posts it added or un-drafted (deploy.yml `announce` job).
-When a post's first push failed its build or deploy, the fix push does not announce it:
+A push to `main` announces the posts it added or un-drafted (build.yml `announce` job),
+so deploy (`npm run deploy`) before pushing. When a post's first push failed its build or announce, the fix push does not announce it:
 run the workflow manually with `announce_since` set to the commit right before the missing
 post was added. The duplicate check only sees the accounts' recent posts (40 on Mastodon,
 100 on Bluesky), so a manual run that selects more than 3 posts fails and posts nothing.

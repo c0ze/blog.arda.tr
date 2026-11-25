@@ -40,7 +40,7 @@ generative black metal.
 
 ## Operating Context
 
-- Astro 5 static site on GitHub Pages, `blog.arda.tr`.
+- Astro 5 static site on a Cloudflare Worker (static assets), `blog.arda.tr`.
 - Sibling to `arda.tr` (index), `resume.arda.tr` (dossier), `ai.arda.tr`.
 - Every push to `main` auto-announces new posts to **Mastodon and Bluesky**
   via `post-mastodon` / `post-bluesky` in a separate `announce` job that runs

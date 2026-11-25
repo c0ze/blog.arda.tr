@@ -41,40 +41,48 @@ index only exists after a build, so `/search` shows a quiet fallback note under
 
 ## Deployment
 
-### GitHub Pages
+Hosted on a Cloudflare Worker with static assets (`blog-arda-tr`, personal account),
+deployed **by hand**, before you push:
 
-This repo already ships with [`.github/workflows/deploy.yml`](./.github/workflows/deploy.yml).
-Push to `main` or trigger the workflow manually and GitHub Pages will build and publish `dist/`.
+```bash
+npm run deploy   # tools/deploy_cloudflare.sh
+```
 
-The workflow has three jobs:
+It clones the **committed** `HEAD` (commit first) into a temporary directory, runs
+`npm ci`, `npm test`, `npm run check` and `npm run build` there, and uploads `dist/`
+with `wrangler deploy`, using your local wrangler login ([`wrangler.jsonc`](wrangler.jsonc)
+holds the custom domain).
 
-- **build**: `npm ci`, `npm test`, `npm run check`, `npm run build`, then
-  uploads `dist/` as the Pages artifact (read-only token);
-- **deploy**: publishes the artifact to GitHub Pages (the only job with
-  `pages: write` / `id-token: write`);
-- **announce** (after deploy so the post is live): on a push, runs
-  `npm run post-mastodon` and `npm run post-bluesky` for posts the push added
-  or flipped from draft to published; on a manual run, only when
-  `announce_since` is set (below).
+`worker/ranges.js` is the only script: static assets ignore `Range`, so the media paths
+(`*.mp4`, `*.webm`) run it first to get byte ranges, which Safari needs to play video and the
+browser needs to seek.
 
-When a post's first push failed its build or deploy, the push that fixes it
+Until 2026-11-25 this was GitHub Pages; GitHub could not renew its certificates behind
+the Cloudflare proxy, and its sites broke (526).
+
+### Build check and announcements
+
+[`.github/workflows/build.yml`](./.github/workflows/build.yml) runs on every push to
+`main` and has two jobs:
+
+- **build**: `npm ci`, `npm test`, `npm run check`, `npm run build` (read-only token);
+- **announce** (after build): on a push, runs `npm run post-mastodon` and
+  `npm run post-bluesky` for posts the push added or flipped from draft to
+  published; on a manual run, only when `announce_since` is set (below). The
+  post has to be live when Mastodon and Bluesky crawl the link for its preview
+  card, so deploy before you push.
+
+When a post's first push failed its build or announce, the push that fixes it
 does not announce it. Run the workflow manually on `main` with `announce_since`
 set to the commit right before the missing post was added. The duplicate check
 only sees the accounts' recent posts (40 on Mastodon, 100 on Bluesky), so an
 older commit would announce old posts again; a manual run that selects more
 than 3 posts fails and posts nothing.
 
-Runs queue in the `pages` concurrency group (`queue: max`, up to 100 waiting)
+Runs queue in the `announce` concurrency group (`queue: max`, up to 100 waiting)
 instead of cancelling each other, so a quick series of pushes doesn't lose an
 announcement. actionlint 1.7.12 doesn't know the `queue` key yet and flags it;
 GitHub documents it.
-
-### Manual Deploy
-
-```bash
-npm run build
-# Publish dist/ to GitHub Pages or another plain static host
-```
 
 ## Creating New Posts
 

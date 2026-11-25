@@ -12,7 +12,8 @@
     "post": "npx tsx scripts/new-post.ts",
     "new-post": "npx tsx scripts/new-post.ts",
     "post-mastodon": "npx tsx scripts/post-to-mastodon.ts",
-    "post-bluesky": "npx tsx scripts/post-to-bluesky.ts"
+    "post-bluesky": "npx tsx scripts/post-to-bluesky.ts",
+    "deploy": "tools/deploy_cloudflare.sh"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.15",

@@ -24,3 +24,6 @@ pnpm-debug.log*
 
 # editor / AI tooling
 .claude/
+
+# wrangler state (local deploys)
+.wrangler/
