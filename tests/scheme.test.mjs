@@ -23,9 +23,11 @@ const header = await readFile(new URL('../src/components/Header.astro', import.m
 // the paper's: bone.
 test('the layout inlines the boot snippet right after the color-scheme meta', () => {
   assert.match(layout, /<html[^>]*\sdata-astryx-theme="arda"/, 'the theme scope is on <html>');
+  // Without script the markup itself says light, or a dark system would get the dark page.
+  assert.match(layout, /<html[^>]*\sdata-theme="light"/, 'light without script');
   assert.match(
     layout,
-    /<meta name="color-scheme" content="light dark" \/>\s*<script is:inline set:html=\{bootSnippet\('theme', 'light'\)\} \/>/,
+    /<meta name="color-scheme" content="light" \/>\s*<script is:inline set:html=\{bootSnippet\('theme', 'light'\)\} \/>/,
   );
   assert.match(layout, /<meta name="theme-color" content="#E8E0CE" \/>/);
 });

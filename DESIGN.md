@@ -83,7 +83,7 @@ and titles (its stylesheet blocks rendering only on `lang="ja"` pages).
 |---|---|
 | Page title, post title | the theme's Heading 1: Grenze Gotisch 800, 64px, scaled down with the window to 44px |
 | A long post title, or a Japanese one | Spectral 600 at the Heading 2 size (`h1.title-plain`) |
-| Headings inside a post | h2 Grenze Gotisch 700; h3 and below Spectral 600 |
+| Headings inside a post | Spectral 600: h2 at 28 to 32px, h3 and below at H3 (brand.css `.ix-prose`; blackletter names things, and a subheading is a sentence) |
 | Body | Spectral 21px / 1.7 in a post (`.ix-prose`), 20px / 1.6 elsewhere |
 | Labels (Posts, a year, Related posts) | `.ix-label`: Spectral 600, capitals, tracked |
 | Numerals | `.ix-num`: Spectral 600, ember (blackletter "IV" reads as "IU") |

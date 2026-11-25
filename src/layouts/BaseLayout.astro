@@ -27,7 +27,7 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
 ---
 
 <!DOCTYPE html>
-<html lang={lang} data-astryx-theme="arda">
+<html lang={lang} data-astryx-theme="arda" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -35,7 +35,7 @@ const ogLocale = lang === 'ja' ? 'ja_JP' : lang === 'tr' ? 'tr_TR' : 'en_US';
          (src/brand/scheme.js, localStorage key "theme", fallback "light") puts
          the scheme on <html> before first paint and rewrites an old stored
          rendition id to light or dark. It must directly follow the meta. -->
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="light" />
     <script is:inline set:html={bootSnippet('theme', 'light')} />
     <meta name="theme-color" content="#E8E0CE" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

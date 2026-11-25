@@ -30,7 +30,7 @@ test('the copied theme is scoped to the attribute the layout sets', async () => 
   const theme = await readFile(new URL('../src/brand/arda.css', import.meta.url), 'utf8');
   const layout = await readFile(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
   assert.match(theme, /@scope \(\[data-astryx-theme="arda"\]\)/);
-  assert.match(layout, /<html lang=\{lang\} data-astryx-theme="arda">/);
+  assert.match(layout, /<html lang=\{lang\} data-astryx-theme="arda"[\s>]/);
 });
 
 // The family's faces, in the weights the theme asks for. A weight that is not
